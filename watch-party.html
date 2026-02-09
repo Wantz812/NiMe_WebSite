@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <title>🎬 CineParty - Ultimate Watch Together</title>
+  <title>🎬 CinePartyy - Birlikdə İzlə</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -27,2349 +27,1030 @@
       --text: #ffffff;
       --text-muted: #9ca3af;
       --border: rgba(255,255,255,0.1);
-      --curtain: #8b0000;
-      --gold: #ffd700;
-    }
-
-    [data-theme="light"] {
-      --bg: #f5f5f5;
-      --surface: #ffffff;
-      --surface-light: #f9fafb;
-      --surface-hover: #e5e7eb;
-      --text: #1a1a24;
-      --text-muted: #6b7280;
-      --border: rgba(0,0,0,0.1);
     }
 
     body { 
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
-      -webkit-text-size-adjust: 100%;
-      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
     }
 
-    /* ========== CINEMA INTRO ========== */
-    .cinemaIntro {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 1;
-      transition: opacity 1s;
-    }
-
-    .cinemaIntro.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .curtains {
-      position: absolute;
-      inset: 0;
-      display: flex;
-    }
-
-    .curtain {
-      flex: 1;
-      background: linear-gradient(90deg, var(--curtain) 0%, #a00 50%, var(--curtain) 100%);
-      position: relative;
-      transition: transform 2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-    }
-
-    .curtain::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 40px,
-        rgba(0,0,0,0.1) 40px,
-        rgba(0,0,0,0.1) 80px
-      );
-    }
-
-    .curtain.left {
-      transform: translateX(0);
-      border-right: 3px solid var(--gold);
-    }
-
-    .curtain.right {
-      transform: translateX(0);
-      border-left: 3px solid var(--gold);
-    }
-
-    .curtains.open .curtain.left {
-      transform: translateX(-100%);
-    }
-
-    .curtains.open .curtain.right {
-      transform: translateX(100%);
-    }
-
-    .introContent {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      animation: fadeInScale 1.5s ease;
-    }
-
-    @keyframes fadeInScale {
-      0% { opacity: 0; transform: scale(0.8); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-
-    .introLogo {
-      font-size: 120px;
-      margin-bottom: 20px;
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .introTitle {
-      font-size: 64px;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--gold), #fff, var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 16px;
-      letter-spacing: 4px;
-    }
-
-    .introSubtitle {
-      font-size: 20px;
-      color: #fff;
-      opacity: 0.9;
-      letter-spacing: 8px;
-      text-transform: uppercase;
-    }
-
-    /* ========== SIDEBAR MENU ========== */
-    .sidebar {
-      position: fixed;
-      left: -320px;
-      top: 0;
-      bottom: 0;
-      width: 320px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      z-index: 9000;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.3);
-    }
-
-    .sidebar.open {
-      left: 0;
-    }
-
-    .sidebarHeader {
-      padding: 24px 20px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sidebarTitle {
-      font-size: 26px;
-      font-weight: 900;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .sidebarSubtitle {
-      font-size: 13px;
-      font-weight: 600;
-      opacity: 0.9;
-    }
-
-    .sidebarSection {
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
       padding: 20px;
-      border-bottom: 1px solid var(--border);
     }
 
-    .sectionTitle {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 20px;
+      margin-bottom: 30px;
     }
 
-    .menuItem {
-      padding: 14px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
+    .logo {
+      font-size: 80px;
+      margin-bottom: 20px;
     }
 
-    .menuItem:hover {
-      background: var(--surface-hover);
-      transform: translateX(4px);
+    .title {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 10px;
     }
 
-    .menuIcon {
-      font-size: 20px;
-      width: 24px;
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.9;
     }
 
-    .themeToggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .themeSwitch {
-      width: 56px;
-      height: 28px;
-      background: var(--surface-hover);
-      border-radius: 14px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .themeSwitch.active {
-      background: var(--primary);
-    }
-
-    .themeSwitch::after {
-      content: '☾';
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 50%;
-      transition: all 0.3s;
+    /* Login Screen */
+    .loginScreen {
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .loginBox {
+      background: var(--surface);
+      padding: 50px;
+      border-radius: 24px;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .loginLogo {
+      font-size: 100px;
+      margin-bottom: 20px;
+    }
+
+    .loginTitle {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .loginSubtitle {
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    .inputGroup {
+      margin-bottom: 20px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--surface-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--surface-hover);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Main App */
+    .mainApp {
+      display: none;
+    }
+
+    .mainApp.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 968px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .cardTitle {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Create Room */
+    .roomForm {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .formGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label {
       font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    .themeSwitch.active::after {
-      left: 30px;
-      content: '☀';
+    .select {
+      padding: 12px 16px;
+      background: var(--surface-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
     }
 
-    .roomList {
-      max-height: 300px;
+    /* Room List */
+    .roomsList {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
       overflow-y: auto;
     }
 
     .roomItem {
-      padding: 14px 16px;
       background: var(--surface-light);
+      padding: 16px;
       border-radius: 12px;
-      margin-bottom: 10px;
+      border: 2px solid var(--border);
       cursor: pointer;
       transition: all 0.3s;
-      border: 2px solid var(--border);
     }
 
     .roomItem:hover {
-      background: var(--surface-hover);
       border-color: var(--primary);
       transform: translateY(-2px);
-    }
-
-    .roomName {
-      font-weight: 800;
-      font-size: 15px;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .roomInfo {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .roomBadge {
-      background: var(--primary);
-      color: white;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .roomBadge.private {
-      background: var(--accent);
-    }
-
-    /* ========== MOVIE TRACKER ========== */
-    .trackerOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 8999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      backdrop-filter: blur(4px);
-    }
-
-    .trackerOverlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .movieTracker {
-      position: fixed;
-      right: -420px;
-      top: 0;
-      bottom: 0;
-      width: 420px;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      z-index: 9000;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.3);
-    }
-
-    .movieTracker.open {
-      right: 0;
-    }
-
-    .trackerHeader {
-      padding: 24px 20px;
-      background: linear-gradient(135deg, var(--accent), #d97706);
-      color: white;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .trackerTitle {
-      font-size: 26px;
-      font-weight: 900;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .trackerSubtitle {
-      font-size: 13px;
-      font-weight: 600;
-      opacity: 0.9;
-    }
-
-    .trackerTabs {
-      display: flex;
-      gap: 8px;
-      padding: 16px 20px;
-      background: var(--surface-light);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 77px;
-      z-index: 9;
-    }
-
-    .trackerTab {
-      flex: 1;
-      padding: 12px;
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 13px;
-      transition: all 0.3s;
-    }
-
-    .trackerTab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-      transform: scale(1.05);
-    }
-
-    .trackerContent {
-      padding: 20px;
-    }
-
-    .addMovieForm {
-      background: var(--surface-light);
-      padding: 20px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      border: 2px solid var(--border);
-    }
-
-    .addMovieInput {
-      width: 100%;
-      padding: 14px;
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 12px;
-      transition: all 0.3s;
-    }
-
-    .addMovieInput:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-
-    .addMovieBtn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, var(--success), #059669);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .addMovieBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(16,185,129,0.5);
-    }
-
-    .movieList {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .movieItem {
-      background: var(--surface-light);
-      padding: 16px;
-      border-radius: 14px;
-      border: 2px solid var(--border);
-      transition: all 0.3s;
-    }
-
-    .movieItem:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    .movieHeader {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .movieTitle {
-      font-size: 16px;
-      font-weight: 900;
-      flex: 1;
-      line-height: 1.3;
-    }
-
-    .movieActions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .movieBtn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--surface-hover);
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    .movieBtn:hover {
-      transform: scale(1.1);
-    }
-
-    .movieBtn.watch {
-      background: var(--success);
-    }
-
-    .movieBtn.delete {
-      background: var(--error);
-    }
-
-    .movieMeta {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .emptyMovies {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-    }
-
-    .emptyIcon {
-      font-size: 64px;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    .emptyText {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    /* ========== HOME SCREEN ========== */
-    #homeScreen {
-      min-height: 100vh;
-      padding: 80px 20px 40px;
-      display: block;
-    }
-
-    #homeScreen.hidden {
-      display: none;
-    }
-
-    .homeHeader {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .homeTitle {
-      font-size: 48px;
-      font-weight: 900;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .homeSubtitle {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .roomsContainer {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .roomsGrid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .roomCard {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      border: 2px solid var(--border);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .roomCard:hover {
-      border-color: var(--primary);
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(99,102,241,0.3);
-    }
-
-    .roomCardHeader {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .roomCardTitle {
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .roomCardIcon {
-      font-size: 32px;
-    }
-
-    .roomCardInfo {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .roomCardStats {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .roomStat {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .createRoomBtn {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      padding: 18px 32px;
-      border-radius: 16px;
-      border: none;
-      font-size: 18px;
-      font-weight: 900;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
-    }
-
-    .createRoomBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(99,102,241,0.6);
-    }
-
-    .emptyRooms {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-    }
-
-    .emptyRooms .emptyIcon {
-      font-size: 80px;
-      margin-bottom: 20px;
-      opacity: 0.5;
-    }
-
-    .emptyRooms .emptyText {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .emptySubtext {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    /* ========== MODALS ========== */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 10000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(10px);
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modalContent {
-      background: var(--surface);
-      border-radius: 24px;
-      padding: 32px;
-      max-width: 500px;
-      width: 100%;
-      border: 2px solid var(--border);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modalHeader {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .modalTitle {
-      font-size: 28px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .modalClose {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--surface-light);
-      border: none;
-      cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    .modalClose:hover {
-      background: var(--error);
-      color: white;
-      transform: scale(1.1);
-    }
-
-    .formGroup {
-      margin-bottom: 20px;
-    }
-
-    .formLabel {
-      display: block;
-      font-size: 14px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .formInput {
-      width: 100%;
-      padding: 14px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      transition: all 0.3s;
-    }
-
-    .formInput:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-
-    .formToggle {
-      display: flex;
-      gap: 12px;
-    }
-
-    .toggleOption {
-      flex: 1;
-      padding: 14px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 800;
-      transition: all 0.3s;
-    }
-
-    .toggleOption.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .submitBtn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--success), #059669);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 24px;
-    }
-
-    .submitBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(16,185,129,0.5);
-    }
-
-    /* ========== WELCOME SCREEN ========== */
-    .welcomeScreen {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, var(--bg), var(--surface));
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .welcomeScreen.hidden {
-      display: none;
-    }
-
-    .welcomeCard {
-      background: var(--surface);
-      border-radius: 32px;
-      padding: 48px;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-      border: 2px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-
-    .welcomeLogo {
-      font-size: 120px;
-      margin-bottom: 24px;
-    }
-
-    .welcomeTitle {
-      font-size: 42px;
-      font-weight: 900;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .welcomeText {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 32px;
-    }
-
-    /* ========== SOURCE SELECTION ========== */
-    #sourceScreen {
-      min-height: 100vh;
-      padding: 80px 20px 40px;
-      display: none;
-    }
-
-    #sourceScreen.active {
-      display: block;
-    }
-
-    .sourceGrid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .sourceCard {
-      background: var(--surface);
-      border-radius: 20px;
-      padding: 32px;
-      text-align: center;
-      cursor: pointer;
-      border: 2px solid var(--border);
-      transition: all 0.3s;
-    }
-
-    .sourceCard:hover, .sourceCard.active {
-      border-color: var(--primary);
-      transform: translateY(-6px);
-      box-shadow: 0 12px 40px rgba(99,102,241,0.4);
-    }
-
-    .sourceIcon {
-      font-size: 72px;
-      margin-bottom: 20px;
-    }
-
-    .sourceName {
-      font-size: 24px;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .sourceDesc {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .urlInput {
-      width: 100%;
-      padding: 16px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      margin-top: 16px;
-      transition: all 0.3s;
-    }
-
-    .urlInput:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-
-    .continueBtn {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      padding: 16px 48px;
-      border-radius: 14px;
-      border: none;
-      font-size: 18px;
-      font-weight: 900;
-      cursor: pointer;
-      margin-top: 32px;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
-    }
-
-    .continueBtn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(99,102,241,0.6);
-    }
-
-    .continueBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* ========== WATCH ROOM ========== */
-    #watchRoom {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 8000;
-      display: none;
-    }
-
-    #watchRoom.active {
-      display: block;
-    }
-
-    .roomLayout {
-      display: flex;
-      height: 100vh;
-    }
-
-    .mainContent {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
     }
 
     .roomHeader {
-      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .roomName {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .roomBadge {
+      padding: 4px 12px;
+      background: var(--primary);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .roomBadge.private {
+      background: var(--error);
+    }
+
+    .roomInfo {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Watch Room */
+    .watchRoom {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .watchRoom.active {
+      display: block;
+    }
+
+    .watchHeader {
       background: var(--surface);
+      padding: 20px;
       border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-    }
-
-    .headerLeft {
-      display: flex;
       align-items: center;
-      gap: 16px;
     }
 
-    .headerBtn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--surface-light);
+    .watchTitle {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .leaveBtn {
+      padding: 12px 24px;
+      background: var(--error);
       border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       transition: all 0.3s;
     }
 
-    .headerBtn:hover {
-      background: var(--surface-hover);
-      transform: scale(1.05);
+    .leaveBtn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
     }
 
-    .roomTitle {
-      font-size: 20px;
-      font-weight: 900;
+    .watchContent {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+      padding: 20px;
+      min-height: calc(100vh - 80px);
     }
 
-    .roomCounter {
-      background: var(--success);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 800;
+    @media (max-width: 968px) {
+      .watchContent {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .headerRight {
+    .videoSection {
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    .videoContainer {
-      flex: 1;
+    .videoWrapper {
       background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
       position: relative;
+    }
+
+    .videoWrapper iframe {
+      width: 100%;
+      height: 100%;
+    }
+
+    .placeholder {
+      width: 100%;
+      height: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-    }
-
-    #videoWrapper {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    #videoWrapper video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    #videoWrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .videoPlaceholder {
-      text-align: center;
-      color: white;
+      color: var(--text-muted);
     }
 
     .placeholderIcon {
       font-size: 80px;
       margin-bottom: 20px;
-      opacity: 0.5;
     }
 
     .placeholderText {
-      font-size: 20px;
-      font-weight: 700;
-      opacity: 0.7;
+      font-size: 18px;
     }
 
-    .videoControls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+    .urlInput {
       display: flex;
       gap: 12px;
-      padding: 12px 20px;
-      background: rgba(0,0,0,0.8);
-      border-radius: 50px;
-      backdrop-filter: blur(10px);
-      z-index: 100;
     }
 
-    .controlBtn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
+    .urlInput input {
+      flex: 1;
     }
 
-    .controlBtn:hover {
-      background: rgba(255,255,255,0.3);
-      transform: scale(1.1);
-    }
-
-    .controlBtn.active {
+    .loadBtn {
+      padding: 12px 24px;
       background: var(--success);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
     }
 
-    .controlBtn.off {
-      background: var(--error);
+    .loadBtn:hover {
+      background: #059669;
     }
 
-    .chatSidebar {
-      width: 380px;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
+    /* Chat */
+    .chatSection {
       display: flex;
       flex-direction: column;
+      gap: 20px;
     }
 
-    .chatHeader {
+    .viewersList {
+      background: var(--surface);
+      border-radius: 16px;
       padding: 20px;
-      background: var(--surface-light);
-      border-bottom: 1px solid var(--border);
+      border: 1px solid var(--border);
     }
 
-    .chatTitle {
-      font-size: 18px;
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
-
-    .emojiBar {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-    }
-
-    .emojiBtn {
-      min-width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--surface-hover);
-      border: none;
-      cursor: pointer;
-      font-size: 24px;
+    .viewersTitle {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
+      gap: 8px;
     }
 
-    .emojiBtn:hover {
-      transform: scale(1.15);
-      background: var(--primary);
+    .viewersGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .viewer {
+      padding: 8px 16px;
+      background: var(--surface-light);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .chatBox {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
     }
 
     .chatMessages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
-    }
-
-    .chatMessage {
       margin-bottom: 16px;
       display: flex;
+      flex-direction: column;
       gap: 12px;
     }
 
-    .chatMessage.own {
-      flex-direction: row-reverse;
-    }
-
-    .messageAvatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
+    .message {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 900;
-      flex-shrink: 0;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .messageBubble {
-      max-width: 70%;
-      background: var(--surface-light);
-      padding: 12px 16px;
-      border-radius: 16px;
-    }
-
-    .chatMessage.own .messageBubble {
-      background: var(--primary);
-      color: white;
+    .message.own {
+      align-items: flex-end;
     }
 
     .messageAuthor {
       font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 4px;
-      opacity: 0.8;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    .messageText {
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.4;
+    .messageBubble {
+      padding: 12px 16px;
+      background: var(--surface-light);
+      border-radius: 16px;
+      max-width: 80%;
       word-wrap: break-word;
+    }
+
+    .message.own .messageBubble {
+      background: var(--primary);
     }
 
     .messageTime {
       font-size: 11px;
-      font-weight: 700;
-      opacity: 0.6;
-      margin-top: 4px;
+      color: var(--text-muted);
     }
 
     .chatInput {
-      padding: 20px;
-      background: var(--surface-light);
-      border-top: 1px solid var(--border);
-    }
-
-    .inputWrapper {
       display: flex;
       gap: 12px;
     }
 
-    .messageInput {
+    .chatInput input {
       flex: 1;
-      padding: 14px;
-      background: var(--surface);
+      padding: 12px 16px;
+      background: var(--surface-light);
       border: 2px solid var(--border);
       border-radius: 12px;
       color: var(--text);
-      font-size: 15px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      resize: none;
-      transition: all 0.3s;
-    }
-
-    .messageInput:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+      font-size: 14px;
     }
 
     .sendBtn {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      padding: 12px 24px;
       background: var(--primary);
       border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       transition: all 0.3s;
-      flex-shrink: 0;
     }
 
     .sendBtn:hover {
       background: var(--primary-dark);
-      transform: scale(1.05);
     }
 
-    /* ========== UTILITY ========== */
-    .floatingEmoji {
-      position: fixed;
-      font-size: 60px;
-      pointer-events: none;
-      animation: floatUp 2s ease-out forwards;
-      z-index: 9999;
-    }
-
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-200px) scale(1.5); }
-    }
-
+    /* Notification */
     .notification {
       position: fixed;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 20px;
+      right: 20px;
       background: var(--surface);
       padding: 16px 24px;
-      border-radius: 16px;
-      border: 2px solid var(--primary);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      z-index: 99999;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 300px;
-      transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(-150%);
+      transition: transform 0.3s;
+      z-index: 10000;
     }
 
     .notification.show {
-      top: 20px;
+      transform: translateY(0);
     }
 
     .notificationIcon {
-      font-size: 28px;
+      font-size: 24px;
     }
 
     .notificationText {
-      font-size: 15px;
-      font-weight: 800;
-      flex: 1;
+      font-weight: 600;
     }
 
-    .topBar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 8999;
+    .emptyState {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
     }
 
-    .topBar.hidden {
-      display: none;
+    .emptyIcon {
+      font-size: 60px;
+      margin-bottom: 16px;
     }
 
-    .logo {
-      font-size: 24px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    ::-webkit-scrollbar {
+      width: 8px;
     }
 
-    .topBarRight {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .userInfo {
+    ::-webkit-scrollbar-track {
       background: var(--surface-light);
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 14px;
+      border-radius: 4px;
     }
 
-    .systemTime {
-      background: var(--surface-light);
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 14px;
-      font-family: 'Courier New', monospace;
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface-hover);
+      border-radius: 4px;
     }
 
-    .trackerBtn {
-      background: var(--accent);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 12px;
-      border: none;
-      font-weight: 900;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .trackerBtn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(245,158,11,0.4);
-    }
-
-    @media (max-width: 768px) {
-      .introTitle { font-size: 40px; }
-      .introSubtitle { font-size: 14px; letter-spacing: 4px; }
-      .homeTitle { font-size: 32px; }
-      .roomsGrid { grid-template-columns: 1fr; }
-      .sourceGrid { grid-template-columns: 1fr; }
-      .chatSidebar { width: 100%; }
-      .roomLayout { flex-direction: column; }
-      .sidebar { width: 280px; left: -280px; }
-      .movieTracker { width: 100%; right: -100%; }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
     }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
-  <!-- CINEMA INTRO -->
-  <div class="cinemaIntro" id="cinemaIntro">
-    <div class="curtains" id="curtains">
-      <div class="curtain left"></div>
-      <div class="curtain right"></div>
+<!-- Notification -->
+<div class="notification" id="notification">
+  <div class="notificationIcon" id="notificationIcon">✅</div>
+  <div class="notificationText" id="notificationText"></div>
+</div>
+
+<!-- Login Screen -->
+<div class="loginScreen" id="loginScreen">
+  <div class="loginBox">
+    <div class="loginLogo">🎬</div>
+    <div class="loginTitle">CineParty</div>
+    <div class="loginSubtitle">Birlikdə film izləyin!</div>
+    <div class="inputGroup">
+      <input 
+        type="text" 
+        class="input" 
+        id="usernameInput" 
+        placeholder="Adınızı daxil edin"
+        maxlength="20"
+      />
     </div>
-    <div class="introContent">
-      <div class="introLogo">🎬</div>
-      <div class="introTitle">CineParty</div>
-      <div class="introSubtitle">Ultimate Experience</div>
-    </div>
+    <button class="btn" onclick="login()">🚀 Başla</button>
   </div>
+</div>
 
-  <!-- WELCOME SCREEN -->
-  <div class="welcomeScreen" id="welcomeScreen">
-    <div class="welcomeCard">
-      <div class="welcomeLogo">🎉</div>
-      <div class="welcomeTitle">Xoş Gəlmisiniz!</div>
-      <div class="welcomeText">Dost və ya sevgilinizlə birlikdə film izləməyə hazırsınız?</div>
-      <div class="formGroup">
-        <label class="formLabel">Adınızı daxil edin</label>
-        <input type="text" class="formInput" id="usernameInput" placeholder="Adınız..." maxlength="20">
+<!-- Main App -->
+<div class="mainApp" id="mainApp">
+  <div class="container">
+    <div class="header">
+      <div class="logo">🎬</div>
+      <div class="title">CineParty</div>
+      <div class="subtitle">Birlikdə film izləyin - Real-time sinxronizasiya</div>
+    </div>
+
+    <div class="grid">
+      <!-- Create Room -->
+      <div class="card">
+        <div class="cardTitle">
+          <span>➕</span>
+          <span>Yeni Otaq Yarat</span>
+        </div>
+        <div class="roomForm">
+          <div class="formGroup">
+            <label class="label">Otaq Adı</label>
+            <input 
+              type="text" 
+              class="input" 
+              id="roomNameInput" 
+              placeholder="Məs: Film Gecəsi"
+              maxlength="30"
+            />
+          </div>
+          <div class="formGroup">
+            <label class="label">Növ</label>
+            <select class="select" id="roomTypeSelect">
+              <option value="public">🌍 Açıq (Hamı görə bilər)</option>
+              <option value="private">🔒 Şəxsi (Yalnız link ilə)</option>
+            </select>
+          </div>
+          <button class="btn" onclick="createRoom()">🎬 Otaq Yarat</button>
+        </div>
       </div>
-      <button class="submitBtn" onclick="startApp()">Başlayaq 🚀</button>
+
+      <!-- Active Rooms -->
+      <div class="card">
+        <div class="cardTitle">
+          <span>📺</span>
+          <span>Aktiv Otaqlar (<span id="roomCount">0</span>)</span>
+        </div>
+        <div class="roomsList" id="roomsList">
+          <div class="emptyState">
+            <div class="emptyIcon">🎭</div>
+            <div>Hələ otaq yoxdur</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- TOP BAR -->
-  <div class="topBar hidden" id="topBar">
-    <div class="logo">
-      <span onclick="toggleSidebar()" style="cursor:pointer;">☰</span>
-      <span>🎬 CineParty</span>
-    </div>
-    <div class="topBarRight">
-      <button class="trackerBtn" onclick="toggleMovieTracker()">
-        🎬 Film Tracker
-      </button>
-      <div class="userInfo" id="userDisplay">👤 Qonaq</div>
-      <div class="systemTime" id="systemTime">00:00</div>
-    </div>
+<!-- Watch Room -->
+<div class="watchRoom" id="watchRoom">
+  <div class="watchHeader">
+    <div class="watchTitle" id="watchRoomTitle">🎬 Film Otağı</div>
+    <button class="leaveBtn" onclick="leaveRoom()">🚪 Çıx</button>
   </div>
-
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebarHeader">
-      <div class="sidebarTitle">🎬 Menyu</div>
-      <div class="sidebarSubtitle">Xoş gəldiniz!</div>
-    </div>
-
-    <div class="sidebarSection">
-      <div class="sectionTitle">📋 Otaqlar</div>
-      <div class="roomList" id="sidebarRoomList">
-        <div style="color: var(--text-muted); text-align: center; padding: 20px; font-size: 14px; font-weight: 700;">
-          Hələ otaq yoxdur
+  <div class="watchContent">
+    <div class="videoSection">
+      <div class="card">
+        <div class="cardTitle">
+          <span>📺</span>
+          <span>Video Player</span>
+        </div>
+        <div class="videoWrapper" id="videoWrapper">
+          <div class="placeholder">
+            <div class="placeholderIcon">🎬</div>
+            <div class="placeholderText">YouTube linki daxil edin</div>
+          </div>
+        </div>
+        <div class="urlInput">
+          <input 
+            type="text" 
+            class="input" 
+            id="videoUrlInput" 
+            placeholder="YouTube video linki (məs: https://youtube.com/watch?v=...)"
+          />
+          <button class="loadBtn" onclick="loadVideo()">▶️ Yüklə</button>
         </div>
       </div>
     </div>
 
-    <div class="sidebarSection">
-      <div class="sectionTitle">⚙️ Ayarlar</div>
-      <div class="themeToggle">
-        <span style="font-weight: 700;">🌙 Tema</span>
-        <div class="themeSwitch" id="themeSwitch" onclick="toggleTheme()"></div>
-      </div>
-      <div class="menuItem" onclick="showAbout()">
-        <span class="menuIcon">ℹ️</span>
-        <span>Haqqında</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- MOVIE TRACKER OVERLAY -->
-  <div class="trackerOverlay" id="trackerOverlay" onclick="toggleMovieTracker()"></div>
-
-  <!-- MOVIE TRACKER -->
-  <div class="movieTracker" id="movieTracker">
-    <div class="trackerHeader">
-      <div>
-        <div class="trackerTitle">🎬 Film Tracker</div>
-        <div class="trackerSubtitle">Film kolleksiyanız</div>
-      </div>
-      <button class="modalClose" onclick="toggleMovieTracker()" style="background: rgba(255,255,255,0.1);">✕</button>
-    </div>
-
-    <div class="trackerTabs">
-      <div class="trackerTab active" onclick="switchTrackerTab('towatch')">
-        📝 İzləniləcək
-      </div>
-      <div class="trackerTab" onclick="switchTrackerTab('watched')">
-        ✅ İzlənilən
-      </div>
-    </div>
-
-    <div class="trackerContent">
-      <div class="addMovieForm">
-        <input type="text" class="addMovieInput" id="movieTitleInput" placeholder="Film adı daxil edin...">
-        <button class="addMovieBtn" onclick="addMovie()">➕ Film Əlavə Et</button>
-      </div>
-
-      <div class="movieList" id="toWatchList"></div>
-      <div class="movieList" id="watchedList" style="display: none;"></div>
-
-      <div class="emptyMovies" id="emptyToWatch">
-        <div class="emptyIcon">🎬</div>
-        <div class="emptyText">Hələ film yoxdur</div>
-      </div>
-
-      <div class="emptyMovies" id="emptyWatched" style="display: none;">
-        <div class="emptyIcon">✅</div>
-        <div class="emptyText">Hələ film izləməmisiniz</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HOME SCREEN -->
-  <div id="homeScreen" class="hidden">
-    <div class="homeHeader">
-      <div class="homeTitle">🏠 Ana Səhifə</div>
-      <div class="homeSubtitle">Otaq yaradın və ya mövcud otağa qoşulun</div>
-    </div>
-
-    <div class="roomsContainer">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <button class="createRoomBtn" onclick="openCreateRoomModal()">
-          ➕ Yeni Otaq Yarat
-        </button>
-      </div>
-
-      <div class="roomsGrid" id="roomsGrid"></div>
-
-      <div class="emptyRooms" id="emptyRooms">
-        <div class="emptyIcon">📭</div>
-        <div class="emptyText">Hələ otaq yoxdur</div>
-        <div class="emptySubtext">İlk otağı siz yaradın!</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CREATE ROOM MODAL -->
-  <div class="modal" id="createRoomModal">
-    <div class="modalContent">
-      <div class="modalHeader">
-        <div class="modalTitle">➕ Yeni Otaq</div>
-        <button class="modalClose" onclick="closeCreateRoomModal()">✕</button>
-      </div>
-      <div class="formGroup">
-        <label class="formLabel">Otaq Adı</label>
-        <input type="text" class="formInput" id="roomNameInput" placeholder="Film Gecəsi..." maxlength="30">
-      </div>
-      <div class="formGroup">
-        <label class="formLabel">Otaq Növü</label>
-        <div class="formToggle">
-          <div class="toggleOption active" onclick="toggleRoomType('public')">
-            🌍 Public
-          </div>
-          <div class="toggleOption" onclick="toggleRoomType('private')">
-            🔒 Private
-          </div>
+    <div class="chatSection">
+      <!-- Viewers -->
+      <div class="viewersList">
+        <div class="viewersTitle">
+          <span>👥</span>
+          <span>İzləyicilər (<span id="viewerCount">0</span>)</span>
         </div>
-      </div>
-      <div class="formGroup" id="passwordGroup" style="display: none;">
-        <label class="formLabel">Şifrə</label>
-        <input type="password" class="formInput" id="roomPasswordInput" placeholder="Şifrə daxil edin..." maxlength="20">
-      </div>
-      <button class="submitBtn" onclick="createRoom()">Otaq Yarat 🎬</button>
-    </div>
-  </div>
-
-  <!-- JOIN ROOM MODAL -->
-  <div class="modal" id="joinRoomModal">
-    <div class="modalContent">
-      <div class="modalHeader">
-        <div class="modalTitle">🔐 Otağa Qoşul</div>
-        <button class="modalClose" onclick="closeJoinRoomModal()">✕</button>
-      </div>
-      <div class="formGroup">
-        <label class="formLabel">Şifrə</label>
-        <input type="password" class="formInput" id="joinPasswordInput" placeholder="Şifrə daxil edin...">
-      </div>
-      <button class="submitBtn" onclick="joinPrivateRoom()">Daxil Ol 🚪</button>
-    </div>
-  </div>
-
-  <!-- SOURCE SELECTION -->
-  <div id="sourceScreen">
-    <div class="homeHeader">
-      <div class="homeTitle">📺 Video Mənbəyi Seçin</div>
-      <div class="homeSubtitle">İzləmək istədiyiniz platformanı seçin</div>
-    </div>
-
-    <div class="sourceGrid">
-      <div class="sourceCard" onclick="selectSource('youtube')">
-        <div class="sourceIcon">📺</div>
-        <div class="sourceName">YouTube</div>
-        <div class="sourceDesc">YouTube videoları izləyin</div>
-        <input type="text" id="youtubeUrl" class="urlInput" placeholder="YouTube linki yapışdırın..." onclick="event.stopPropagation()">
+        <div class="viewersGrid" id="viewersList"></div>
       </div>
 
-      <div class="sourceCard" onclick="selectSource('netflix')">
-        <div class="sourceIcon">🎬</div>
-        <div class="sourceName">Netflix</div>
-        <div class="sourceDesc">Netflix kontent</div>
-      </div>
-
-      <div class="sourceCard" onclick="selectSource('amazon')">
-        <div class="sourceIcon">📦</div>
-        <div class="sourceName">Prime Video</div>
-        <div class="sourceDesc">Amazon Prime</div>
-      </div>
-
-      <div class="sourceCard" onclick="selectSource('disney')">
-        <div class="sourceIcon">🏰</div>
-        <div class="sourceName">Disney+</div>
-        <div class="sourceDesc">Disney platforması</div>
-      </div>
-
-      <div class="sourceCard" onclick="selectSource('screen')">
-        <div class="sourceIcon">🖥️</div>
-        <div class="sourceName">Ekran Paylaş</div>
-        <div class="sourceDesc">Öz ekranınızı paylaşın</div>
-      </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 32px;">
-      <button class="continueBtn" id="continueBtn" onclick="proceedToRoom()" disabled>
-        Davam Et ➔
-      </button>
-    </div>
-  </div>
-
-  <!-- WATCH ROOM -->
-  <div id="watchRoom">
-    <div class="roomLayout">
-      <div class="mainContent">
-        <div class="roomHeader">
-          <div class="headerLeft">
-            <button class="headerBtn" onclick="leaveRoom()">⬅</button>
-            <div class="roomTitle" id="currentRoomName">Film Gecəsi</div>
-            <div class="roomCounter">
-              <span id="viewerCount">1</span> 👁️
-            </div>
-          </div>
-          <div class="headerRight">
-            <button class="headerBtn" onclick="toggleFullscreen()">⛶</button>
-          </div>
-        </div>
-
-        <div class="videoContainer">
-          <div id="videoWrapper">
-            <div class="videoPlaceholder">
-              <div class="placeholderIcon">🎬</div>
-              <div class="placeholderText">Video yüklənir...</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="chatSidebar">
-        <div class="chatHeader">
-          <div class="chatTitle">💬 Chat</div>
-          <div class="emojiBar">
-            <button class="emojiBtn" onclick="sendEmoji('😂')">😂</button>
-            <button class="emojiBtn" onclick="sendEmoji('❤️')">❤️</button>
-            <button class="emojiBtn" onclick="sendEmoji('😍')">😍</button>
-            <button class="emojiBtn" onclick="sendEmoji('🔥')">🔥</button>
-            <button class="emojiBtn" onclick="sendEmoji('👏')">👏</button>
-            <button class="emojiBtn" onclick="sendEmoji('🎉')">🎉</button>
-          </div>
-        </div>
-
+      <!-- Chat -->
+      <div class="chatBox">
         <div class="chatMessages" id="chatMessages"></div>
-
         <div class="chatInput">
-          <div class="inputWrapper">
-            <textarea class="messageInput" id="messageInput" placeholder="Mesaj yazın..." rows="1"></textarea>
-            <button class="sendBtn" onclick="sendMessage()">📤</button>
-          </div>
+          <input 
+            type="text" 
+            class="input" 
+            id="chatInput" 
+            placeholder="Mesaj yazın..."
+          />
+          <button class="sendBtn" onclick="sendMessage()">📤</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- NOTIFICATION -->
-  <div class="notification" id="notification">
-    <div class="notificationIcon" id="notificationIcon">✅</div>
-    <div class="notificationText" id="notificationText">Bildiriş</div>
-  </div>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
-  // Global variables
-  let username = 'Qonaq';
-  let currentTheme = 'dark';
-  let selectedSource = '';
-  let isMicOn = false;
-  let isCamOn = false;
-  let localStream = null;
-  let rooms = [];
-  let currentRoom = null;
-  let selectedRoomForJoin = null;
-  let roomType = 'public';
-  let userCounts = {};
-  let moviesToWatch = [];
-  let moviesWatched = [];
-  let currentTrackerTab = 'towatch';
+  // ============= Firebase Configuration =============
+  // DIQQƏT: Bu Firebase config-i dəyişdirin!
+  // Firebase Console-dan yeni project yaradın və konfiqurasiyanızı buraya yapışdırın
+  const firebaseConfig = {
+    apiKey: "AIzaSyDEMO_KEY_REPLACE_ME",
+    authDomain: "your-project.firebaseapp.com",
+    databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abc123"
+  };
 
-  // Initialize
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.getElementById('curtains').classList.add('open');
-      setTimeout(() => {
-        document.getElementById('cinemaIntro').classList.add('hidden');
-      }, 2000);
-    }, 1500);
-
-    updateTime();
-    setInterval(updateTime, 1000);
-    loadRoomsFromStorage();
-    loadMoviesFromStorage();
-  });
-
-  function updateTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString('az', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const timeEl = document.getElementById('systemTime');
-    if (timeEl) timeEl.textContent = time;
+  // Firebase initialize
+  let app, database;
+  try {
+    app = firebase.initializeApp(firebaseConfig);
+    database = firebase.database();
+    console.log('✅ Firebase connected!');
+  } catch (error) {
+    console.error('❌ Firebase error:', error);
+    showNotification('⚠️ Firebase bağlantı xətası! Config-i yoxlayın', '❌');
   }
 
-  function startApp() {
-    const input = document.getElementById('usernameInput').value.trim();
-    if (!input) {
-      showNotification('❌ Zəhmət olmasa adınızı daxil edin!', '⚠️');
+  // ============= Global Variables =============
+  let username = '';
+  let currentRoomId = null;
+  let currentRoomRef = null;
+  let roomsRef = null;
+
+  // ============= Login =============
+  function login() {
+    const input = document.getElementById('usernameInput');
+    const name = input.value.trim();
+
+    if (!name) {
+      showNotification('⚠️ Adınızı daxil edin!', '❌');
       return;
     }
 
-    username = input;
-    document.getElementById('userDisplay').textContent = '👤 ' + username;
-    document.getElementById('welcomeScreen').classList.add('hidden');
-    document.getElementById('topBar').classList.remove('hidden');
-    document.getElementById('homeScreen').classList.remove('hidden');
-
-    showNotification('🎉 Xoş gəldiniz, ' + username + '!', '👋');
-    renderRooms();
-  }
-
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
-
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-  }
-
-  function toggleTheme() {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', currentTheme);
-    document.getElementById('themeSwitch').classList.toggle('active');
-    showNotification(currentTheme === 'dark' ? '🌙 Qaranlıq tema aktivdir' : '☀️ İşıqlı tema aktivdir', currentTheme === 'dark' ? '🌙' : '☀️');
-  }
-
-  // Movie Tracker
-  function toggleMovieTracker() {
-    const tracker = document.getElementById('movieTracker');
-    const overlay = document.getElementById('trackerOverlay');
-    tracker.classList.toggle('open');
-    overlay.classList.toggle('active');
-  }
-
-  function switchTrackerTab(tab) {
-    currentTrackerTab = tab;
-    document.querySelectorAll('.trackerTab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-
-    if (tab === 'towatch') {
-      document.getElementById('toWatchList').style.display = 'flex';
-      document.getElementById('watchedList').style.display = 'none';
-      document.getElementById('emptyToWatch').style.display = moviesToWatch.length ? 'none' : 'block';
-      document.getElementById('emptyWatched').style.display = 'none';
-    } else {
-      document.getElementById('toWatchList').style.display = 'none';
-      document.getElementById('watchedList').style.display = 'flex';
-      document.getElementById('emptyToWatch').style.display = 'none';
-      document.getElementById('emptyWatched').style.display = moviesWatched.length ? 'none' : 'block';
-    }
-  }
-
-  function addMovie() {
-    const input = document.getElementById('movieTitleInput');
-    const title = input.value.trim();
-
-    if (!title) {
-      showNotification('❌ Film adı daxil edin!', '⚠️');
+    if (name.length < 2) {
+      showNotification('⚠️ Ad ən azı 2 simvol olmalıdır!', '❌');
       return;
     }
 
-    const movie = {
-      id: 'movie_' + Date.now(),
-      title: title,
-      addedAt: Date.now()
-    };
-
-    moviesToWatch.push(movie);
-    input.value = '';
-    saveMoviesToStorage();
-    renderMovies();
-    showNotification('✅ Film əlavə edildi!', '🎬');
+    username = name;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').classList.add('active');
+    
+    showNotification(`Xoş gəlmisiniz, ${username}! 🎉`, '👋');
+    
+    // Listen to rooms
+    listenToRooms();
   }
 
-  function markAsWatched(movieId) {
-    const movieIndex = moviesToWatch.findIndex(m => m.id === movieId);
-    if (movieIndex > -1) {
-      const movie = moviesToWatch.splice(movieIndex, 1)[0];
-      movie.watchedAt = Date.now();
-      moviesWatched.push(movie);
-      saveMoviesToStorage();
-      renderMovies();
-      showNotification('✅ Film izlənilən kimi qeyd edildi!', '🎉');
-    }
+  // ============= Rooms Management =============
+  function listenToRooms() {
+    roomsRef = database.ref('rooms');
+    
+    roomsRef.on('value', (snapshot) => {
+      const rooms = snapshot.val() || {};
+      renderRooms(rooms);
+    });
   }
 
-  function deleteMovie(movieId, isWatched) {
-    if (confirm('Filmi silmək istədiyinizdən əminsiniz?')) {
-      if (isWatched) {
-        moviesWatched = moviesWatched.filter(m => m.id !== movieId);
-      } else {
-        moviesToWatch = moviesToWatch.filter(m => m.id !== movieId);
-      }
-      saveMoviesToStorage();
-      renderMovies();
-      showNotification('🗑️ Film silindi', '✅');
-    }
-  }
+  function renderRooms(rooms) {
+    const roomsList = document.getElementById('roomsList');
+    const roomCount = document.getElementById('roomCount');
+    
+    const roomsArray = Object.entries(rooms).map(([id, data]) => ({
+      id,
+      ...data
+    }));
 
-  function renderMovies() {
-    const toWatchList = document.getElementById('toWatchList');
-    const watchedList = document.getElementById('watchedList');
-    const emptyToWatch = document.getElementById('emptyToWatch');
-    const emptyWatched = document.getElementById('emptyWatched');
+    roomCount.textContent = roomsArray.length;
 
-    // To Watch
-    if (moviesToWatch.length === 0) {
-      toWatchList.innerHTML = '';
-      emptyToWatch.style.display = currentTrackerTab === 'towatch' ? 'block' : 'none';
-    } else {
-      emptyToWatch.style.display = 'none';
-      toWatchList.innerHTML = moviesToWatch.map(movie => `
-        <div class="movieItem">
-          <div class="movieHeader">
-            <div class="movieTitle">${movie.title}</div>
-            <div class="movieActions">
-              <button class="movieBtn watch" onclick="markAsWatched('${movie.id}')" title="İzlənildi">✓</button>
-              <button class="movieBtn delete" onclick="deleteMovie('${movie.id}', false)" title="Sil">✕</button>
-            </div>
-          </div>
-          <div class="movieMeta">
-            <span>📅 ${new Date(movie.addedAt).toLocaleDateString('az')}</span>
-          </div>
+    if (roomsArray.length === 0) {
+      roomsList.innerHTML = `
+        <div class="emptyState">
+          <div class="emptyIcon">🎭</div>
+          <div>Hələ otaq yoxdur</div>
         </div>
-      `).join('');
+      `;
+      return;
     }
 
-    // Watched
-    if (moviesWatched.length === 0) {
-      watchedList.innerHTML = '';
-      emptyWatched.style.display = currentTrackerTab === 'watched' ? 'block' : 'none';
-    } else {
-      emptyWatched.style.display = 'none';
-      watchedList.innerHTML = moviesWatched.map(movie => `
-        <div class="movieItem">
-          <div class="movieHeader">
-            <div class="movieTitle">${movie.title}</div>
-            <div class="movieActions">
-              <button class="movieBtn delete" onclick="deleteMovie('${movie.id}', true)" title="Sil">✕</button>
-            </div>
-          </div>
-          <div class="movieMeta">
-            <span>✅ ${new Date(movie.watchedAt).toLocaleDateString('az')}</span>
-          </div>
+    roomsList.innerHTML = roomsArray.map(room => `
+      <div class="roomItem" onclick="joinRoom('${room.id}')">
+        <div class="roomHeader">
+          <div class="roomName">${room.name}</div>
+          <div class="roomBadge ${room.type}">${room.type === 'public' ? '🌍 Açıq' : '🔒 Şəxsi'}</div>
         </div>
-      `).join('');
-    }
-  }
-
-  function saveMoviesToStorage() {
-    try {
-      localStorage.setItem('cineparty_towatch', JSON.stringify(moviesToWatch));
-      localStorage.setItem('cineparty_watched', JSON.stringify(moviesWatched));
-    } catch (e) {}
-  }
-
-  function loadMoviesFromStorage() {
-    try {
-      const toWatch = localStorage.getItem('cineparty_towatch');
-      const watched = localStorage.getItem('cineparty_watched');
-      if (toWatch) moviesToWatch = JSON.parse(toWatch);
-      if (watched) moviesWatched = JSON.parse(watched);
-      renderMovies();
-    } catch (e) {}
-  }
-
-  // Room management
-  function openCreateRoomModal() {
-    document.getElementById('createRoomModal').classList.add('active');
-  }
-
-  function closeCreateRoomModal() {
-    document.getElementById('createRoomModal').classList.remove('active');
-    document.getElementById('roomNameInput').value = '';
-    document.getElementById('roomPasswordInput').value = '';
-    roomType = 'public';
-    document.querySelectorAll('.toggleOption').forEach(opt => opt.classList.remove('active'));
-    document.querySelectorAll('.toggleOption')[0].classList.add('active');
-    document.getElementById('passwordGroup').style.display = 'none';
-  }
-
-  function toggleRoomType(type) {
-    roomType = type;
-    document.querySelectorAll('.toggleOption').forEach(opt => opt.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('passwordGroup').style.display = type === 'private' ? 'block' : 'none';
+        <div class="roomInfo">
+          <span>👤 ${room.host}</span>
+          <span>👥 ${Object.keys(room.viewers || {}).length} izləyici</span>
+        </div>
+      </div>
+    `).join('');
   }
 
   function createRoom() {
-    const roomName = document.getElementById('roomNameInput').value.trim();
+    const nameInput = document.getElementById('roomNameInput');
+    const typeSelect = document.getElementById('roomTypeSelect');
+    
+    const roomName = nameInput.value.trim();
+    const roomType = typeSelect.value;
+
     if (!roomName) {
-      showNotification('❌ Otaq adı daxil edin!', '⚠️');
+      showNotification('⚠️ Otaq adı daxil edin!', '❌');
       return;
     }
 
-    const password = roomType === 'private' ? document.getElementById('roomPasswordInput').value.trim() : null;
-    if (roomType === 'private' && !password) {
-      showNotification('❌ Private otaq üçün şifrə lazımdır!', '⚠️');
-      return;
-    }
-
-    const room = {
-      id: 'room_' + Date.now(),
+    const roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    const roomData = {
+      id: roomId,
       name: roomName,
       type: roomType,
-      password: password,
-      creator: username,
+      host: username,
       createdAt: Date.now(),
-      viewers: [username]
+      videoUrl: '',
+      viewers: {
+        [username]: {
+          name: username,
+          joinedAt: Date.now()
+        }
+      }
     };
 
-    rooms.push(room);
-    userCounts[room.id] = 1;
-    saveRoomsToStorage();
-    renderRooms();
-    closeCreateRoomModal();
-    showNotification('✅ Otaq yaradıldı: ' + roomName, '🎉');
+    database.ref('rooms/' + roomId).set(roomData)
+      .then(() => {
+        showNotification('✅ Otaq yaradıldı!', '🎉');
+        nameInput.value = '';
+        joinRoom(roomId);
+      })
+      .catch((error) => {
+        console.error('Error creating room:', error);
+        showNotification('❌ Otaq yaradıla bilmədi!', '⚠️');
+      });
   }
 
   function joinRoom(roomId) {
-    const room = rooms.find(r => r.id === roomId);
-    if (!room) return;
+    currentRoomId = roomId;
+    currentRoomRef = database.ref('rooms/' + roomId);
 
-    if (room.type === 'private') {
-      selectedRoomForJoin = room;
-      document.getElementById('joinRoomModal').classList.add('active');
-    } else {
-      enterRoom(room);
-    }
-  }
-
-  function closeJoinRoomModal() {
-    document.getElementById('joinRoomModal').classList.remove('active');
-    document.getElementById('joinPasswordInput').value = '';
-    selectedRoomForJoin = null;
-  }
-
-  function joinPrivateRoom() {
-    const password = document.getElementById('joinPasswordInput').value.trim();
-    if (password === selectedRoomForJoin.password) {
-      closeJoinRoomModal();
-      enterRoom(selectedRoomForJoin);
-    } else {
-      showNotification('❌ Yanlış şifrə!', '🔒');
-    }
-  }
-
-  function enterRoom(room) {
-    currentRoom = room;
-    if (!room.viewers.includes(username)) {
-      room.viewers.push(username);
-      userCounts[room.id] = (userCounts[room.id] || 0) + 1;
-      saveRoomsToStorage();
-    }
-
-    document.getElementById('currentRoomName').textContent = room.name;
-    document.getElementById('viewerCount').textContent = userCounts[room.id] || 1;
-    document.getElementById('homeScreen').classList.add('hidden');
-    document.getElementById('sourceScreen').style.display = 'block';
-    showNotification('🚪 Otağa daxil oldunuz: ' + room.name, '✅');
-  }
-
-  function renderRooms() {
-    const grid = document.getElementById('roomsGrid');
-    const empty = document.getElementById('emptyRooms');
-    const sidebarList = document.getElementById('sidebarRoomList');
-
-    if (rooms.length === 0) {
-      grid.style.display = 'none';
-      empty.style.display = 'block';
-      sidebarList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px; font-size: 14px; font-weight: 700;">Hələ otaq yoxdur</div>';
-      return;
-    }
-
-    grid.style.display = 'grid';
-    empty.style.display = 'none';
-
-    grid.innerHTML = rooms.map(room => `
-      <div class="roomCard" onclick="joinRoom('${room.id}')">
-        <div class="roomCardHeader">
-          <div class="roomCardTitle">${room.name}</div>
-          <div class="roomCardIcon">${room.type === 'private' ? '🔒' : '🌍'}</div>
-        </div>
-        <div class="roomCardInfo">
-          <span class="roomBadge ${room.type === 'private' ? 'private' : ''}">${room.type === 'private' ? 'Private' : 'Public'}</span>
-        </div>
-        <div class="roomCardStats">
-          <div class="roomStat">👤 ${room.creator}</div>
-          <div class="roomStat">👁️ ${userCounts[room.id] || 1}</div>
-        </div>
-      </div>
-    `).join('');
-
-    sidebarList.innerHTML = rooms.map(room => `
-      <div class="roomItem" onclick="joinRoom('${room.id}'); closeSidebar();">
-        <div class="roomName">${room.type === 'private' ? '🔒' : '🌍'} ${room.name}</div>
-        <div class="roomInfo">
-          <span>👤 ${room.creator}</span>
-          <span>👁️ ${userCounts[room.id] || 1}</span>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function saveRoomsToStorage() {
-    try {
-      localStorage.setItem('cineparty_rooms', JSON.stringify(rooms));
-      localStorage.setItem('cineparty_user_counts', JSON.stringify(userCounts));
-    } catch (e) {}
-  }
-
-  function loadRoomsFromStorage() {
-    try {
-      const savedRooms = localStorage.getItem('cineparty_rooms');
-      const savedCounts = localStorage.getItem('cineparty_user_counts');
-      if (savedRooms) rooms = JSON.parse(savedRooms);
-      if (savedCounts) userCounts = JSON.parse(savedCounts);
-    } catch (e) {}
-  }
-
-  // Source selection
-  function selectSource(source) {
-    selectedSource = source;
-    document.querySelectorAll('.sourceCard').forEach(card => {
-      card.classList.remove('active');
+    // Add viewer
+    currentRoomRef.child('viewers/' + username).set({
+      name: username,
+      joinedAt: Date.now()
     });
-    event.currentTarget.classList.add('active');
-    document.getElementById('continueBtn').disabled = false;
+
+    // Listen to room changes
+    currentRoomRef.on('value', (snapshot) => {
+      const room = snapshot.val();
+      
+      if (!room) {
+        showNotification('❌ Otaq mövcud deyil!', '⚠️');
+        leaveRoom();
+        return;
+      }
+
+      updateWatchRoom(room);
+    });
+
+    // Show watch room
+    document.getElementById('watchRoomTitle').textContent = '🎬 ' + roomId;
+    document.getElementById('watchRoom').classList.add('active');
+    document.getElementById('mainApp').classList.remove('active');
+
+    showNotification('✅ Otağa qoşuldunuz!', '🎉');
   }
 
-  function proceedToRoom() {
-    if (!selectedSource) {
-      showNotification('❌ Zəhmət olmasa mənbə seçin!', '⚠️');
-      return;
-    }
+  function updateWatchRoom(room) {
+    // Update title
+    document.getElementById('watchRoomTitle').textContent = '🎬 ' + room.name;
 
-    document.getElementById('sourceScreen').style.display = 'none';
-    document.getElementById('watchRoom').classList.add('active');
-    loadVideo();
-    showNotification('🎬 İzləməyə başlayın!', '✅');
+    // Update viewers
+    const viewers = room.viewers || {};
+    const viewersList = document.getElementById('viewersList');
+    const viewerCount = document.getElementById('viewerCount');
+    
+    const viewersArray = Object.values(viewers);
+    viewerCount.textContent = viewersArray.length;
+
+    viewersList.innerHTML = viewersArray.map(viewer => `
+      <div class="viewer">${viewer.name}</div>
+    `).join('');
+
+    // Update video
+    if (room.videoUrl && room.videoUrl !== document.getElementById('videoUrlInput').value) {
+      document.getElementById('videoUrlInput').value = room.videoUrl;
+      loadVideoFromUrl(room.videoUrl);
+    }
   }
 
   function loadVideo() {
-    const wrapper = document.getElementById('videoWrapper');
+    const input = document.getElementById('videoUrlInput');
+    const url = input.value.trim();
 
-    if (selectedSource === 'youtube') {
-      const urlInput = document.getElementById('youtubeUrl').value.trim();
-      const videoId = extractYouTubeId(urlInput);
-
-      if (videoId) {
-        wrapper.innerHTML = `
-          <iframe 
-            width="100%" 
-            height="100%" 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&modestbranding=1"
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-          </iframe>
-        `;
-        showNotification('✅ YouTube video yükləndi!', '📺');
-      } else {
-        showNotification('❌ Yanlış YouTube linki!', '⚠️');
-        wrapper.innerHTML = `
-          <div class="videoPlaceholder">
-            <div class="placeholderIcon">❌</div>
-            <div class="placeholderText">Düzgün YouTube linki daxil edin</div>
-          </div>
-        `;
-      }
-    } else if (selectedSource === 'screen') {
-      shareScreen();
-    } else {
-      const urls = {
-        'netflix': 'https://www.netflix.com',
-        'amazon': 'https://www.primevideo.com',
-        'disney': 'https://www.disneyplus.com'
-      };
-      window.open(urls[selectedSource], '_blank');
-      setTimeout(() => {
-        showNotification('🖥️ Platformaya daxil olun və "Ekran Paylaş" düyməsinə basın!', '💡');
-      }, 2000);
+    if (!url) {
+      showNotification('⚠️ YouTube linki daxil edin!', '❌');
+      return;
     }
-  }
 
-  function extractYouTubeId(url) {
-    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    return match ? match[1] : null;
-  }
+    if (!currentRoomId) return;
 
-  async function shareScreen() {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
-        audio: true
+    // Update room video URL
+    database.ref('rooms/' + currentRoomId + '/videoUrl').set(url)
+      .then(() => {
+        showNotification('✅ Video yükləndi!', '🎬');
+      })
+      .catch((error) => {
+        console.error('Error loading video:', error);
+        showNotification('❌ Video yüklənə bilmədi!', '⚠️');
       });
-
-      const wrapper = document.getElementById('videoWrapper');
-      
-      // Clear wrapper
-      wrapper.innerHTML = '';
-
-      // Create video element
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.autoplay = true;
-      video.muted = false;
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.style.objectFit = 'contain';
-      video.style.backgroundColor = '#000';
-
-      wrapper.appendChild(video);
-
-      // Add controls
-      const controls = document.createElement('div');
-      controls.className = 'videoControls';
-      controls.innerHTML = `
-        <div class="controlBtn ${isMicOn ? 'active' : ''}" id="micBtn" onclick="toggleMic()">
-          <span id="micIcon">${isMicOn ? '🎤' : '🔇'}</span>
-        </div>
-        <div class="controlBtn ${isCamOn ? 'active' : ''}" id="camBtn" onclick="toggleCam()">
-          <span id="camIcon">${isCamOn ? '📹' : '📵'}</span>
-        </div>
-        <div class="controlBtn" onclick="shareScreen()">
-          🖥️
-        </div>
-      `;
-      wrapper.appendChild(controls);
-
-      showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
-
-      stream.getVideoTracks()[0].onended = () => {
-        showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
-        wrapper.innerHTML = `
-          <div class="videoPlaceholder">
-            <div class="placeholderIcon">🎬</div>
-            <div class="placeholderText">Video yüklənir...</div>
-          </div>
-        `;
-      };
-    } catch (err) {
-      showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
-      console.error('Screen share error:', err);
-    }
   }
 
-  async function toggleMic() {
-    if (!localStream) {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false
-        });
-        isMicOn = true;
-      } catch (err) {
-        showNotification('❌ Mikrofon icazəsi lazımdır!', '⚠️');
-        return;
-      }
-    } else {
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        isMicOn = audioTrack.enabled;
-      }
+  function loadVideoFromUrl(url) {
+    const wrapper = document.getElementById('videoWrapper');
+    
+    let videoId = '';
+    
+    // Extract YouTube ID
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0];
     }
 
-    const micBtn = document.getElementById('micBtn');
-    const micIcon = document.getElementById('micIcon');
-
-    if (isMicOn) {
-      micBtn.classList.add('active');
-      micBtn.classList.remove('off');
-      micIcon.textContent = '🎤';
-      showNotification('✅ Mikrofon açıldı', '🎤');
-    } else {
-      micBtn.classList.remove('active');
-      micBtn.classList.add('off');
-      micIcon.textContent = '🔇';
-      showNotification('🔇 Mikrofon bağlandı', '🔇');
+    if (!videoId) {
+      showNotification('⚠️ Düzgün YouTube linki deyil!', '❌');
+      return;
     }
+
+    wrapper.innerHTML = `
+      <iframe 
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen
+      ></iframe>
+    `;
   }
 
-  async function toggleCam() {
-    if (!localStream || !localStream.getVideoTracks().length) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
+  function leaveRoom() {
+    if (!currentRoomId) return;
 
-        if (localStream) {
-          stream.getVideoTracks().forEach(track => {
-            localStream.addTrack(track);
-          });
-        } else {
-          localStream = stream;
-        }
+    // Remove viewer
+    database.ref('rooms/' + currentRoomId + '/viewers/' + username).remove();
 
-        isCamOn = true;
-      } catch (err) {
-        showNotification('❌ Kamera icazəsi lazımdır!', '⚠️');
-        return;
+    // Check if room is empty
+    database.ref('rooms/' + currentRoomId + '/viewers').once('value', (snapshot) => {
+      const viewers = snapshot.val();
+      if (!viewers || Object.keys(viewers).length === 0) {
+        // Delete empty room
+        database.ref('rooms/' + currentRoomId).remove();
+        showNotification('🗑️ Otaq silindi (boş idi)', '🚮');
       }
-    } else {
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        isCamOn = videoTrack.enabled;
-      }
+    });
+
+    // Stop listening
+    if (currentRoomRef) {
+      currentRoomRef.off();
     }
 
-    const camBtn = document.getElementById('camBtn');
-    const camIcon = document.getElementById('camIcon');
+    currentRoomId = null;
+    currentRoomRef = null;
 
-    if (isCamOn) {
-      camBtn.classList.add('active');
-      camBtn.classList.remove('off');
-      camIcon.textContent = '📹';
-      showNotification('✅ Kamera açıldı', '📹');
-    } else {
-      camBtn.classList.remove('active');
-      camBtn.classList.add('off');
-      camIcon.textContent = '📵';
-      showNotification('📵 Kamera bağlandı', '📵');
-    }
+    // Show main app
+    document.getElementById('watchRoom').classList.remove('active');
+    document.getElementById('mainApp').classList.add('active');
+
+    // Clear video
+    document.getElementById('videoWrapper').innerHTML = `
+      <div class="placeholder">
+        <div class="placeholderIcon">🎬</div>
+        <div class="placeholderText">YouTube linki daxil edin</div>
+      </div>
+    `;
+    document.getElementById('videoUrlInput').value = '';
+
+    showNotification('👋 Otaqdan çıxdınız', '🚪');
   }
 
-  // Chat
+  // ============= Chat =============
   function sendMessage() {
-    const input = document.getElementById('messageInput');
+    const input = document.getElementById('chatInput');
     const text = input.value.trim();
 
-    if (!text) return;
+    if (!text || !currentRoomId) return;
 
-    addMessage(text, username, true);
-    input.value = '';
+    const messageData = {
+      author: username,
+      text: text,
+      timestamp: Date.now()
+    };
 
-    if (Math.random() > 0.7) {
-      setTimeout(() => {
-        const responses = [
-          'Çox gözəldir! 😍',
-          'Razıyam! 👍',
-          'Bu film əladır! 🔥',
-          'Maraqlıdır! 🤔',
-          'Hə, mən də bunu düşünürəm 💯'
-        ];
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        addMessage(randomResponse, 'Dost', false);
-      }, 1000 + Math.random() * 2000);
-    }
+    database.ref('rooms/' + currentRoomId + '/messages').push(messageData)
+      .then(() => {
+        input.value = '';
+      })
+      .catch((error) => {
+        console.error('Error sending message:', error);
+      });
   }
 
-  function addMessage(text, author, isOwn, isSystem = false) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageEl = document.createElement('div');
-    messageEl.className = 'chatMessage' + (isOwn ? ' own' : '');
+  // Listen to messages
+  function listenToMessages(roomId) {
+    database.ref('rooms/' + roomId + '/messages').on('child_added', (snapshot) => {
+      const message = snapshot.val();
+      addMessageToChat(message);
+    });
+  }
 
-    const avatar = isSystem ? '🤖' : (isOwn ? username[0].toUpperCase() : author[0].toUpperCase());
-    const time = getCurrentTime();
+  function addMessageToChat(message) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const isOwn = message.author === username;
+    
+    const messageEl = document.createElement('div');
+    messageEl.className = 'message' + (isOwn ? ' own' : '');
+    
+    const time = new Date(message.timestamp).toLocaleTimeString('az', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
 
     messageEl.innerHTML = `
-      <div class="messageAvatar">${avatar}</div>
-      <div class="messageBubble">
-        <div class="messageAuthor">${author}</div>
-        <div class="messageText">${text}</div>
-        <div class="messageTime">${time}</div>
-      </div>
+      <div class="messageAuthor">${message.author}</div>
+      <div class="messageBubble">${message.text}</div>
+      <div class="messageTime">${time}</div>
     `;
 
     messagesDiv.appendChild(messageEl);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
-  function sendEmoji(emoji) {
-    showFloatingEmoji(emoji);
-    addMessage(emoji, username, true);
-  }
-
-  function showFloatingEmoji(emoji) {
-    const emojiEl = document.createElement('div');
-    emojiEl.className = 'floatingEmoji';
-    emojiEl.textContent = emoji;
-
-    const x = 20 + Math.random() * 60;
-    const y = 20 + Math.random() * 60;
-
-    emojiEl.style.left = x + '%';
-    emojiEl.style.top = y + '%';
-
-    document.body.appendChild(emojiEl);
-    setTimeout(() => emojiEl.remove(), 2000);
-  }
-
+  // ============= Notification =============
   function showNotification(text, icon = '✅') {
     const notification = document.getElementById('notification');
     document.getElementById('notificationText').textContent = text;
@@ -2378,89 +1059,50 @@
     notification.classList.add('show');
     setTimeout(() => {
       notification.classList.remove('show');
-    }, 3500);
+    }, 3000);
   }
 
-  function leaveRoom() {
-    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-
-      if (currentRoom && currentRoom.viewers.includes(username)) {
-        const index = currentRoom.viewers.indexOf(username);
-        currentRoom.viewers.splice(index, 1);
-        userCounts[currentRoom.id] = Math.max(0, (userCounts[currentRoom.id] || 1) - 1);
-
-        if (currentRoom.viewers.length === 0) {
-          rooms = rooms.filter(r => r.id !== currentRoom.id);
-          delete userCounts[currentRoom.id];
-          showNotification('🗑️ Otaq silindi (boş idi)', '🚮');
-        }
-
-        saveRoomsToStorage();
-        renderRooms();
-      }
-
-      document.getElementById('watchRoom').classList.remove('active');
-      document.getElementById('sourceScreen').style.display = 'none';
-      document.getElementById('homeScreen').classList.remove('hidden');
-
-      selectedSource = '';
-      currentRoom = null;
-      document.querySelectorAll('.sourceCard').forEach(card => {
-        card.classList.remove('active');
-      });
-
-      showNotification('👋 Otaqdan çıxdınız', '🚪');
-    }
-  }
-
-  function toggleFullscreen() {
-    const videoWrapper = document.getElementById('videoWrapper');
-
-    if (!document.fullscreenElement) {
-      videoWrapper.requestFullscreen();
-      showNotification('⛶ Tam ekran aktivləşdi', '⛶');
-    } else {
-      document.exitFullscreen();
-      showNotification('⛶ Tam ekran deaktivləşdi', '⛶');
-    }
-  }
-
-  function getCurrentTime() {
-    const now = new Date();
-    return now.toLocaleTimeString('az', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function showAbout() {
-    alert('🎬 CineParty v3.0 Ultimate\n\nDostlarınızla birlikdə film və video izləmək üçün ən yaxşı platforma!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma sistemi\n• Private/Public otaqlar\n• Film tracker (İzləniləcək/İzlənilən)\n• YouTube embed player\n• Ekran paylaşımı\n• Real-time istifadəçi sayı\n• Avtomatik otaq silinməsi\n\nYaradıcı: CineParty Team 2024');
-    closeSidebar();
-  }
-
-  // Event listeners
+  // ============= Event Listeners =============
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+    // Username input
+    document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        login();
+      }
+    });
+
+    // Room name input
+    document.getElementById('roomNameInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        createRoom();
+      }
+    });
+
+    // Chat input
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
         e.preventDefault();
         sendMessage();
       }
     });
 
-    document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+    // Video URL input
+    document.getElementById('videoUrlInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        startApp();
-      }
-    });
-
-    document.getElementById('movieTitleInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addMovie();
+        loadVideo();
       }
     });
   });
+
+  // Listen to messages when joining room
+  const originalJoinRoom = joinRoom;
+  joinRoom = function(roomId) {
+    originalJoinRoom(roomId);
+    listenToMessages(roomId);
+  };
 </script>
 
 </body>
