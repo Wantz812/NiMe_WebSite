@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>⏳ Zaman Kapsulu</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+</head>
+
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <div class="brandMark">⏳</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Zaman Kapsulu</div>
+        <div class="brandSub">Gələcəyə mesajlar</div>
+      </div>
+    </a>
+    <div class="pills">
+      <a class="pill" href="index.html">🏠 Ana</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <!-- Hero -->
+    <section class="card heroCard">
+      <div class="cardInner">
+        <h1 class="h1">
+          <span class="gradientText">Zaman Kapsulu</span> ⏳
+        </h1>
+        <p class="p" style="font-size: 14px; margin-top: 12px;">
+          Gələcəyə mesaj yaz. Tarix gələndə avtomatik açılacaq və oxuya biləcəksən 💌
+        </p>
+      </div>
+    </section>
+
+    <!-- Add Capsule Form -->
+    <div class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h2 class="h2" style="margin-bottom: 14px;">✨ Yeni Kapsul Yarat</h2>
+        
+        <div class="field">
+          <label class="label">📝 Başlıq</label>
+          <input class="input" id="cTitle" type="text" placeholder="Məs: 1 il sonra oxu...">
+        </div>
+
+        <div class="field">
+          <label class="label">💌 Mesaj</label>
+          <textarea class="textarea" id="cText" rows="5" placeholder="Gələcəkdə özünə nə demək istəyirsən?"></textarea>
+        </div>
+
+        <div class="grid two" style="margin-top: 14px;">
+          <div class="field">
+            <label class="label">📅 Tarix</label>
+            <input class="input" id="cDate" type="date">
+          </div>
+          <div class="field">
+            <label class="label">🕐 Saat</label>
+            <input class="input" id="cTime" type="time">
+          </div>
+        </div>
+
+        <div class="note" style="margin-top: 14px;">
+          💡 <b>Tez seçim:</b>
+          <div class="btnRow" style="margin-top: 8px;">
+            <button class="btn" data-quick="1">1 gün</button>
+            <button class="btn" data-quick="7">1 həftə</button>
+            <button class="btn" data-quick="30">1 ay</button>
+            <button class="btn" data-quick="365">1 il</button>
+          </div>
+        </div>
+
+        <div class="btnRow" style="margin-top: 14px;">
+          <button class="btn primary" id="addBtn">➕ Kapsul Yarat</button>
+          <button class="btn good" id="addDemoBtn">🎯 Demo Əlavə Et</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid two" style="margin-top: 14px;">
+      <div class="card">
+        <div class="cardInner">
+          <h3 class="h2">📊 Statistika</h3>
+          <div class="statGrid" style="margin-top: 12px;">
+            <div class="statItem">
+              <div class="statLabel">Cəmi</div>
+              <div class="statValue" id="statTotal">0</div>
+            </div>
+            <div class="statItem">
+              <div class="statLabel">Kilidli</div>
+              <div class="statValue" id="statLocked">0</div>
+            </div>
+            <div class="statItem">
+              <div class="statLabel">Açıq</div>
+              <div class="statValue" id="statOpen">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardInner">
+          <h3 class="h2">⚙️ İdarəetmə</h3>
+          <div class="btnRow" style="margin-top: 12px;">
+            <button class="btn" id="sortBtn">🔄 Sıralama</button>
+            <button class="btn bad" id="resetBtn">🗑️ Hamısını Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capsules List -->
+    <div class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h2 class="h2" style="margin-bottom: 14px;">📦 Kapsullar</h2>
+        <div id="capsuleList"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottomNav cartoonNav" aria-label="Primary">
+    <a class="navBtn" href="index.html">
+      <div class="navIcon">🏠</div>
+      <span>Ana</span>
+    </a>
+    <a class="navBtn" href="watch-party.html">
+      <div class="navIcon">🍿</div>
+      <span>Film</span>
+    </a>
+    <a class="navBtn" href="album.html">
+      <div class="navIcon">📖</div>
+      <span>Album</span>
+    </a>
+    <a class="navBtn" href="plans.html">
+      <div class="navIcon">📋</div>
+      <span>Planlar</span>
+    </a>
+    <a class="navBtn" aria-current="page" href="capsule.html">
+      <div class="navIcon">⏳</div>
+      <span>Kapsul</span>
+    </a>
+    <a class="navBtn" href="arcade.html">
+      <div class="navIcon">🕹️</div>
+      <span>Arcade</span>
+    </a>
+  </nav>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modalContent card">
+      <div class="cardInner">
+        <h2 class="h2" id="modalTitle"></h2>
+        <div class="modalBody" id="modalBody"></div>
+        <button class="btn primary" id="modalClose">Bağla</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const KEY = 'TIME_CAPSULES_V2';
+    let sortAsc = false;
+
+    function loadCapsules() {
+      try {
+        return JSON.parse(localStorage.getItem(KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCapsules(arr) {
+      localStorage.setItem(KEY, JSON.stringify(arr));
+    }
+
+    function makeId() {
+      return Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+    }
+
+    function addCapsule(c) {
+      const arr = loadCapsules();
+      arr.push(c);
+      saveCapsules(arr);
+      render();
+      App.toast('✅ Kapsul yaradıldı');
+    }
+
+    function removeCapsule(id) {
+      if (!confirm('Bu kapsulu silmək istədiyinə əminsən?')) return;
+      const arr = loadCapsules().filter(x => x.id !== id);
+      saveCapsules(arr);
+      render();
+      App.toast('🗑️ Kapsul silindi');
+    }
+
+    function getOpenTsFromInputs() {
+      const date = document.getElementById('cDate').value;
+      const time = document.getElementById('cTime').value;
+      if (!date || !time) return null;
+      return new Date(date + 'T' + time).getTime();
+    }
+
+    function setInputsToTs(ts) {
+      const d = new Date(ts);
+      document.getElementById('cDate').value = d.toISOString().split('T')[0];
+      document.getElementById('cTime').value = d.toTimeString().slice(0, 5);
+    }
+
+    function fmtDateTime(ts) {
+      const d = new Date(ts);
+      const date = d.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const time = d.toTimeString().slice(0, 5);
+      return `${date} ${time}`;
+    }
+
+    function humanCountdown(ms) {
+      const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+      if (days > 0) return `${days}g ${hours}s`;
+      if (hours > 0) return `${hours}s ${minutes}d`;
+      return `${minutes}d ${seconds}sn`;
+    }
+
+    function stats(arr) {
+      const now = Date.now();
+      const total = arr.length;
+      const locked = arr.filter(c => c.openAt > now).length;
+      const open = total - locked;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statLocked').textContent = locked;
+      document.getElementById('statOpen').textContent = open;
+    }
+
+    function openModal(title, text) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = text;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+
+    function render() {
+      const list = document.getElementById('capsuleList');
+      let arr = loadCapsules();
+
+      arr.sort((a, b) => sortAsc ? (a.openAt - b.openAt) : (b.openAt - a.openAt));
+      stats(arr);
+
+      const now = Date.now();
+      list.innerHTML = '';
+
+      if (arr.length === 0) {
+        list.innerHTML = `
+          <div class="note">
+            <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+            <b>Hələ kapsul yoxdur</b><br>
+            Yuxarıdan bir kapsul yarat — tarix gələndə avtomatik açılacaq
+          </div>
+        `;
+        return;
+      }
+
+      arr.forEach(c => {
+        const locked = c.openAt > now;
+        const wrap = document.createElement('div');
+        wrap.className = 'capsuleCard card';
+
+        const badge = locked
+          ? `<span class="capsuleBadge locked">🔒 Kilidli</span>`
+          : `<span class="capsuleBadge open">🔓 Açıq</span>`;
+
+        const countdown = locked
+          ? `<div class="capsuleCountdown">⏱️ ${humanCountdown(c.openAt - now)}<br><small>${fmtDateTime(c.openAt)}</small></div>`
+          : `<div class="capsuleCountdown">✅ ${fmtDateTime(c.openAt)}</div>`;
+
+        wrap.innerHTML = `
+          <div class="cardInner">
+            <div class="capsuleHeader">
+              <div>
+                <div class="capsuleTitle">${c.title || 'Kapsul'}</div>
+                <div class="capsuleMeta">${fmtDateTime(c.createdAt)}</div>
+              </div>
+              ${badge}
+            </div>
+            ${countdown}
+            <div class="capsuleBody ${locked ? 'blurred' : ''}">
+              ${c.text || ''}
+            </div>
+            <div class="btnRow">
+              ${locked ? '' : `<button class="btn primary" data-act="open" data-id="${c.id}">📖 Oxu</button>`}
+              <button class="btn bad" data-act="del" data-id="${c.id}">🗑️ Sil</button>
+            </div>
+          </div>
+        `;
+
+        list.appendChild(wrap);
+      });
+    }
+
+    // Events
+    document.getElementById('addBtn').addEventListener('click', () => {
+      const title = document.getElementById('cTitle').value.trim();
+      const text = document.getElementById('cText').value.trim();
+      const openAt = getOpenTsFromInputs();
+
+      if (!title || !text) {
+        App.toast('⚠️ Başlıq və mətn yaz');
+        return;
+      }
+      if (!openAt) {
+        App.toast('⚠️ Tarix seç');
+        return;
+      }
+
+      addCapsule({
+        id: makeId(),
+        title,
+        text,
+        createdAt: Date.now(),
+        openAt
+      });
+
+      document.getElementById('cTitle').value = '';
+      document.getElementById('cText').value = '';
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Hamısını silmək istədiyinə əminsən?')) return;
+      localStorage.removeItem(KEY);
+      render();
+      App.toast('🧹 Sıfırlandı');
+    });
+
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      sortAsc = !sortAsc;
+      App.toast(sortAsc ? '⬆️ Köhnə → Yeni' : '⬇️ Yeni → Köhnə');
+      render();
+    });
+
+    document.getElementById('addDemoBtn').addEventListener('click', () => {
+      const now = Date.now();
+      const demo = [
+        { title: '7 gün sonra oxu 💌', text: 'Bu mesajı gələcəkdən oxuyursan… Səni yenə də çox sevirəm.', openAt: now + 7 * 24 * 3600 * 1000 },
+        { title: '1 dəqiqə sonra açılacaq 😄', text: 'Əgər bunu oxuyursansa, demək vaxt gəlib! ❤️', openAt: now + 60 * 1000 }
+      ];
+      const arr = loadCapsules();
+      demo.forEach(d => arr.push({ id: makeId(), createdAt: now, ...d }));
+      saveCapsules(arr);
+      render();
+      App.toast('✨ Demo əlavə olundu');
+    });
+
+    document.querySelectorAll('[data-quick]').forEach(b => {
+      b.addEventListener('click', () => {
+        const days = parseInt(b.getAttribute('data-quick'), 10);
+        const ts = Date.now() + days * 24 * 3600 * 1000;
+        setInputsToTs(ts);
+        App.toast(`⏱️ ${days} gün seçildi`);
+      });
+    });
+
+    document.getElementById('capsuleList').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const act = btn.getAttribute('data-act');
+      const id = btn.getAttribute('data-id');
+
+      const arr = loadCapsules();
+      const c = arr.find(x => x.id === id);
+      if (!c) return;
+
+      if (act === 'del') {
+        removeCapsule(id);
+        return;
+      }
+      if (act === 'open') {
+        openModal(c.title, c.text);
+      }
+    });
+
+    setInterval(() => {
+      const now = Date.now();
+      const arr = loadCapsules();
+      document.querySelectorAll('.capsuleCard').forEach((card, idx) => {
+        const btn = card.querySelector('button[data-id]');
+        const id = btn ? btn.getAttribute('data-id') : null;
+        if (!id) return;
+        const c = arr.find(x => x.id === id);
+        if (!c) return;
+
+        const locked = c.openAt > now;
+        const cd = card.querySelector('.capsuleCountdown');
+        if (cd && locked) {
+          cd.innerHTML = `⏱️ ${humanCountdown(c.openAt - now)}<br><small>${fmtDateTime(c.openAt)}</small>`;
+        }
+      });
+    }, 1000);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const ts = Date.now() + 24 * 3600 * 1000;
+      const d = new Date(ts);
+      d.setHours(20, 0, 0, 0);
+      setInputsToTs(d.getTime());
+      render();
+    });
+  </script>
+
+  <style>
+    .textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      transition: all var(--transition);
+    }
+
+    .textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+    }
+
+    .capsuleCard {
+      margin-bottom: 14px;
+      border: 2px solid var(--stroke);
+      transition: all var(--transition);
+    }
+
+    .capsuleCard:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .capsuleHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .capsuleTitle {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .capsuleMeta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .capsuleBadge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .capsuleBadge.locked {
+      background: rgba(251,113,133,.15);
+      color: var(--bad);
+      border: 1px solid rgba(251,113,133,.30);
+    }
+
+    .capsuleBadge.open {
+      background: rgba(52,211,153,.15);
+      color: var(--good);
+      border: 1px solid rgba(52,211,153,.30);
+    }
+
+    .capsuleCountdown {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--stroke);
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .capsuleCountdown small {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .capsuleBody {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px dashed var(--stroke);
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .capsuleBody.blurred {
+      filter: blur(6px);
+      opacity: 0.6;
+      user-select: none;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modalContent {
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modalBody {
+      margin: 14px 0;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px dashed var(--stroke);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+  </style>
+</body>
+</html>

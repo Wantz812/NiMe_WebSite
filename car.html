@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>🏎️ EXTREME RACER PRO</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    :root {
+      --neon-blue: #00f3ff;
+      --neon-pink: #ff00ff;
+      --neon-green: #39ff14;
+      --neon-orange: #ff6600;
+      --neon-red: #ff0040;
+      --neon-yellow: #ffff00;
+      --dark-bg: #0a0e27;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1e3f 100%);
+      color: white;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0,243,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,243,255,0.08) 1px, transparent 1px);
+      background-size: 25px 25px;
+      animation: gridMove 15s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(25px); }
+    }
+
+    /* Top Bar */
+    .topBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10,14,39,0.98);
+      backdrop-filter: blur(20px);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2000;
+      border-bottom: 2px solid var(--neon-blue);
+      box-shadow: 0 5px 30px rgba(0,243,255,0.4);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: logoGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes logoGlow {
+      0%, 100% { filter: drop-shadow(0 0 15px rgba(0,243,255,0.6)); }
+      50% { filter: drop-shadow(0 0 25px rgba(255,0,255,0.8)); }
+    }
+
+    .topStats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .stat {
+      background: rgba(0,243,255,0.2);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--neon-blue);
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(0,243,255,0.3);
+    }
+
+    .backBtn {
+      background: rgba(255,0,64,0.3);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--neon-red);
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .backBtn:hover {
+      background: rgba(255,0,64,0.5);
+      transform: scale(1.05);
+    }
+
+    /* Menu */
+    .menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10,14,39,0.99), rgba(26,30,63,0.99));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1500;
+      backdrop-filter: blur(15px);
+    }
+
+    .menu.hidden {
+      display: none;
+    }
+
+    .menuTitle {
+      font-size: 42px;
+      font-weight: bold;
+      margin-bottom: 35px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink), var(--neon-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titlePulse 3s ease-in-out infinite;
+      line-height: 1.2;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(0,243,255,0.8)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 40px rgba(255,0,255,0.9)); }
+    }
+
+    .menuButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 90%;
+      max-width: 380px;
+    }
+
+    .menuBtn {
+      padding: 16px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      background: linear-gradient(135deg, rgba(0,243,255,0.25), rgba(255,0,255,0.25));
+      border: 2px solid var(--neon-blue);
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 25px rgba(0,243,255,0.3);
+    }
+
+    .menuBtn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(transparent, var(--neon-blue), transparent 30%);
+      animation: btnRotate 4s linear infinite;
+      opacity: 0;
+    }
+
+    .menuBtn:hover::before {
+      opacity: 0.5;
+    }
+
+    @keyframes btnRotate {
+      100% { transform: rotate(360deg); }
+    }
+
+    .menuBtn:hover {
+      transform: translateY(-5px) scale(1.03);
+      border-color: var(--neon-pink);
+      box-shadow: 0 10px 45px rgba(255,0,255,0.6);
+    }
+
+    .menuBtn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Difficulty Selection */
+    .difficultySelect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1800;
+      backdrop-filter: blur(20px);
+    }
+
+    .difficultySelect.active {
+      display: flex;
+    }
+
+    .difficultyContent {
+      text-align: center;
+      max-width: 90%;
+      width: 500px;
+    }
+
+    .difficultyTitle {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .difficultySubtitle {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    .difficultyGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .diffCard {
+      background: linear-gradient(135deg, rgba(0,243,255,0.15), rgba(255,0,255,0.15));
+      border: 2px solid var(--neon-blue);
+      border-radius: 15px;
+      padding: 20px 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .diffCard:hover {
+      transform: translateY(-8px);
+      border-color: var(--neon-pink);
+      box-shadow: 0 10px 40px rgba(255,0,255,0.5);
+    }
+
+    .diffCard.easy { border-color: var(--neon-green); }
+    .diffCard.medium { border-color: var(--neon-orange); }
+    .diffCard.hard { border-color: var(--neon-red); }
+
+    .diffIcon {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .diffName {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .diffDesc {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* Map Selection */
+    .mapSelect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1900;
+      backdrop-filter: blur(20px);
+    }
+
+    .mapSelect.active {
+      display: flex;
+    }
+
+    .mapContent {
+      text-align: center;
+      max-width: 90%;
+      width: 600px;
+    }
+
+    .mapTitle {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mapGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .mapCard {
+      background: linear-gradient(135deg, rgba(0,243,255,0.15), rgba(255,0,255,0.15));
+      border: 2px solid var(--neon-blue);
+      border-radius: 15px;
+      padding: 18px 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .mapCard:hover {
+      transform: translateY(-8px);
+      border-color: var(--neon-pink);
+      box-shadow: 0 10px 40px rgba(255,0,255,0.5);
+    }
+
+    .mapIcon {
+      font-size: 50px;
+      margin-bottom: 8px;
+    }
+
+    .mapName {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* Canvas */
+    #gameCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      background: #000;
+      z-index: 10;
+    }
+
+    #gameCanvas.active {
+      display: block;
+    }
+
+    /* HUD */
+    .hud {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      z-index: 100;
+      display: none;
+      pointer-events: none;
+    }
+
+    .hud.active {
+      display: block;
+    }
+
+    .hudTop {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hudItem {
+      background: rgba(0,0,0,0.85);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--neon-blue);
+      font-size: 14px;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(0,243,255,0.5);
+      pointer-events: auto;
+    }
+
+    .comboMeter {
+      position: absolute;
+      top: 100px;
+      right: 12px;
+      background: rgba(0,0,0,0.9);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 2px solid var(--neon-yellow);
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--neon-yellow);
+      transform: scale(0);
+      transition: transform 0.3s;
+      box-shadow: 0 0 30px rgba(255,255,0,0.7);
+    }
+
+    .comboMeter.active {
+      transform: scale(1);
+      animation: comboPulse 0.6s infinite;
+    }
+
+    @keyframes comboPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .healthBar {
+      position: absolute;
+      bottom: 110px;
+      left: 12px;
+      right: 12px;
+      height: 28px;
+      background: rgba(0,0,0,0.8);
+      border: 2px solid var(--neon-red);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(255,0,64,0.5);
+    }
+
+    .healthFill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow), var(--neon-red));
+      transition: width 0.3s;
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .healthText {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      font-size: 13px;
+      color: white;
+      text-shadow: 0 0 10px black;
+    }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      bottom: 15px;
+      left: 0;
+      right: 0;
+      display: none;
+      justify-content: space-between;
+      padding: 0 15px;
+      z-index: 100;
+    }
+
+    .controls.active {
+      display: flex;
+    }
+
+    .controlBtn {
+      width: 75px;
+      height: 75px;
+      background: rgba(0,243,255,0.35);
+      border: 3px solid var(--neon-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 35px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(0,243,255,0.6);
+    }
+
+    .controlBtn:active {
+      background: rgba(0,243,255,0.7);
+      transform: scale(0.92);
+      box-shadow: 0 0 50px rgba(0,243,255,0.9);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1700;
+      backdrop-filter: blur(15px);
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modalContent {
+      background: linear-gradient(135deg, rgba(10,14,39,0.98), rgba(26,30,63,0.98));
+      padding: 25px;
+      border-radius: 20px;
+      border: 3px solid var(--neon-blue);
+      max-width: 92%;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(0,243,255,0.6);
+    }
+
+    .modalIcon {
+      font-size: 75px;
+      margin-bottom: 18px;
+      filter: drop-shadow(0 0 25px currentColor);
+    }
+
+    .modalTitle {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .modalText {
+      font-size: 16px;
+      margin-bottom: 22px;
+      line-height: 1.7;
+    }
+
+    .modalButtons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .modalBtn {
+      padding: 11px 22px;
+      font-size: 15px;
+      font-weight: bold;
+      background: linear-gradient(135deg, rgba(0,243,255,0.3), rgba(255,0,255,0.3));
+      border: 2px solid var(--neon-blue);
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .modalBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 25px rgba(0,243,255,0.6);
+    }
+
+    /* Shop */
+    .shop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10,14,39,0.99), rgba(26,30,63,0.99));
+      display: none;
+      z-index: 1600;
+      overflow-y: auto;
+      backdrop-filter: blur(15px);
+    }
+
+    .shop.active {
+      display: block;
+    }
+
+    .shopHeader {
+      position: sticky;
+      top: 0;
+      background: rgba(10,14,39,0.98);
+      padding: 18px;
+      border-bottom: 2px solid var(--neon-blue);
+      z-index: 10;
+      backdrop-filter: blur(20px);
+    }
+
+    .shopTitle {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .shopBalance {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--neon-green);
+      text-shadow: 0 0 20px var(--neon-green);
+    }
+
+    .shopGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      padding: 15px;
+      padding-bottom: 80px;
+    }
+
+    .carCard {
+      background: linear-gradient(135deg, rgba(0,243,255,0.12), rgba(255,0,255,0.12));
+      border: 2px solid var(--neon-blue);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .carCard:hover {
+      transform: translateY(-10px);
+      border-color: var(--neon-pink);
+      box-shadow: 0 12px 45px rgba(255,0,255,0.6);
+    }
+
+    .carCard.owned {
+      border-color: var(--neon-green);
+    }
+
+    .carCard.selected {
+      border-color: var(--neon-yellow);
+      box-shadow: 0 0 35px rgba(255,255,0,0.7);
+    }
+
+    .carEmoji {
+      font-size: 55px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px currentColor);
+    }
+
+    .carName {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .carStats {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+
+    .statBar {
+      background: rgba(0,0,0,0.6);
+      height: 5px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .statFill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+      border-radius: 3px;
+    }
+
+    .carPrice {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--neon-orange);
+      margin-bottom: 8px;
+    }
+
+    .carBtn {
+      width: 100%;
+      padding: 7px;
+      font-size: 13px;
+      font-weight: bold;
+      background: linear-gradient(135deg, rgba(0,243,255,0.35), rgba(255,0,255,0.35));
+      border: 2px solid var(--neon-blue);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .carBtn:hover {
+      background: linear-gradient(135deg, rgba(0,243,255,0.55), rgba(255,0,255,0.55));
+    }
+
+    /* Leaderboard */
+    .leaderboard {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10,14,39,0.99), rgba(26,30,63,0.99));
+      display: none;
+      z-index: 1600;
+      overflow-y: auto;
+      backdrop-filter: blur(15px);
+    }
+
+    .leaderboard.active {
+      display: block;
+    }
+
+    .leaderboardHeader {
+      position: sticky;
+      top: 0;
+      background: rgba(10,14,39,0.98);
+      padding: 18px;
+      border-bottom: 2px solid var(--neon-blue);
+      z-index: 10;
+      backdrop-filter: blur(20px);
+    }
+
+    .leaderboardTitle {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .leaderboardTabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .leaderboardTab {
+      padding: 8px 15px;
+      background: rgba(0,243,255,0.2);
+      border: 2px solid var(--neon-blue);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .leaderboardTab.active {
+      background: rgba(0,243,255,0.5);
+      border-color: var(--neon-pink);
+    }
+
+    .leaderboardList {
+      padding: 15px;
+      padding-bottom: 80px;
+    }
+
+    .leaderItem {
+      background: linear-gradient(135deg, rgba(0,243,255,0.12), rgba(255,0,255,0.12));
+      border: 2px solid var(--neon-blue);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .leaderItem.top1 { border-color: #ffd700; box-shadow: 0 0 25px rgba(255,215,0,0.5); }
+    .leaderItem.top2 { border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192,192,192,0.4); }
+    .leaderItem.top3 { border-color: #cd7f32; box-shadow: 0 0 15px rgba(205,127,50,0.4); }
+
+    .leaderRank {
+      font-size: 24px;
+      font-weight: bold;
+      min-width: 45px;
+      text-align: center;
+    }
+
+    .leaderInfo {
+      flex: 1;
+      padding: 0 12px;
+    }
+
+    .leaderName {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .leaderStats {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .leaderScore {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--neon-green);
+      text-align: right;
+      min-width: 80px;
+    }
+
+    /* Close Button */
+    .closeBtn {
+      position: fixed;
+      top: 60px;
+      right: 15px;
+      width: 48px;
+      height: 48px;
+      background: rgba(255,0,64,0.4);
+      border: 2px solid var(--neon-red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 1650;
+    }
+
+    .closeBtn:hover {
+      background: rgba(255,0,64,0.7);
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 95px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: rgba(0,0,0,0.95);
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: 2px solid var(--neon-green);
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--neon-green);
+      z-index: 2500;
+      transition: transform 0.3s;
+      box-shadow: 0 0 35px rgba(57,255,20,0.6);
+    }
+
+    .toast.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .menuTitle { font-size: 34px; }
+      .menuBtn { font-size: 16px; padding: 14px 20px; }
+      .difficultyTitle, .mapTitle { font-size: 28px; }
+      .shopGrid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topBar">
+    <div class="logo">
+      <span>🏎️</span>
+      <span>EXTREME PRO</span>
+    </div>
+    <div class="topStats">
+      <div class="stat">💰 <span id="topMoney">0</span></div>
+      <div class="stat">🏆 <span id="topScore">0</span></div>
+      <a href="index.html" class="backBtn">← Geri</a>
+    </div>
+  </div>
+
+  <!-- Main Menu -->
+  <div class="menu" id="menu">
+    <div class="menuTitle">🏎️ EXTREME<br>RACER PRO 🏎️</div>
+    <div class="menuButtons">
+      <button class="menuBtn" onclick="showDifficultySelect()"><span>🎮 OYUNA BAŞLA</span></button>
+      <button class="menuBtn" onclick="openShop()"><span>🏪 MAĞAZA</span></button>
+      <button class="menuBtn" onclick="openLeaderboard()"><span>🏆 SİRALAMA</span></button>
+      <button class="menuBtn" onclick="showStats()"><span>📊 STATİSTİKA</span></button>
+      <button class="menuBtn" onclick="resetProgress()"><span>🗑️ SIFIRLA</span></button>
+    </div>
+  </div>
+
+  <!-- Difficulty Selection -->
+  <div class="difficultySelect" id="difficultySelect">
+    <div class="difficultyContent">
+      <div class="difficultyTitle">ÇƏTİNLİK SEÇ</div>
+      <div class="difficultySubtitle">Hər çətinliyin ayrı statistikası var</div>
+      <div class="difficultyGrid">
+        <div class="diffCard easy" onclick="selectDifficulty(1)">
+          <div class="diffIcon">😊</div>
+          <div class="diffName">ASAN</div>
+          <div class="diffDesc">Az engel<br>Yavaş sürət</div>
+        </div>
+        <div class="diffCard medium" onclick="selectDifficulty(2)">
+          <div class="diffIcon">😐</div>
+          <div class="diffName">ORTA</div>
+          <div class="diffDesc">Normal engel<br>Orta sürət</div>
+        </div>
+        <div class="diffCard hard" onclick="selectDifficulty(3)">
+          <div class="diffIcon">😈</div>
+          <div class="diffName">ÇƏTİN</div>
+          <div class="diffDesc">Çox engel<br>Yüksək sürət</div>
+        </div>
+      </div>
+      <button class="modalBtn" onclick="closeDifficultySelect()">❌ Geri</button>
+    </div>
+  </div>
+
+  <!-- Map Selection -->
+  <div class="mapSelect" id="mapSelect">
+    <div class="mapContent">
+      <div class="mapTitle">XƏRİTƏ SEÇ</div>
+      <div class="mapGrid">
+        <div class="mapCard" onclick="selectMap('city')">
+          <div class="mapIcon">🏙️</div>
+          <div class="mapName">ŞƏHƏR</div>
+        </div>
+        <div class="mapCard" onclick="selectMap('desert')">
+          <div class="mapIcon">🏜️</div>
+          <div class="mapName">SƏHRA</div>
+        </div>
+        <div class="mapCard" onclick="selectMap('mountain')">
+          <div class="mapIcon">🏔️</div>
+          <div class="mapName">DAĞ</div>
+        </div>
+        <div class="mapCard" onclick="selectMap('night')">
+          <div class="mapIcon">🌃</div>
+          <div class="mapName">GECƏ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD -->
+  <div class="hud" id="hud">
+    <div class="hudTop">
+      <div class="hudItem">📍 <span id="distance">0</span>km</div>
+      <div class="hudItem">🎯 <span id="score">0</span></div>
+      <div class="hudItem">⚡ <span id="speed">0</span>km/h</div>
+    </div>
+    <div class="comboMeter" id="combo">🔥 x<span id="comboValue">0</span></div>
+    <div class="healthBar">
+      <div class="healthFill" id="healthFill" style="width: 100%"></div>
+      <div class="healthText">💚 <span id="healthValue">100</span>%</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls" id="controls">
+    <div class="controlBtn" ontouchstart="moveLeft()" ontouchend="stopMove()">⬅️</div>
+    <div class="controlBtn" ontouchstart="moveRight()" ontouchend="stopMove()">➡️</div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="modal" id="gameOverModal">
+    <div class="modalContent">
+      <div class="modalIcon" id="gameOverIcon">💥</div>
+      <div class="modalTitle" id="gameOverTitle">OYUN BİTDİ!</div>
+      <div class="modalText" id="gameOverText"></div>
+      <div class="modalButtons">
+        <button class="modalBtn" onclick="restartGame()">🔄 YENİDƏN</button>
+        <button class="modalBtn" onclick="backToMenu()">🏠 MENYU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop -->
+  <div class="shop" id="shop">
+    <div class="closeBtn" onclick="closeShop()">✖️</div>
+    <div class="shopHeader">
+      <div class="shopTitle">🏪 MAŞIN MAĞAZASI</div>
+      <div class="shopBalance">💰 Büdcə: $<span id="shopMoney">0</span></div>
+    </div>
+    <div class="shopGrid" id="shopGrid"></div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="leaderboard" id="leaderboard">
+    <div class="closeBtn" onclick="closeLeaderboard()">✖️</div>
+    <div class="leaderboardHeader">
+      <div class="leaderboardTitle">🏆 ONLINE SİRALAMA</div>
+      <div class="leaderboardTabs">
+        <div class="leaderboardTab active" onclick="switchLeaderboard(1)">😊 ASAN</div>
+        <div class="leaderboardTab" onclick="switchLeaderboard(2)">😐 ORTA</div>
+        <div class="leaderboardTab" onclick="switchLeaderboard(3)">😈 ÇƏTİN</div>
+      </div>
+    </div>
+    <div class="leaderboardList" id="leaderboardList"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Game State
+    const gameState = {
+      money: parseInt(localStorage.getItem('racerProMoney')) || 0,
+      ownedCars: JSON.parse(localStorage.getItem('racerProCars')) || ['car1'],
+      selectedCar: localStorage.getItem('racerProSelectedCar') || 'car1',
+      stats: {
+        easy: JSON.parse(localStorage.getItem('racerProStatsEasy')) || { games: 0, bestScore: 0, totalKm: 0, totalEarned: 0, bestCombo: 0 },
+        medium: JSON.parse(localStorage.getItem('racerProStatsMedium')) || { games: 0, bestScore: 0, totalKm: 0, totalEarned: 0, bestCombo: 0 },
+        hard: JSON.parse(localStorage.getItem('racerProStatsHard')) || { games: 0, bestScore: 0, totalKm: 0, totalEarned: 0, bestCombo: 0 }
+      }
+    };
+
+    // Cars Database - YÜKSƏK QİYMƏTLƏR
+    const cars = {
+      car1: { emoji: '🚗', name: 'Sedan', speed: 6, handling: 7, price: 0, color: '#ff6600' },
+      car2: { emoji: '🚙', name: 'SUV', speed: 5, handling: 8, price: 500, color: '#00ff00' },
+      car3: { emoji: '🏎️', name: 'Yarış', speed: 9, handling: 6, price: 1200, color: '#ff0000' },
+      car4: { emoji: '🚓', name: 'Polis', speed: 7, handling: 8, price: 900, color: '#0000ff' },
+      car5: { emoji: '🚕', name: 'Taksi', speed: 6, handling: 7, price: 600, color: '#ffff00' },
+      car6: { emoji: '🚐', name: 'Minivan', speed: 5, handling: 9, price: 800, color: '#00ffff' },
+      car7: { emoji: '🚛', name: 'Yük', speed: 4, handling: 5, price: 700, color: '#ff00ff' },
+      car8: { emoji: '🏁', name: 'F1', speed: 10, handling: 5, price: 2000, color: '#ffffff' },
+      car9: { emoji: '🚑', name: 'Təcili', speed: 7, handling: 7, price: 850, color: '#ff0000' },
+      car10: { emoji: '🚒', name: 'Yanğın', speed: 6, handling: 6, price: 950, color: '#ff0000' },
+      car11: { emoji: '🛻', name: 'Pikap', speed: 6, handling: 8, price: 1100, color: '#8b4513' },
+      car12: { emoji: '🚔', name: 'Sheriff', speed: 8, handling: 7, price: 1400, color: '#000000' },
+      car13: { emoji: '🏎️', name: 'Supercar', speed: 10, handling: 7, price: 2500, color: '#ff1493' },
+      car14: { emoji: '🚚', name: 'Kamyon', speed: 4, handling: 4, price: 1300, color: '#696969' },
+      car15: { emoji: '🛸', name: 'UFO', speed: 10, handling: 10, price: 5000, color: '#00ff00' },
+      car16: { emoji: '🚀', name: 'Raket', speed: 11, handling: 9, price: 7500, color: '#ff00ff' },
+      car17: { emoji: '⚡', name: 'Elektro', speed: 10, handling: 9, price: 6000, color: '#ffff00' },
+      car18: { emoji: '💎', name: 'Kristal', speed: 9, handling: 10, price: 8000, color: '#00ffff' }
+    };
+
+    // Maps
+    const maps = {
+      city: { name: 'Şəhər', bgColor: '#2d3436', roadColor: '#636e72', lineColor: '#fdcb6e' },
+      desert: { name: 'Səhra', bgColor: '#fab1a0', roadColor: '#d63031', lineColor: '#ffffff' },
+      mountain: { name: 'Dağ', bgColor: '#74b9ff', roadColor: '#0984e3', lineColor: '#ffffff' },
+      night: { name: 'Gecə', bgColor: '#2d3436', roadColor: '#000000', lineColor: '#00b894' }
+    };
+
+    // Canvas Setup
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Game Variables
+    let player, obstacles, powerups, particles;
+    let distance, score, speed, health, combo, maxCombo;
+    let keys = {};
+    let moveDirection = 0;
+    let gameRunning = false;
+    let currentDifficulty = 2;
+    let currentMap = 'city';
+    let lanes = [];
+    let currentLane = 1;
+
+    // Initialize Lanes
+    function initLanes() {
+      const laneWidth = Math.min(canvas.width * 0.2, 100);
+      const totalWidth = laneWidth * 4;
+      const startX = (canvas.width - totalWidth) / 2;
+      
+      lanes = [];
+      for (let i = 0; i < 4; i++) {
+        lanes.push(startX + (laneWidth * i) + laneWidth / 2);
+      }
+    }
+
+    // Initialize
+    function init() {
+      initLanes();
+      updateUI();
+      renderShop();
+    }
+
+    // Update UI
+    function updateUI() {
+      document.getElementById('topMoney').textContent = gameState.money;
+      const bestScore = Math.max(
+        gameState.stats.easy.bestScore,
+        gameState.stats.medium.bestScore,
+        gameState.stats.hard.bestScore
+      );
+      document.getElementById('topScore').textContent = bestScore;
+      document.getElementById('shopMoney').textContent = gameState.money;
+    }
+
+    // Show Difficulty Select
+    function showDifficultySelect() {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('difficultySelect').classList.add('active');
+    }
+
+    function closeDifficultySelect() {
+      document.getElementById('difficultySelect').classList.remove('active');
+      document.getElementById('menu').classList.remove('hidden');
+    }
+
+    // Select Difficulty
+    function selectDifficulty(diff) {
+      currentDifficulty = diff;
+      document.getElementById('difficultySelect').classList.remove('active');
+      document.getElementById('mapSelect').classList.add('active');
+    }
+
+    // Select Map
+    function selectMap(map) {
+      currentMap = map;
+      document.getElementById('mapSelect').classList.remove('active');
+      startGame();
+    }
+
+    // Start Game
+    function startGame() {
+      initLanes();
+      document.getElementById('gameCanvas').classList.add('active');
+      document.getElementById('hud').classList.add('active');
+      document.getElementById('controls').classList.add('active');
+      
+      resetGame();
+      gameRunning = true;
+      gameLoop();
+    }
+
+    // Reset Game
+    function resetGame() {
+      const car = cars[gameState.selectedCar];
+      currentLane = 1;
+      
+      player = {
+        x: lanes[currentLane],
+        y: canvas.height - 150,
+        width: 50,
+        height: 70,
+        speed: car.speed,
+        handling: car.handling,
+        emoji: car.emoji,
+        color: car.color,
+        targetX: lanes[currentLane]
+      };
+
+      obstacles = [];
+      powerups = [];
+      particles = [];
+      distance = 0;
+      score = 0;
+      speed = 5;
+      health = 100;
+      combo = 0;
+      maxCombo = 0;
+
+      const diffKey = ['easy', 'medium', 'hard'][currentDifficulty - 1];
+      gameState.stats[diffKey].games++;
+      saveData();
+    }
+
+    // Game Loop
+    function gameLoop() {
+      if (!gameRunning) return;
+      update();
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    // Update
+    function update() {
+      // Speed
+      const speedMultiplier = [1, 1.5, 2.2][currentDifficulty - 1];
+      speed = (5 + distance / 100) * speedMultiplier;
+      distance += speed / 60;
+
+      // Lane movement
+      if ((keys['ArrowLeft'] || moveDirection === -1) && currentLane > 0) {
+        if (Math.abs(player.x - player.targetX) < 5) {
+          currentLane--;
+          player.targetX = lanes[currentLane];
+        }
+      } else if ((keys['ArrowRight'] || moveDirection === 1) && currentLane < 3) {
+        if (Math.abs(player.x - player.targetX) < 5) {
+          currentLane++;
+          player.targetX = lanes[currentLane];
+        }
+      }
+
+      // Smooth lane transition
+      player.x += (player.targetX - player.x) * 0.2;
+
+      // Spawn obstacles
+      const obstacleChance = [0.015, 0.025, 0.04][currentDifficulty - 1];
+      if (Math.random() < obstacleChance) {
+        const types = ['🪨', '💣', '🚧', '⚠️', '🛑', '🚗'];
+        const lane = Math.floor(Math.random() * 4);
+        obstacles.push({
+          x: lanes[lane],
+          y: -80,
+          lane: lane,
+          width: 50,
+          height: 50,
+          type: types[Math.floor(Math.random() * types.length)],
+          speed: speed + Math.random() * 2
+        });
+      }
+
+      // Spawn powerups
+      if (Math.random() < 0.006) {
+        const types = ['⚡', '💰', '🛡️', '💎'];
+        const lane = Math.floor(Math.random() * 4);
+        powerups.push({
+          x: lanes[lane],
+          y: -60,
+          lane: lane,
+          width: 40,
+          height: 40,
+          type: types[Math.floor(Math.random() * types.length)]
+        });
+      }
+
+      // Update obstacles
+      obstacles = obstacles.filter(obs => {
+        obs.y += obs.speed;
+
+        // Collision
+        if (currentLane === obs.lane && 
+            Math.abs(player.y - obs.y) < 60 && 
+            !obs.hit) {
+          obs.hit = true;
+          takeDamage(25);
+          createExplosion(obs.x, obs.y, false);
+          combo = 0;
+          return false;
+        }
+
+        // Dodged
+        if (obs.y > player.y + 100 && !obs.dodged) {
+          obs.dodged = true;
+          combo++;
+          maxCombo = Math.max(maxCombo, combo);
+          const comboBonus = Math.min(combo, 20);
+          score += 10 * comboBonus;
+          
+          if (combo > 1 && combo % 5 === 0) {
+            showToast(`🔥 KOMBO x${combo}!`);
+          }
+        }
+
+        return obs.y < canvas.height + 100;
+      });
+
+      // Update powerups
+      powerups = powerups.filter(pow => {
+        pow.y += speed;
+
+        if (currentLane === pow.lane && Math.abs(player.y - pow.y) < 50) {
+          collectPowerup(pow);
+          return false;
+        }
+
+        return pow.y < canvas.height + 100;
+      });
+
+      // Update particles
+      particles = particles.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        return p.life > 0;
+      });
+
+      // Score from distance
+      score += Math.floor(speed / 5);
+
+      // Update HUD
+      document.getElementById('distance').textContent = (distance / 1000).toFixed(2);
+      document.getElementById('score').textContent = score;
+      document.getElementById('speed').textContent = Math.floor(speed * 10);
+      document.getElementById('healthValue').textContent = health;
+      document.getElementById('healthFill').style.width = health + '%';
+      
+      const comboEl = document.getElementById('combo');
+      if (combo > 1) {
+        comboEl.classList.add('active');
+        document.getElementById('comboValue').textContent = combo;
+      } else {
+        comboEl.classList.remove('active');
+      }
+
+      // Game over
+      if (health <= 0) {
+        endGame();
+      }
+    }
+
+    // Draw
+    function draw() {
+      const map = maps[currentMap];
+      
+      // Background
+      ctx.fillStyle = map.bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Road
+      const laneWidth = Math.min(canvas.width * 0.2, 100);
+      const totalWidth = laneWidth * 4;
+      const roadX = (canvas.width - totalWidth) / 2;
+      
+      ctx.fillStyle = map.roadColor;
+      ctx.fillRect(roadX, 0, totalWidth, canvas.height);
+
+      // Lane lines
+      ctx.strokeStyle = map.lineColor;
+      ctx.lineWidth = 3;
+      const lineHeight = 40;
+      const lineGap = 30;
+      const offset = (distance * 3) % (lineHeight + lineGap);
+      
+      for (let i = 1; i < 4; i++) {
+        for (let y = -offset; y < canvas.height; y += lineHeight + lineGap) {
+          ctx.beginPath();
+          ctx.moveTo(lanes[i] - laneWidth / 2, y);
+          ctx.lineTo(lanes[i] - laneWidth / 2, y + lineHeight);
+          ctx.stroke();
+        }
+      }
+
+      // Side lines
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(roadX, 0);
+      ctx.lineTo(roadX, canvas.height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(roadX + totalWidth, 0);
+      ctx.lineTo(roadX + totalWidth, canvas.height);
+      ctx.stroke();
+
+      // Particles
+      particles.forEach(p => {
+        ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.life / 40})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Obstacles
+      obstacles.forEach(obs => {
+        ctx.save();
+        ctx.translate(obs.x, obs.y);
+        ctx.font = '50px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#ff0000';
+        ctx.fillText(obs.type, 0, 0);
+        ctx.restore();
+      });
+
+      // Powerups
+      powerups.forEach(pow => {
+        ctx.save();
+        ctx.translate(pow.x, pow.y);
+        ctx.font = '40px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ffff00';
+        const bounce = Math.sin(Date.now() / 150) * 6;
+        ctx.fillText(pow.type, 0, bounce);
+        ctx.restore();
+      });
+
+      // Player
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      ctx.font = '70px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = player.color;
+      ctx.fillText(player.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    // Take Damage
+    function takeDamage(amount) {
+      health = Math.max(0, health - amount);
+      
+      if (navigator.vibrate) {
+        navigator.vibrate(200);
+      }
+      
+      canvas.style.filter = 'brightness(1.6)';
+      setTimeout(() => canvas.style.filter = 'brightness(1)', 120);
+    }
+
+    // Collect Powerup
+    function collectPowerup(pow) {
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+
+      switch(pow.type) {
+        case '⚡':
+          speed += 4;
+          setTimeout(() => speed -= 4, 4000);
+          showToast('⚡ TURBO!');
+          break;
+        case '💰':
+          const coins = Math.floor(Math.random() * 40) + 30;
+          gameState.money += coins;
+          score += 80;
+          showToast(`💰 +$${coins}`);
+          updateUI();
+          saveData();
+          break;
+        case '🛡️':
+          health = Math.min(100, health + 35);
+          showToast('🛡️ +35% SAĞLAMLIQ!');
+          break;
+        case '💎':
+          score += 150;
+          showToast('💎 BONUS +150!');
+          break;
+      }
+
+      createExplosion(pow.x, pow.y, true);
+    }
+
+    // Create Explosion
+    function createExplosion(x, y, isGood = false) {
+      for (let i = 0; i < 25; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 10,
+          r: isGood ? 255 : 255,
+          g: isGood ? 215 : Math.random() * 100,
+          b: isGood ? 0 : 0,
+          size: Math.random() * 6 + 3,
+          life: 40
+        });
+      }
+    }
+
+    // End Game
+    function endGame() {
+      gameRunning = false;
+      cancelAnimationFrame(animationId);
+
+      const diffKey = ['easy', 'medium', 'hard'][currentDifficulty - 1];
+      const rewardMultiplier = [0.05, 0.15, 0.3][currentDifficulty - 1];
+      const reward = Math.floor(score * rewardMultiplier);
+      
+      gameState.money += reward;
+      gameState.stats[diffKey].totalKm += distance / 1000;
+      gameState.stats[diffKey].totalEarned += reward;
+      
+      if (score > gameState.stats[diffKey].bestScore) {
+        gameState.stats[diffKey].bestScore = score;
+      }
+      
+      if (maxCombo > gameState.stats[diffKey].bestCombo) {
+        gameState.stats[diffKey].bestCombo = maxCombo;
+      }
+
+      saveData();
+      updateUI();
+      
+      // Update leaderboard
+      updateLeaderboard(diffKey, score, distance / 1000, maxCombo);
+
+      document.getElementById('gameOverIcon').textContent = score > 10000 ? '🏆' : score > 5000 ? '🎖️' : '💥';
+      document.getElementById('gameOverTitle').textContent = score > 10000 ? 'MÜKƏMMƏL!' : score > 5000 ? 'ƏLA!' : 'OYUN BİTDİ!';
+      document.getElementById('gameOverText').innerHTML = `
+        <strong style="color: var(--neon-blue);">🎯 Xal: ${score}</strong><br>
+        <strong style="color: var(--neon-green);">📍 Məsafə: ${(distance/1000).toFixed(2)}km</strong><br>
+        <strong style="color: var(--neon-orange);">💰 Qazanc: $${reward}</strong><br>
+        <strong style="color: var(--neon-pink);">🔥 Maks Kombo: x${maxCombo}</strong><br>
+        <strong style="color: var(--neon-yellow);">😈 Çətinlik: ${['Asan','Orta','Çətin'][currentDifficulty-1]}</strong>
+      `;
+      
+      document.getElementById('gameOverModal').classList.add('active');
+    }
+
+    // Update Leaderboard
+    function updateLeaderboard(difficulty, score, km, combo) {
+      const key = `leaderboard_${difficulty}`;
+      let leaderboard = JSON.parse(localStorage.getItem(key) || '[]');
+      
+      const playerName = localStorage.getItem('playerName') || 'Oyunçu';
+      const entry = {
+        name: playerName,
+        score: score,
+        km: km.toFixed(2),
+        combo: combo,
+        date: Date.now()
+      };
+      
+      leaderboard.push(entry);
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 50);
+      
+      localStorage.setItem(key, JSON.stringify(leaderboard));
+    }
+
+    // Restart Game
+    function restartGame() {
+      document.getElementById('gameOverModal').classList.remove('active');
+      resetGame();
+      gameRunning = true;
+      gameLoop();
+    }
+
+    // Back to Menu
+    function backToMenu() {
+      document.getElementById('gameOverModal').classList.remove('active');
+      document.getElementById('gameCanvas').classList.remove('active');
+      document.getElementById('hud').classList.remove('active');
+      document.getElementById('controls').classList.remove('active');
+      document.getElementById('menu').classList.remove('hidden');
+    }
+
+    // Shop
+    function openShop() {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('shop').classList.add('active');
+      renderShop();
+    }
+
+    function closeShop() {
+      document.getElementById('shop').classList.remove('active');
+      document.getElementById('menu').classList.remove('hidden');
+    }
+
+    function renderShop() {
+      const grid = document.getElementById('shopGrid');
+      grid.innerHTML = '';
+
+      Object.entries(cars).forEach(([id, car]) => {
+        const owned = gameState.ownedCars.includes(id);
+        const selected = gameState.selectedCar === id;
+
+        const card = document.createElement('div');
+        card.className = `carCard ${owned ? 'owned' : ''} ${selected ? 'selected' : ''}`;
+        card.innerHTML = `
+          <div class="carEmoji">${car.emoji}</div>
+          <div class="carName">${car.name}</div>
+          <div class="carStats">
+            <div>⚡ Sürət</div>
+            <div class="statBar"><div class="statFill" style="width: ${car.speed * 9}%"></div></div>
+            <div>🎮 İdarə</div>
+            <div class="statBar"><div class="statFill" style="width: ${car.handling * 9}%"></div></div>
+          </div>
+          <div class="carPrice">${car.price === 0 ? '🎁 Pulsuz' : '💰 $' + car.price}</div>
+          ${owned 
+            ? `<button class="carBtn" onclick="selectCar('${id}')">${selected ? '✅ Seçildi' : '🚗 Seç'}</button>`
+            : `<button class="carBtn" onclick="buyCar('${id}')">💳 Al ($${car.price})</button>`
+          }
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function buyCar(id) {
+      const car = cars[id];
+      if (gameState.money >= car.price) {
+        gameState.money -= car.price;
+        gameState.ownedCars.push(id);
+        gameState.selectedCar = id;
+        saveData();
+        updateUI();
+        renderShop();
+        showToast(`🎉 ${car.name} alındı!`);
+      } else {
+        showToast(`❌ Lazımdır: $${car.price - gameState.money} daha!`);
+      }
+    }
+
+    function selectCar(id) {
+      gameState.selectedCar = id;
+      saveData();
+      renderShop();
+      showToast(`✅ ${cars[id].name} seçildi!`);
+    }
+
+    // Leaderboard
+    function openLeaderboard() {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('leaderboard').classList.add('active');
+      switchLeaderboard(1);
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard').classList.remove('active');
+      document.getElementById('menu').classList.remove('hidden');
+    }
+
+    function switchLeaderboard(diff) {
+      // Update tabs
+      document.querySelectorAll('.leaderboardTab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === diff - 1);
+      });
+      
+      renderLeaderboard(diff);
+    }
+
+    function renderLeaderboard(diff) {
+      const diffKey = ['easy', 'medium', 'hard'][diff - 1];
+      const key = `leaderboard_${diffKey}`;
+      const leaderboard = JSON.parse(localStorage.getItem(key) || '[]');
+      
+      const list = document.getElementById('leaderboardList');
+      
+      if (leaderboard.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:#666;padding:50px 20px;font-size:18px;">Hələ heç kim yoxdur...<br>İlk ol! 🏆</p>';
+        return;
+      }
+      
+      list.innerHTML = leaderboard.map((entry, i) => `
+        <div class="leaderItem ${i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : ''}">
+          <div class="leaderRank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</div>
+          <div class="leaderInfo">
+            <div class="leaderName">${entry.name}</div>
+            <div class="leaderStats">📍 ${entry.km}km • 🔥 x${entry.combo}</div>
+          </div>
+          <div class="leaderScore">${entry.score}</div>
+        </div>
+      `).join('');
+    }
+
+    // Stats
+    function showStats() {
+      const easy = gameState.stats.easy;
+      const medium = gameState.stats.medium;
+      const hard = gameState.stats.hard;
+      
+      alert(`📊 ÜMUM STATİSTİKA\n\n💰 Pul: $${gameState.money}\n\n😊 ASAN:\n  🎮 Oyun: ${easy.games}\n  🏆 Best: ${easy.bestScore}\n  📍 Km: ${easy.totalKm.toFixed(1)}\n  💰 Qazanc: $${easy.totalEarned}\n  🔥 Kombo: x${easy.bestCombo}\n\n😐 ORTA:\n  🎮 Oyun: ${medium.games}\n  🏆 Best: ${medium.bestScore}\n  📍 Km: ${medium.totalKm.toFixed(1)}\n  💰 Qazanc: $${medium.totalEarned}\n  🔥 Kombo: x${medium.bestCombo}\n\n😈 ÇƏTİN:\n  🎮 Oyun: ${hard.games}\n  🏆 Best: ${hard.bestScore}\n  📍 Km: ${hard.totalKm.toFixed(1)}\n  💰 Qazanc: $${hard.totalEarned}\n  🔥 Kombo: x${hard.bestCombo}`);
+    }
+
+    // Reset Progress
+    function resetProgress() {
+      if (confirm('BÜTÜN irəliləyişi silmək istədiyinizə əminsiniz?\n\nBu əməliyyat geri qaytarıla bilməz!')) {
+        if (confirm('Son dəfə: ƏMİNSİNİZ?')) {
+          localStorage.clear();
+          location.reload();
+        }
+      }
+    }
+
+    // Controls
+    function moveLeft() {
+      moveDirection = -1;
+      keys['ArrowLeft'] = false;
+    }
+
+    function moveRight() {
+      moveDirection = 1;
+      keys['ArrowRight'] = false;
+    }
+
+    function stopMove() {
+      moveDirection = 0;
+    }
+
+    // Keyboard
+    let lastKeyTime = {};
+    window.addEventListener('keydown', e => {
+      const now = Date.now();
+      if (now - (lastKeyTime[e.key] || 0) > 200) {
+        keys[e.key] = true;
+        lastKeyTime[e.key] = now;
+      }
+    });
+
+    window.addEventListener('keyup', e => {
+      keys[e.key] = false;
+    });
+
+    // Save Data
+    function saveData() {
+      localStorage.setItem('racerProMoney', gameState.money);
+      localStorage.setItem('racerProCars', JSON.stringify(gameState.ownedCars));
+      localStorage.setItem('racerProSelectedCar', gameState.selectedCar);
+      localStorage.setItem('racerProStatsEasy', JSON.stringify(gameState.stats.easy));
+      localStorage.setItem('racerProStatsMedium', JSON.stringify(gameState.stats.medium));
+      localStorage.setItem('racerProStatsHard', JSON.stringify(gameState.stats.hard));
+    }
+
+    // Toast
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('active');
+      setTimeout(() => toast.classList.remove('active'), 2200);
+    }
+
+    // Initialize
+    init();
+
+    // Set player name on first run
+    if (!localStorage.getItem('playerName')) {
+      const name = prompt('Adınızı daxil edin:', 'Oyunçu');
+      if (name && name.trim()) {
+        localStorage.setItem('playerName', name.trim());
+      }
+    }
+  </script>
+</body>
+</html>

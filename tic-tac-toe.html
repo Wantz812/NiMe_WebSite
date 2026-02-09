@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>⭕ Tic Tac Toe Online</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px;
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 36px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 20px;
+    }
+
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .mode-btn {
+      padding: 16px;
+      background: rgba(255,255,255,0.15);
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 14px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border-color: #22c55e;
+    }
+
+    .room-setup {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .room-setup.show {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .input-field::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .status {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      padding: 16px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .online-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #4ade80;
+      border-radius: 50%;
+      margin-left: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      font-weight: 900;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 3px solid rgba(255,255,255,0.3);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .cell:hover:not(.filled) {
+      background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.25));
+      transform: scale(1.05);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .cell.filled {
+      pointer-events: none;
+      animation: fillCell 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes fillCell {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .cell.winner {
+      animation: winPulse 0.6s ease-in-out infinite;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #667eea;
+    }
+
+    @keyframes winPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      color: white;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #ffffff, #f0f0f0);
+      color: #667eea;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .cell {
+        font-size: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">⭕ Tic Tac Toe</div>
+      <a href="index.html" class="back-btn">← Geri</a>
+    </div>
+
+    <div class="subtitle">3 sıra düz et və qazan!</div>
+
+    <div class="mode-selector">
+      <button class="mode-btn active" onclick="setMode('local')">🎮 Lokal</button>
+      <button class="mode-btn" onclick="setMode('online')">🌐 Online</button>
+    </div>
+
+    <div class="room-setup" id="roomSetup">
+      <div class="input-group">
+        <label class="input-label">Otaq Kodu (paylaş sevgilinlə 💕)</label>
+        <input type="text" class="input-field" id="roomCode" placeholder="Məsələn: love2024">
+      </div>
+      <button class="btn btn-primary" onclick="joinRoom()">🚪 Otağa Qoşul</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">X Qələbə</div>
+        <div class="stat-value" id="xWins">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Heç-heçə</div>
+        <div class="stat-value" id="draws">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">O Qələbə</div>
+        <div class="stat-value" id="oWins">0</div>
+      </div>
+    </div>
+
+    <div class="status" id="status">Oyunçu X-in növbəsi</div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="resetGame()">🔄 Yenidən Başla</button>
+    </div>
+  </div>
+
+  <script>
+    let board = Array(9).fill('');
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let gameMode = 'local';
+    let roomCode = '';
+    let mySymbol = '';
+    let pollInterval = null;
+    
+    let stats = {
+      xWins: 0,
+      oWins: 0,
+      draws: 0
+    };
+
+    const winPatterns = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    function setMode(mode) {
+      gameMode = mode;
+      
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      event.target.classList.add('active');
+      
+      if (mode === 'online') {
+        document.getElementById('roomSetup').classList.add('show');
+        if (pollInterval) clearInterval(pollInterval);
+      } else {
+        document.getElementById('roomSetup').classList.remove('show');
+        if (pollInterval) clearInterval(pollInterval);
+        resetGame();
+      }
+    }
+
+    async function joinRoom() {
+      const input = document.getElementById('roomCode').value.trim();
+      if (!input) {
+        alert('❌ Otaq kodu daxil edin!');
+        return;
+      }
+      
+      roomCode = input;
+      
+      try {
+        // Check if room exists
+        const roomData = await window.storage.get(`ttt-room-${roomCode}`, true);
+        
+        if (!roomData) {
+          // Create new room - you are X
+          mySymbol = 'X';
+          const initialState = {
+            board: Array(9).fill(''),
+            currentPlayer: 'X',
+            gameActive: true,
+            playerX: 'joined',
+            playerO: 'waiting'
+          };
+          
+          await window.storage.set(`ttt-room-${roomCode}`, JSON.stringify(initialState), true);
+          updateStatus('🎮 Oyunçu X-sən! Sevgilini gözlə... <span class="online-indicator"></span>');
+        } else {
+          // Join existing room - you are O
+          const state = JSON.parse(roomData.value);
+          mySymbol = 'O';
+          state.playerO = 'joined';
+          
+          await window.storage.set(`ttt-room-${roomCode}`, JSON.stringify(state), true);
+          updateStatus('🎮 Oyunçu O-san! Oyun başladı!');
+        }
+        
+        // Start polling for updates
+        startPolling();
+        initGame();
+        
+      } catch (err) {
+        alert('❌ Otağa qoşula bilmədi: ' + err.message);
+      }
+    }
+
+    function startPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      
+      pollInterval = setInterval(async () => {
+        if (gameMode !== 'online' || !roomCode) return;
+        
+        try {
+          const roomData = await window.storage.get(`ttt-room-${roomCode}`, true);
+          if (!roomData) return;
+          
+          const state = JSON.parse(roomData.value);
+          
+          // Update board
+          board = state.board;
+          currentPlayer = state.currentPlayer;
+          gameActive = state.gameActive;
+          
+          renderBoard();
+          
+          if (!gameActive) {
+            clearInterval(pollInterval);
+          }
+          
+          // Update status
+          if (state.playerO === 'waiting') {
+            updateStatus('🎮 Oyunçu X-sən! Sevgilini gözlə... <span class="online-indicator"></span>');
+          } else if (currentPlayer === mySymbol) {
+            updateStatus(`🎮 Sənin növbən! (${mySymbol})`);
+          } else {
+            updateStatus(`⏳ Gözlə... (${mySymbol})`);
+          }
+          
+        } catch (err) {
+          console.log('Poll error:', err);
+        }
+      }, 1000);
+    }
+
+    function initGame() {
+      const gameBoard = document.getElementById('gameBoard');
+      gameBoard.innerHTML = '';
+      
+      if (gameMode === 'local') {
+        board = Array(9).fill('');
+        currentPlayer = 'X';
+        gameActive = true;
+      }
+      
+      updateStatus();
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.onclick = () => makeMove(i);
+        gameBoard.appendChild(cell);
+      }
+      
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, i) => {
+        cell.textContent = board[i];
+        if (board[i]) {
+          cell.classList.add('filled');
+        } else {
+          cell.classList.remove('filled');
+        }
+      });
+    }
+
+    async function makeMove(index) {
+      if (!gameActive || board[index]) return;
+      
+      // Online mode checks
+      if (gameMode === 'online') {
+        if (!roomCode) {
+          alert('❌ Əvvəlcə otağa qoşul!');
+          return;
+        }
+        
+        if (currentPlayer !== mySymbol) {
+          return; // Not your turn
+        }
+      }
+
+      board[index] = currentPlayer;
+      const cell = document.querySelector(`[data-index="${index}"]`);
+      cell.textContent = currentPlayer;
+      cell.classList.add('filled');
+
+      if (checkWinner()) {
+        handleWin();
+        return;
+      }
+
+      if (board.every(cell => cell)) {
+        handleDraw();
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      updateStatus();
+      
+      // Save to online room
+      if (gameMode === 'online' && roomCode) {
+        try {
+          const roomData = await window.storage.get(`ttt-room-${roomCode}`, true);
+          if (roomData) {
+            const state = JSON.parse(roomData.value);
+            state.board = board;
+            state.currentPlayer = currentPlayer;
+            state.gameActive = gameActive;
+            
+            await window.storage.set(`ttt-room-${roomCode}`, JSON.stringify(state), true);
+          }
+        } catch (err) {
+          console.log('Save error:', err);
+        }
+      }
+    }
+
+    function checkWinner() {
+      for (let pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          highlightWinner(pattern);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function highlightWinner(pattern) {
+      pattern.forEach(index => {
+        document.querySelector(`[data-index="${index}"]`).classList.add('winner');
+      });
+    }
+
+    async function handleWin() {
+      gameActive = false;
+      
+      if (gameMode === 'online' && roomCode) {
+        const winner = currentPlayer === mySymbol ? 'Sən' : 'Rəqib';
+        updateStatus(`🎉 ${winner} Qalib gəldi!`);
+        
+        try {
+          const roomData = await window.storage.get(`ttt-room-${roomCode}`, true);
+          if (roomData) {
+            const state = JSON.parse(roomData.value);
+            state.gameActive = false;
+            await window.storage.set(`ttt-room-${roomCode}`, JSON.stringify(state), true);
+          }
+        } catch (err) {
+          console.log('Win save error:', err);
+        }
+      } else {
+        updateStatus(`🎉 ${currentPlayer} Qalib gəldi!`);
+      }
+      
+      if (currentPlayer === 'X') {
+        stats.xWins++;
+        document.getElementById('xWins').textContent = stats.xWins;
+      } else {
+        stats.oWins++;
+        document.getElementById('oWins').textContent = stats.oWins;
+      }
+    }
+
+    async function handleDraw() {
+      gameActive = false;
+      updateStatus('🤝 Heç-heçə!');
+      stats.draws++;
+      document.getElementById('draws').textContent = stats.draws;
+      
+      if (gameMode === 'online' && roomCode) {
+        try {
+          const roomData = await window.storage.get(`ttt-room-${roomCode}`, true);
+          if (roomData) {
+            const state = JSON.parse(roomData.value);
+            state.gameActive = false;
+            await window.storage.set(`ttt-room-${roomCode}`, JSON.stringify(state), true);
+          }
+        } catch (err) {
+          console.log('Draw save error:', err);
+        }
+      }
+    }
+
+    function updateStatus(text) {
+      const status = document.getElementById('status');
+      
+      if (text) {
+        status.innerHTML = text;
+      } else if (gameMode === 'online') {
+        if (currentPlayer === mySymbol) {
+          status.innerHTML = `🎮 Sənin növbən! (${mySymbol})`;
+        } else {
+          status.innerHTML = `⏳ Gözlə... (${mySymbol})`;
+        }
+      } else {
+        status.textContent = `Oyunçu ${currentPlayer}-in növbəsi`;
+      }
+    }
+
+    async function resetGame() {
+      if (pollInterval) clearInterval(pollInterval);
+      
+      if (gameMode === 'online' && roomCode) {
+        try {
+          // Clear the room
+          await window.storage.delete(`ttt-room-${roomCode}`, true);
+          roomCode = '';
+          document.getElementById('roomCode').value = '';
+        } catch (err) {
+          console.log('Reset error:', err);
+        }
+      }
+      
+      initGame();
+    }
+
+    initGame();
+  </script>
+</body>
+</html>

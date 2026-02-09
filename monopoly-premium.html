@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎲 Monopoly Classic</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      color: white;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 16px 24px;
+      border-radius: 16px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #FFD700;
+      text-shadow: 0 4px 12px rgba(255,215,0,0.5);
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background: rgba(255,0,0,0.3);
+      border: 2px solid rgba(255,0,0,0.6);
+      border-radius: 10px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,0,0,0.5);
+      transform: scale(1.05);
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .board-container {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(15px);
+    }
+
+    .board {
+      background: linear-gradient(135deg, #c7ffed 0%, #90faa4 100%);
+      border: 8px solid #2c5364;
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: 100px 1fr 100px;
+      grid-template-rows: 100px 1fr 100px;
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 1;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .corner {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 3px solid #8B4513;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: #2c5364;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .corner.start {
+      border-radius: 12px 0 0 0;
+    }
+
+    .corner.jail {
+      border-radius: 0 12px 0 0;
+    }
+
+    .corner.parking {
+      border-radius: 0 0 0 12px;
+    }
+
+    .corner.go-jail {
+      border-radius: 0 0 12px 0;
+    }
+
+    .side {
+      display: flex;
+    }
+
+    .side.top, .side.bottom {
+      flex-direction: row;
+    }
+
+    .side.left, .side.right {
+      flex-direction: column;
+    }
+
+    .property {
+      flex: 1;
+      border: 2px solid #8B4513;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .property:hover {
+      transform: scale(1.05);
+      z-index: 10;
+    }
+
+    .property-color {
+      height: 20px;
+      width: 100%;
+    }
+
+    .property-name {
+      padding: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #2c5364;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .property-price {
+      font-size: 8px;
+      color: #666;
+      padding: 2px;
+      text-align: center;
+    }
+
+    .player-token {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 3px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 100;
+    }
+
+    .house {
+      position: absolute;
+      top: 22px;
+      width: 12px;
+      height: 12px;
+      background: #22c55e;
+      border-radius: 3px;
+      border: 1px solid #16a34a;
+    }
+
+    .hotel {
+      position: absolute;
+      top: 22px;
+      width: 18px;
+      height: 18px;
+      background: #ef4444;
+      border-radius: 4px;
+      border: 2px solid #dc2626;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+    }
+
+    .info-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .player-card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 16px;
+      border: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .player-card.active {
+      border-color: #FFD700;
+      box-shadow: 0 0 20px rgba(255,215,0,0.5);
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .player-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 3px solid white;
+    }
+
+    .player-name {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .player-money {
+      font-size: 24px;
+      font-weight: 900;
+      color: #4ade80;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(74,222,128,0.5);
+    }
+
+    .player-properties {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #2c5364;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .dice-container {
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    .dice {
+      display: inline-flex;
+      gap: 16px;
+    }
+
+    .die {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: #2c5364;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      animation: rollDice 0.5s ease-in-out;
+    }
+
+    @keyframes rollDice {
+      0%, 100% { transform: rotateX(0) rotateY(0); }
+      25% { transform: rotateX(180deg) rotateY(0); }
+      50% { transform: rotateX(180deg) rotateY(180deg); }
+      75% { transform: rotateX(0) rotateY(180deg); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #2c5364, #0f2027);
+      padding: 40px;
+      border-radius: 24px;
+      max-width: 90%;
+      width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      border: 3px solid #FFD700;
+    }
+
+    .modal-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #FFD700;
+      margin-bottom: 20px;
+    }
+
+    .modal-text {
+      font-size: 18px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .board {
+        max-width: 100%;
+      }
+
+      .property-name {
+        font-size: 8px;
+      }
+
+      .property-price {
+        font-size: 7px;
+      }
+
+      .player-token {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">🎲 Monopoly Classic</div>
+    <a href="index.html" class="back-btn">← Geri</a>
+  </div>
+
+  <div class="game-container">
+    <div class="board-container">
+      <div class="board" id="board">
+        <!-- Board will be generated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="info-panel" id="playersPanel">
+      <!-- Player cards will be generated here -->
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" onclick="rollDice()" id="rollBtn">🎲 Zər At</button>
+      <button class="btn btn-secondary" onclick="buyProperty()" id="buyBtn" disabled>💰 Al</button>
+      <button class="btn btn-secondary" onclick="endTurn()" id="endBtn" disabled>✅ Növbəni Bitir</button>
+      <button class="btn btn-danger" onclick="resetGame()">🔄 Yenidən</button>
+    </div>
+
+    <div class="dice-container" id="diceContainer" style="display:none;">
+      <div class="dice">
+        <div class="die" id="die1">?</div>
+        <div class="die" id="die2">?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="propertyModal">
+    <div class="modal-content">
+      <div class="modal-title" id="propertyTitle"></div>
+      <div class="modal-text" id="propertyText"></div>
+      <button class="btn btn-primary" onclick="closePropertyModal()">OK</button>
+    </div>
+  </div>
+
+  <div class="modal" id="gameOverModal">
+    <div class="modal-content">
+      <div class="modal-title">🏆 Oyun Bitti!</div>
+      <div class="modal-text" id="winnerText"></div>
+      <button class="btn btn-primary" onclick="resetGame()">Yeni Oyun</button>
+    </div>
+  </div>
+
+  <script>
+    const PROPERTIES = [
+      { name: 'START', type: 'corner', position: 0, color: '#FFD700' },
+      { name: 'Mediterranean Ave', type: 'property', price: 60, rent: 2, color: '#8B4513', position: 1 },
+      { name: 'Community Chest', type: 'special', position: 2, color: '#87CEEB' },
+      { name: 'Baltic Ave', type: 'property', price: 60, rent: 4, color: '#8B4513', position: 3 },
+      { name: 'Income Tax', type: 'tax', amount: 200, position: 4, color: '#FFB6C1' },
+      { name: 'Reading Railroad', type: 'railroad', price: 200, rent: 25, position: 5, color: '#000' },
+      { name: 'Oriental Ave', type: 'property', price: 100, rent: 6, color: '#87CEEB', position: 6 },
+      { name: 'Chance', type: 'special', position: 7, color: '#FF6347' },
+      { name: 'Vermont Ave', type: 'property', price: 100, rent: 6, color: '#87CEEB', position: 8 },
+      { name: 'Connecticut Ave', type: 'property', price: 120, rent: 8, color: '#87CEEB', position: 9 },
+      
+      { name: 'JAIL', type: 'corner', position: 10, color: '#FF8C00' },
+      { name: 'St. Charles Place', type: 'property', price: 140, rent: 10, color: '#FF69B4', position: 11 },
+      { name: 'Electric Company', type: 'utility', price: 150, position: 12, color: '#FFFF00' },
+      { name: 'States Ave', type: 'property', price: 140, rent: 10, color: '#FF69B4', position: 13 },
+      { name: 'Virginia Ave', type: 'property', price: 160, rent: 12, color: '#FF69B4', position: 14 },
+      { name: 'Pennsylvania RR', type: 'railroad', price: 200, rent: 25, position: 15, color: '#000' },
+      { name: 'St. James Place', type: 'property', price: 180, rent: 14, color: '#FFA500', position: 16 },
+      { name: 'Community Chest', type: 'special', position: 17, color: '#87CEEB' },
+      { name: 'Tennessee Ave', type: 'property', price: 180, rent: 14, color: '#FFA500', position: 18 },
+      { name: 'New York Ave', type: 'property', price: 200, rent: 16, color: '#FFA500', position: 19 },
+      
+      { name: 'FREE PARKING', type: 'corner', position: 20, color: '#FF4500' },
+      { name: 'Kentucky Ave', type: 'property', price: 220, rent: 18, color: '#FF0000', position: 21 },
+      { name: 'Chance', type: 'special', position: 22, color: '#FF6347' },
+      { name: 'Indiana Ave', type: 'property', price: 220, rent: 18, color: '#FF0000', position: 23 },
+      { name: 'Illinois Ave', type: 'property', price: 240, rent: 20, color: '#FF0000', position: 24 },
+      { name: 'B&O Railroad', type: 'railroad', price: 200, rent: 25, position: 25, color: '#000' },
+      { name: 'Atlantic Ave', type: 'property', price: 260, rent: 22, color: '#FFFF00', position: 26 },
+      { name: 'Ventnor Ave', type: 'property', price: 260, rent: 22, color: '#FFFF00', position: 27 },
+      { name: 'Water Works', type: 'utility', price: 150, position: 28, color: '#00CED1' },
+      { name: 'Marvin Gardens', type: 'property', price: 280, rent: 24, color: '#FFFF00', position: 29 },
+      
+      { name: 'GO TO JAIL', type: 'corner', position: 30, color: '#DC143C' },
+      { name: 'Pacific Ave', type: 'property', price: 300, rent: 26, color: '#008000', position: 31 },
+      { name: 'North Carolina Ave', type: 'property', price: 300, rent: 26, color: '#008000', position: 32 },
+      { name: 'Community Chest', type: 'special', position: 33, color: '#87CEEB' },
+      { name: 'Pennsylvania Ave', type: 'property', price: 320, rent: 28, color: '#008000', position: 34 },
+      { name: 'Short Line RR', type: 'railroad', price: 200, rent: 25, position: 35, color: '#000' },
+      { name: 'Chance', type: 'special', position: 36, color: '#FF6347' },
+      { name: 'Park Place', type: 'property', price: 350, rent: 35, color: '#0000FF', position: 37 },
+      { name: 'Luxury Tax', type: 'tax', amount: 100, position: 38, color: '#FFB6C1' },
+      { name: 'Boardwalk', type: 'property', price: 400, rent: 50, color: '#0000FF', position: 39 }
+    ];
+
+    const PLAYERS = [
+      { name: 'Oyunçu 1', money: 1500, position: 0, properties: [], color: '#FF6B6B', icon: '🚗' },
+      { name: 'Oyunçu 2', money: 1500, position: 0, properties: [], color: '#4ECDC4', icon: '🚢' },
+      { name: 'Oyunçu 3', money: 1500, position: 0, properties: [], color: '#FFD93D', icon: '✈️' },
+      { name: 'Oyunçu 4', money: 1500, position: 0, properties: [], color: '#A8E6CF', icon: '🎩' }
+    ];
+
+    let currentPlayer = 0;
+    let diceRolled = false;
+    let gameActive = true;
+
+    function initBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      
+      // Top row (right to left)
+      const topCorner = createCorner(PROPERTIES[20]);
+      board.appendChild(topCorner);
+      
+      const topSide = document.createElement('div');
+      topSide.className = 'side top';
+      for (let i = 29; i >= 21; i--) {
+        topSide.appendChild(createProperty(PROPERTIES[i]));
+      }
+      board.appendChild(topSide);
+      
+      const topRightCorner = createCorner(PROPERTIES[10]);
+      board.appendChild(topRightCorner);
+      
+      // Left column (bottom to top)
+      const leftSide = document.createElement('div');
+      leftSide.className = 'side left';
+      for (let i = 19; i >= 11; i--) {
+        leftSide.appendChild(createProperty(PROPERTIES[i]));
+      }
+      board.appendChild(leftSide);
+      
+      // Center (invisible)
+      const center = document.createElement('div');
+      center.style.background = 'transparent';
+      board.appendChild(center);
+      
+      // Right column (top to bottom)
+      const rightSide = document.createElement('div');
+      rightSide.className = 'side right';
+      for (let i = 31; i <= 39; i++) {
+        rightSide.appendChild(createProperty(PROPERTIES[i]));
+      }
+      board.appendChild(rightSide);
+      
+      // Bottom row (left to right)
+      const bottomLeftCorner = createCorner(PROPERTIES[0]);
+      board.appendChild(bottomLeftCorner);
+      
+      const bottomSide = document.createElement('div');
+      bottomSide.className = 'side bottom';
+      for (let i = 1; i <= 9; i++) {
+        bottomSide.appendChild(createProperty(PROPERTIES[i]));
+      }
+      board.appendChild(bottomSide);
+      
+      const bottomRightCorner = createCorner(PROPERTIES[30]);
+      board.appendChild(bottomRightCorner);
+      
+      updatePlayerPositions();
+      updatePlayerCards();
+    }
+
+    function createCorner(prop) {
+      const corner = document.createElement('div');
+      corner.className = `corner ${prop.name.toLowerCase().replace(/ /g, '-')}`;
+      corner.textContent = prop.name.split(' ')[0];
+      corner.dataset.position = prop.position;
+      return corner;
+    }
+
+    function createProperty(prop) {
+      const property = document.createElement('div');
+      property.className = 'property';
+      property.dataset.position = prop.position;
+      
+      if (prop.type === 'property' || prop.type === 'railroad' || prop.type === 'utility') {
+        const colorBar = document.createElement('div');
+        colorBar.className = 'property-color';
+        colorBar.style.background = prop.color;
+        property.appendChild(colorBar);
+      }
+      
+      const name = document.createElement('div');
+      name.className = 'property-name';
+      name.textContent = prop.name;
+      property.appendChild(name);
+      
+      if (prop.price) {
+        const price = document.createElement('div');
+        price.className = 'property-price';
+        price.textContent = `$${prop.price}`;
+        property.appendChild(price);
+      }
+      
+      return property;
+    }
+
+    function updatePlayerPositions() {
+      // Remove all existing tokens
+      document.querySelectorAll('.player-token').forEach(t => t.remove());
+      
+      PLAYERS.forEach((player, idx) => {
+        const tile = document.querySelector(`[data-position="${player.position}"]`);
+        if (tile) {
+          const token = document.createElement('div');
+          token.className = 'player-token';
+          token.style.background = player.color;
+          token.textContent = player.icon;
+          token.style.left = `${(idx % 2) * 30 + 5}px`;
+          token.style.top = `${Math.floor(idx / 2) * 30 + 5}px`;
+          tile.appendChild(token);
+        }
+      });
+    }
+
+    function updatePlayerCards() {
+      const panel = document.getElementById('playersPanel');
+      panel.innerHTML = '';
+      
+      PLAYERS.forEach((player, idx) => {
+        const card = document.createElement('div');
+        card.className = `player-card ${idx === currentPlayer ? 'active' : ''}`;
+        
+        card.innerHTML = `
+          <div class="player-header">
+            <div class="player-icon" style="background: ${player.color}">${player.icon}</div>
+            <div class="player-name">${player.name}</div>
+          </div>
+          <div class="player-money">$${player.money}</div>
+          <div class="player-properties">Mülklər: ${player.properties.length}</div>
+        `;
+        
+        panel.appendChild(card);
+      });
+    }
+
+    function rollDice() {
+      if (!gameActive || diceRolled) return;
+      
+      const die1 = Math.floor(Math.random() * 6) + 1;
+      const die2 = Math.floor(Math.random() * 6) + 1;
+      const total = die1 + die2;
+      
+      document.getElementById('diceContainer').style.display = 'block';
+      document.getElementById('die1').textContent = die1;
+      document.getElementById('die2').textContent = die2;
+      
+      diceRolled = true;
+      document.getElementById('rollBtn').disabled = true;
+      
+      const player = PLAYERS[currentPlayer];
+      player.position = (player.position + total) % 40;
+      
+      setTimeout(() => {
+        updatePlayerPositions();
+        handleLanding();
+      }, 600);
+    }
+
+    function handleLanding() {
+      const player = PLAYERS[currentPlayer];
+      const property = PROPERTIES[player.position];
+      
+      if (property.type === 'corner') {
+        if (property.name === 'START') {
+          showMessage('START', 'Başlanğıc nöqtəsinə qayıtdınız!');
+        } else if (property.name === 'GO TO JAIL') {
+          player.position = 10;
+          updatePlayerPositions();
+          showMessage('Həbsə Getdin!', 'Həbsxanaya göndərləndiz!');
+        }
+        document.getElementById('endBtn').disabled = false;
+      } else if (property.type === 'property' || property.type === 'railroad' || property.type === 'utility') {
+        const owner = PLAYERS.find(p => p.properties.includes(property.position));
+        
+        if (!owner) {
+          document.getElementById('buyBtn').disabled = false;
+          showMessage(property.name, `Qiymət: $${property.price}\nAlmaq istəyirsiniz?`);
+        } else if (owner !== player) {
+          const rent = property.rent || 25;
+          player.money -= rent;
+          owner.money += rent;
+          showMessage('Kira!', `${owner.name}-ə $${rent} ödədin!`);
+          updatePlayerCards();
+          document.getElementById('endBtn').disabled = false;
+        } else {
+          showMessage(property.name, 'Sizin mülkünüz!');
+          document.getElementById('endBtn').disabled = false;
+        }
+      } else if (property.type === 'tax') {
+        player.money -= property.amount;
+        showMessage('Vergi!', `$${property.amount} vergi ödədiniz!`);
+        updatePlayerCards();
+        document.getElementById('endBtn').disabled = false;
+      } else {
+        document.getElementById('endBtn').disabled = false;
+      }
+      
+      checkBankruptcy();
+    }
+
+    function buyProperty() {
+      const player = PLAYERS[currentPlayer];
+      const property = PROPERTIES[player.position];
+      
+      if (player.money >= property.price) {
+        player.money -= property.price;
+        player.properties.push(property.position);
+        
+        showMessage('Alındı!', `${property.name} aldınız!`);
+        updatePlayerCards();
+        document.getElementById('buyBtn').disabled = true;
+        document.getElementById('endBtn').disabled = false;
+      } else {
+        showMessage('Kifayət deyil!', 'Pulunuz yetmir!');
+      }
+    }
+
+    function endTurn() {
+      diceRolled = false;
+      document.getElementById('rollBtn').disabled = false;
+      document.getElementById('buyBtn').disabled = true;
+      document.getElementById('endBtn').disabled = true;
+      document.getElementById('diceContainer').style.display = 'none';
+      
+      currentPlayer = (currentPlayer + 1) % PLAYERS.length;
+      updatePlayerCards();
+    }
+
+    function checkBankruptcy() {
+      const activePlayers = PLAYERS.filter(p => p.money > 0);
+      
+      if (activePlayers.length === 1) {
+        gameActive = false;
+        document.getElementById('winnerText').textContent = `${activePlayers[0].name} qalib gəldi! 🎉`;
+        document.getElementById('gameOverModal').classList.add('show');
+      }
+    }
+
+    function showMessage(title, text) {
+      document.getElementById('propertyTitle').textContent = title;
+      document.getElementById('propertyText').textContent = text;
+      document.getElementById('propertyModal').classList.add('show');
+    }
+
+    function closePropertyModal() {
+      document.getElementById('propertyModal').classList.remove('show');
+    }
+
+    function resetGame() {
+      PLAYERS.forEach(p => {
+        p.money = 1500;
+        p.position = 0;
+        p.properties = [];
+      });
+      
+      currentPlayer = 0;
+      diceRolled = false;
+      gameActive = true;
+      
+      document.getElementById('rollBtn').disabled = false;
+      document.getElementById('buyBtn').disabled = true;
+      document.getElementById('endBtn').disabled = true;
+      document.getElementById('diceContainer').style.display = 'none';
+      document.getElementById('gameOverModal').classList.remove('show');
+      
+      updatePlayerPositions();
+      updatePlayerCards();
+    }
+
+    initBoard();
+  </script>
+</body>
+</html>

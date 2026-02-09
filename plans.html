@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <title>📋 Planlar</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+  <style>
+    .planCard {
+      background: var(--glass);
+      border: 1px solid var(--glassBorder);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .planCard:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      border-color: var(--accent);
+    }
+    .planCard.done {
+      opacity: 0.6;
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.1), rgba(52, 199, 89, 0.05));
+    }
+    .planRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .checkbox {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 2px solid var(--stroke);
+      background: var(--glass);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .checkbox:hover {
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+    .planCard.done .checkbox {
+      background: linear-gradient(135deg, #34c759, #30d158);
+      border-color: #34c759;
+    }
+    .planText {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .planCard.done .planText {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    .planMeta {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+    .iconBtn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--stroke);
+      background: var(--glass);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .iconBtn:hover {
+      background: var(--accent);
+      transform: scale(1.1);
+    }
+    .statsGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .statBox {
+      background: var(--glass);
+      border: 1px solid var(--glassBorder);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    .statValue {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .statLabel {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .progressBar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progressFill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.5s ease;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="plans.html">
+      <div class="brandMark">📋</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Planlar</div>
+        <div class="brandSub">Birlikdə həyata keçirəcəyimiz planlar</div>
+      </div>
+    </a>
+    <div class="pills">
+      <a class="pill" href="index.html">🏠 Ana</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="card">
+      <div class="cardInner">
+        <h2 class="h2">📊 Statistika</h2>
+        <div class="statsGrid">
+          <div class="statBox">
+            <div class="statValue" id="statDone">0</div>
+            <div class="statLabel">Bitdi ✅</div>
+          </div>
+          <div class="statBox">
+            <div class="statValue" id="statLeft">0</div>
+            <div class="statLabel">Qalır 📝</div>
+          </div>
+          <div class="statBox">
+            <div class="statValue" id="statAll">0</div>
+            <div class="statLabel">Cəmi 📋</div>
+          </div>
+        </div>
+        <div class="progressBar">
+          <div class="progressFill" id="progressBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h2 class="h2">➕ Yeni Plan Əlavə Et</h2>
+        <div style="display: grid; gap: 12px; margin-top: 14px;">
+          <input type="text" id="planText" placeholder="Plan yaz..." style="width: 100%; padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <select id="planCat" style="padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+              <option>Romantik</option>
+              <option>Səyahət</option>
+              <option>Ev</option>
+              <option>Foto</option>
+              <option>Macəra</option>
+              <option>Digər</option>
+            </select>
+            <select id="planPrio" style="padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+              <option>⭐</option>
+              <option>⭐⭐</option>
+              <option>⭐⭐⭐</option>
+              <option>⭐⭐⭐⭐</option>
+              <option>⭐⭐⭐⭐⭐</option>
+            </select>
+          </div>
+          <button class="btn primary" id="addBtn" style="width: 100%;">➕ Əlavə et</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h2 class="h2" style="margin: 0;">📝 Planlar</h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn" id="sortBtn">🔄 Sırala</button>
+            <button class="btn" id="demoBtn">✨ Demo</button>
+          </div>
+        </div>
+
+        <div style="display: grid; gap: 12px; margin-bottom: 14px;">
+          <input type="text" id="search" placeholder="🔍 Axtar..." style="padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <select id="filterCat" style="padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+              <option value="ALL">🏷️ Hamısı</option>
+              <option value="Romantik">Romantik</option>
+              <option value="Səyahət">Səyahət</option>
+              <option value="Ev">Ev</option>
+              <option value="Foto">Foto</option>
+              <option value="Macəra">Macəra</option>
+              <option value="Digər">Digər</option>
+            </select>
+            <select id="filterStatus" style="padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text);">
+              <option value="ALL">📊 Hamısı</option>
+              <option value="OPEN">📝 Açıq</option>
+              <option value="DONE">✅ Bitmiş</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="planList"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottomNav cartoonNav">
+    <a class="navBtn" href="index.html"><div class="navIcon">🏠</div><span>Ana</span></a>
+    <a class="navBtn" href="watch-party.html"><div class="navIcon">🍿</div><span>Film</span></a>
+    <a class="navBtn" href="album.html"><div class="navIcon">📖</div><span>Album</span></a>
+    <a class="navBtn" aria-current="page" href="plans.html"><div class="navIcon">📋</div><span>Planlar</span></a>
+    <a class="navBtn" href="capsule.html"><div class="navIcon">⏳</div><span>Kapsul</span></a>
+    <a class="navBtn" href="arcade.html"><div class="navIcon">🕹️</div><span>Arcade</span></a>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const KEY = "bucketlist_v1";
+    let sortMode = "PRIO";
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch(e) { return []; }
+    }
+
+    function save(arr) {
+      localStorage.setItem(KEY, JSON.stringify(arr));
+    }
+
+    function makeId() {
+      return "b_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    function prioScore(p) {
+      return (String(p).match(/⭐/g) || []).length;
+    }
+
+    function computeStats(arr) {
+      const done = arr.filter(x => x.done).length;
+      const all = arr.length;
+      const left = Math.max(0, all - done);
+
+      document.getElementById('statDone').textContent = done;
+      document.getElementById('statLeft').textContent = left;
+      document.getElementById('statAll').textContent = all;
+
+      const pct = all ? Math.round((done / all) * 100) : 0;
+      document.getElementById('progressBar').style.width = pct + "%";
+    }
+
+    function sortItems(arr) {
+      const copy = [...arr];
+      if(sortMode === "PRIO") {
+        copy.sort((a,b) => {
+          if(a.done !== b.done) return a.done ? 1 : -1;
+          const pa = prioScore(a.prio), pb = prioScore(b.prio);
+          if(pa !== pb) return pb - pa;
+          return b.createdAt - a.createdAt;
+        });
+      } else {
+        copy.sort((a,b) => b.createdAt - a.createdAt);
+      }
+      return copy;
+    }
+
+    function passFilters(item, q, cat, status) {
+      if(cat !== "ALL" && item.cat !== cat) return false;
+      if(status === "DONE" && !item.done) return false;
+      if(status === "OPEN" && item.done) return false;
+      if(q) {
+        const s = (item.text + " " + item.cat + " " + item.prio).toLowerCase();
+        if(!s.includes(q)) return false;
+      }
+      return true;
+    }
+
+    function render() {
+      const list = document.getElementById('planList');
+      const q = (document.getElementById('search').value || "").trim().toLowerCase();
+      const cat = document.getElementById('filterCat').value;
+      const status = document.getElementById('filterStatus').value;
+
+      let arr = load();
+      computeStats(arr);
+
+      arr = sortItems(arr).filter(it => passFilters(it, q, cat, status));
+
+      list.innerHTML = "";
+      if(arr.length === 0) {
+        list.innerHTML = '<div class="planCard"><div class="planText" style="text-align:center;opacity:0.6;">Heç bir plan tapılmadı 🤷‍♂️</div></div>';
+        return;
+      }
+
+      arr.forEach(it => {
+        const card = document.createElement('div');
+        card.className = "planCard" + (it.done ? " done" : "");
+        card.innerHTML = `
+          <div class="planRow">
+            <div class="checkbox" onclick="toggleDone('${it.id}')">
+              ${it.done ? '✅' : ''}
+            </div>
+            <div style="flex:1;">
+              <div class="planText">${it.text}</div>
+              <div class="planMeta">
+                <span class="tag">🏷️ ${it.cat}</span>
+                <span class="tag">⭐ ${it.prio}</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="iconBtn" onclick="moveItem('${it.id}', -1)">⬆️</button>
+              <button class="iconBtn" onclick="moveItem('${it.id}', 1)">⬇️</button>
+              <button class="iconBtn" onclick="removeItem('${it.id}')">🗑️</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    window.toggleDone = function(id) {
+      const arr = load();
+      const it = arr.find(x => x.id === id);
+      if(!it) return;
+      it.done = !it.done;
+      it.doneAt = it.done ? Date.now() : null;
+      save(arr);
+      render();
+      if(window.App?.toast) App.toast(it.done ? "✅ Bitdi!" : "↩️ Geri qaytarıldı");
+    };
+
+    window.removeItem = function(id) {
+      if(!confirm('Silmək istədiyinə əminsən?')) return;
+      const arr = load().filter(x => x.id !== id);
+      save(arr);
+      render();
+      if(window.App?.toast) App.toast("🗑️ Silindi");
+    };
+
+    window.moveItem = function(id, dir) {
+      const arr = load();
+      const idx = arr.findIndex(x => x.id === id);
+      if(idx < 0) return;
+      const newIdx = idx + dir;
+      if(newIdx < 0 || newIdx >= arr.length) return;
+      const [sp] = arr.splice(idx, 1);
+      arr.splice(newIdx, 0, sp);
+      save(arr);
+      render();
+    };
+
+    document.getElementById('addBtn').addEventListener('click', () => {
+      const text = (document.getElementById('planText').value || "").trim();
+      if(!text) {
+        if(window.App?.toast) App.toast("⚠️ Plan yaz");
+        return;
+      }
+      const arr = load();
+      arr.unshift({
+        id: makeId(),
+        text,
+        cat: document.getElementById('planCat').value,
+        prio: document.getElementById('planPrio').value,
+        done: false,
+        createdAt: Date.now(),
+        doneAt: null
+      });
+      save(arr);
+      document.getElementById('planText').value = "";
+      render();
+      if(window.App?.toast) App.toast("➕ Əlavə olundu");
+    });
+
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      sortMode = (sortMode === "PRIO") ? "NEW" : "PRIO";
+      if(window.App?.toast) App.toast(sortMode === "PRIO" ? "⭐ Önəm" : "🆕 Yeni");
+      render();
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      const demo = [
+        { text:"Birlikdə gün batımına baxaq 🌅", cat:"Romantik", prio:"⭐⭐⭐⭐⭐" },
+        { text:"Kino gecəsi + popkorn 🍿", cat:"Ev", prio:"⭐⭐⭐⭐" },
+        { text:"Bir şəhər turu edək 🚶‍♂️", cat:"Səyahət", prio:"⭐⭐⭐" },
+        { text:"Birlikdə fotosessiya 📸", cat:"Foto", prio:"⭐⭐⭐⭐" },
+      ];
+      const arr = load();
+      demo.forEach(d => arr.unshift({ id: makeId(), done:false, createdAt: Date.now(), doneAt:null, ...d }));
+      save(arr);
+      render();
+      if(window.App?.toast) App.toast("✨ Demo əlavə olundu");
+    });
+
+    ["search","filterCat","filterStatus"].forEach(id => {
+      document.getElementById(id).addEventListener('input', render);
+    });
+
+    render();
+  </script>
+</body>
+</html>

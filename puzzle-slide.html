@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>🧩 Sliding Puzzle</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+</head>
+
+<body>
+  <div class="topbar">
+    <a class="brand" href="arcade.html">
+      <div class="brandMark">🧩</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Sliding Puzzle</div>
+        <div class="brandSub">Rəqəmləri düzgün sırala</div>
+      </div>
+    </a>
+    <div class="pills">
+      <a class="pill" href="arcade.html">🕹️ Arcade</a>
+      <a class="pill" href="index.html">🏠 Ana</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <h2 class="h2" style="margin: 0;">🎮 Sliding Puzzle</h2>
+            <p class="p" style="font-size: 12px; margin: 4px 0 0;">Rəqəmləri 1-dən 15-ə qədər düz</p>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div class="statItem" style="padding: 8px 12px;">
+              <div class="statLabel" style="font-size: 10px;">VAXT</div>
+              <div class="statValue" id="timer" style="font-size: 16px;">0:00</div>
+            </div>
+            <div class="statItem" style="padding: 8px 12px;">
+              <div class="statLabel" style="font-size: 10px;">HƏRƏKƏT</div>
+              <div class="statValue" id="moves" style="font-size: 16px;">0</div>
+            </div>
+            <button class="btn primary" id="newGameBtn">🔄 Yeni Oyun</button>
+          </div>
+        </div>
+
+        <!-- Puzzle Grid -->
+        <div id="puzzleGrid" style="
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+          max-width: 400px;
+          margin: 0 auto;
+          padding: 16px;
+          background: rgba(0,0,0,.3);
+          border-radius: 18px;
+          border: 2px solid var(--stroke);
+        "></div>
+
+        <!-- Instructions -->
+        <div class="note" style="margin-top: 14px;">
+          <b>Necə oynamalı:</b><br>
+          🎯 Rəqəmləri 1-dən 15-ə düzgün sırala<br>
+          👆 Boş yerə yaxın rəqəmə klik et<br>
+          ⏱️ Ən az vaxt və hərəkətlə bitir<br>
+          🏆 Qazan və rekordunu qır!
+        </div>
+      </div>
+    </div>
+
+    <!-- Best Score -->
+    <div class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h3 class="h2">🏆 Ən Yaxşı Nəticə</h3>
+        <div class="statGrid" style="margin-top: 12px;">
+          <div class="statItem">
+            <div class="statLabel">Vaxt</div>
+            <div class="statValue" id="bestTime">-</div>
+          </div>
+          <div class="statItem">
+            <div class="statLabel">Hərəkət</div>
+            <div class="statValue" id="bestMoves">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottomNav cartoonNav">
+    <a class="navBtn" href="index.html"><div class="navIcon">🏠</div><span>Ana</span></a>
+    <a class="navBtn" href="gift-vault.html"><div class="navIcon">🎁</div><span>Vault</span></a>
+    <a class="navBtn" href="album.html"><div class="navIcon">📖</div><span>Album</span></a>
+    <a class="navBtn" href="plans.html"><div class="navIcon">📋</div><span>Planlar</span></a>
+    <a class="navBtn" href="capsule.html"><div class="navIcon">⏳</div><span>Kapsul</span></a>
+    <a class="navBtn" aria-current="page" href="arcade.html"><div class="navIcon">🕹️</div><span>Arcade</span></a>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let tiles = [];
+    let emptyIndex = 15;
+    let moves = 0;
+    let seconds = 0;
+    let timerInterval = null;
+    let isPlaying = false;
+
+    const bestTime = localStorage.getItem('puzzleBestTime');
+    const bestMoves = localStorage.getItem('puzzleBestMoves');
+
+    if (bestTime) document.getElementById('bestTime').textContent = formatTime(parseInt(bestTime));
+    if (bestMoves) document.getElementById('bestMoves').textContent = bestMoves;
+
+    function formatTime(secs) {
+      const mins = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${mins}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function initGame() {
+      tiles = Array.from({ length: 16 }, (_, i) => i + 1);
+      tiles[15] = 0; // Empty tile
+      emptyIndex = 15;
+      moves = 0;
+      seconds = 0;
+      isPlaying = false;
+      
+      document.getElementById('moves').textContent = '0';
+      document.getElementById('timer').textContent = '0:00';
+      
+      if (timerInterval) clearInterval(timerInterval);
+      
+      // Shuffle
+      for (let i = 0; i < 200; i++) {
+        const neighbors = getNeighbors(emptyIndex);
+        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+        swap(emptyIndex, randomNeighbor);
+      }
+      
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('puzzleGrid');
+      grid.innerHTML = '';
+      
+      tiles.forEach((num, idx) => {
+        const tile = document.createElement('div');
+        
+        if (num === 0) {
+          tile.style.cssText = `
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: rgba(255,255,255,.03);
+            border: 1px dashed rgba(255,255,255,.1);
+          `;
+        } else {
+          tile.style.cssText = `
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: 2px solid rgba(255,255,255,.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+          `;
+          tile.textContent = num;
+          tile.addEventListener('click', () => moveTile(idx));
+          tile.addEventListener('mouseenter', () => {
+            if (canMove(idx)) {
+              tile.style.transform = 'scale(1.05)';
+            }
+          });
+          tile.addEventListener('mouseleave', () => {
+            tile.style.transform = 'scale(1)';
+          });
+        }
+        
+        grid.appendChild(tile);
+      });
+    }
+
+    function getNeighbors(idx) {
+      const neighbors = [];
+      const row = Math.floor(idx / 4);
+      const col = idx % 4;
+      
+      if (row > 0) neighbors.push(idx - 4); // Up
+      if (row < 3) neighbors.push(idx + 4); // Down
+      if (col > 0) neighbors.push(idx - 1); // Left
+      if (col < 3) neighbors.push(idx + 1); // Right
+      
+      return neighbors;
+    }
+
+    function canMove(idx) {
+      return getNeighbors(emptyIndex).includes(idx);
+    }
+
+    function swap(idx1, idx2) {
+      [tiles[idx1], tiles[idx2]] = [tiles[idx2], tiles[idx1]];
+      emptyIndex = idx1 === emptyIndex ? idx2 : idx1;
+    }
+
+    function moveTile(idx) {
+      if (!canMove(idx)) return;
+      
+      if (!isPlaying) {
+        startTimer();
+        isPlaying = true;
+      }
+      
+      swap(idx, emptyIndex);
+      moves++;
+      document.getElementById('moves').textContent = moves;
+      renderGrid();
+      
+      if (checkWin()) {
+        win();
+      }
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        seconds++;
+        document.getElementById('timer').textContent = formatTime(seconds);
+      }, 1000);
+    }
+
+    function checkWin() {
+      for (let i = 0; i < 15; i++) {
+        if (tiles[i] !== i + 1) return false;
+      }
+      return tiles[15] === 0;
+    }
+
+    function win() {
+      clearInterval(timerInterval);
+      
+      let message = `🎉 Təbriklər! Puzzle həll olundu!\n\n⏱️ Vaxt: ${formatTime(seconds)}\n🎯 Hərəkət: ${moves}`;
+      
+      // Update best scores
+      if (!bestTime || seconds < parseInt(bestTime)) {
+        localStorage.setItem('puzzleBestTime', seconds);
+        document.getElementById('bestTime').textContent = formatTime(seconds);
+        message += '\n\n🏆 YENİ VAXT REKORDU!';
+      }
+      
+      if (!bestMoves || moves < parseInt(bestMoves)) {
+        localStorage.setItem('puzzleBestMoves', moves);
+        document.getElementById('bestMoves').textContent = moves;
+        message += '\n\n🏆 YENİ HƏRƏKƏT REKORDU!';
+      }
+      
+      setTimeout(() => {
+        alert(message);
+      }, 300);
+    }
+
+    document.getElementById('newGameBtn').addEventListener('click', () => {
+      if (timerInterval) clearInterval(timerInterval);
+      initGame();
+      App.toast('🎮 Yeni oyun başladı!');
+    });
+
+    // Init
+    initGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>🗺️ Səyahət Xəritəsi — Birlikdə Getdiyimiz Yerlər</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+  <style>
+    .mapContainer {
+      position: relative;
+      width: 100%;
+      height: 450px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--glass);
+      border: 1px solid var(--glassBorder);
+    }
+    .placeCard {
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--glassBorder);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .placeCard:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      border-color: var(--accent);
+    }
+    .placeHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .placeTitle {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .placeDate {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .placePhotos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .placePhoto {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .placePhoto:hover {
+      transform: scale(1.05);
+    }
+    .placePhoto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .addPlaceBtn {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+      z-index: 100;
+    }
+    .addPlaceBtn:hover {
+      transform: scale(1.1) rotate(90deg);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .modalContent {
+      max-width: 600px;
+      margin: 40px auto;
+      background: var(--bg1);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--glassBorder);
+    }
+    .formGroup {
+      margin-bottom: 16px;
+    }
+    .formLabel {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .formInput, .formTextarea {
+      width: 100%;
+      padding: 12px;
+      background: var(--glass);
+      border: 1px solid var(--glassBorder);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font);
+    }
+    .formTextarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .photoUpload {
+      border: 2px dashed var(--glassBorder);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .photoUpload:hover {
+      border-color: var(--accent);
+      background: var(--glass);
+    }
+    .statBadge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: var(--glass);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">
+      <div class="brandMark">🗺️</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Səyahət Xəritəsi</div>
+        <div class="brandSub">Birlikdə getdiyimiz yerlər</div>
+      </div>
+    </a>
+    <div class="pills">
+      <a class="pill" href="index.html">🏠 Ana</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <!-- Hero -->
+    <section class="card heroCard">
+      <div class="cardInner">
+        <h1 class="h1"><span class="gradientText">Bizim Səyahət Xəritəmiz</span> 🌍</h1>
+        <p class="p" style="margin-top: 12px;">Hər yer bir xatirə, hər xatirə bir hekayə</p>
+        <div style="margin-top: 16px;">
+          <span class="statBadge">📍 <span id="totalPlaces">0</span> yer</span>
+          <span class="statBadge">📸 <span id="totalPhotos">0</span> şəkil</span>
+          <span class="statBadge">💭 <span id="totalMemories">0</span> xatirə</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map -->
+    <section class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h2 class="h2">🗺️ İnteraktiv Xəritə</h2>
+        <p class="p" style="margin-bottom: 14px;">Gitdiyimiz yerləri görün və yeniləri əlavə edin</p>
+        <div class="mapContainer">
+          <iframe 
+            id="mapFrame"
+            src="https://www.google.com/maps/d/embed?mid=1example&ehbc=2E312F" 
+            style="width:100%;height:100%;border:0;"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+        </div>
+        <p style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;">
+          💡 Xəritədə yerlər avtomatik göstərilir. Yeni yer əlavə etmək üçün aşağıdakı + düyməsini basın.
+        </p>
+      </div>
+    </section>
+
+    <!-- Places List -->
+    <section class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <h2 class="h2">📍 Getdiyimiz Yerlər</h2>
+        <p class="p" style="margin-bottom: 14px;">Bütün səyahət xatirələrimiz</p>
+        <div id="placesList">
+          <!-- Məsələn: Başlanğıc yeri -->
+          <div class="placeCard">
+            <div class="placeHeader">
+              <div>
+                <div class="placeTitle">🏛️ İlk Görüşdüyümüz Yer</div>
+                <div class="placeDate">📅 8 Noyabr 2025</div>
+              </div>
+              <div style="font-size: 24px;">❤️</div>
+            </div>
+            <p style="margin: 8px 0; font-size: 14px; color: var(--muted);">
+              Hər şeyin başladığı yer. Bu nöqtə bizim hekayəmizin başlanğıcıdır və həmişə xüsusi qalacaq.
+            </p>
+            <div class="placePhotos">
+              <div class="placePhoto">
+                <img src="https://via.placeholder.com/100/7c5cff/ffffff?text=📍" alt="Yer 1">
+              </div>
+            </div>
+          </div>
+
+          <div id="emptyState" style="text-align: center; padding: 40px; color: var(--muted); display: none;">
+            <div style="font-size: 64px; margin-bottom: 16px;">🗺️</div>
+            <p>Hələ heç bir yer əlavə edilməyib</p>
+            <p style="font-size: 12px; margin-top: 8px;">+ düyməsinə basaraq ilk yerinizi əlavə edin</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Place Button -->
+  <button class="addPlaceBtn" onclick="openAddPlace()">+</button>
+
+  <!-- Add Place Modal -->
+  <div id="addPlaceModal" class="modal">
+    <div class="modalContent">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700;">➕ Yeni Yer Əlavə Et</h2>
+        <button onclick="closeAddPlace()" class="btn" style="padding: 8px 16px;">✕</button>
+      </div>
+
+      <div class="formGroup">
+        <label class="formLabel">📍 Yerin Adı</label>
+        <input type="text" id="placeName" class="formInput" placeholder="Məsələn: Qobustan, Şirvanşahlar Sarayı">
+      </div>
+
+      <div class="formGroup">
+        <label class="formLabel">📅 Tarix</label>
+        <input type="date" id="placeDate" class="formInput">
+      </div>
+
+      <div class="formGroup">
+        <label class="formLabel">💭 Xatirə / Qeyd</label>
+        <textarea id="placeMemory" class="formTextarea" placeholder="Bu yerdə nə yaşadıq? Xüsusi xatirələr..."></textarea>
+      </div>
+
+      <div class="formGroup">
+        <label class="formLabel">🌐 Yer Linki (Google Maps)</label>
+        <input type="url" id="placeUrl" class="formInput" placeholder="https://maps.google.com/...">
+        <p style="font-size: 11px; color: var(--muted); margin-top: 6px;">
+          Google Maps-dan "Share" → "Copy link" edə bilərsiniz
+        </p>
+      </div>
+
+      <div class="formGroup">
+        <label class="formLabel">📸 Şəkillər</label>
+        <div class="photoUpload" onclick="document.getElementById('photoInput').click()">
+          <div style="font-size: 48px; margin-bottom: 8px;">📷</div>
+          <p style="margin: 0; font-size: 14px;">Şəkil əlavə et (URL)</p>
+          <p style="margin: 4px 0 0; font-size: 11px; color: var(--muted);">İmgBB, Imgur və ya digər link</p>
+        </div>
+        <input type="text" id="photoInput" class="formInput" placeholder="Şəkil URL-i" style="margin-top: 10px;">
+        <div id="photoPreview" style="margin-top: 10px;"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 24px;">
+        <button onclick="savePlace()" class="btn primary" style="flex: 1;">💾 Saxla</button>
+        <button onclick="closeAddPlace()" class="btn" style="flex: 1;">❌ Ləğv et</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottomNav cartoonNav">
+    <a class="navBtn" href="index.html"><div class="navIcon">🏠</div><span>Ana</span></a>
+    <a class="navBtn" href="watch-party.html"><div class="navIcon">🍿</div><span>Film izle</span></a>
+    <a class="navBtn" href="album.html"><div class="navIcon">📖</div><span>Album</span></a>
+    <a class="navBtn" href="plans.html"><div class="navIcon">📋</div><span>Planlar</span></a>
+    <a class="navBtn" aria-current="page" href="travel-map.html"><div class="navIcon">🗺️</div><span>Xəritə</span></a>
+    <a class="navBtn" href="arcade.html"><div class="navIcon">🕹️</div><span>Arcade</span></a>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'travelPlaces';
+
+      function getPlaces() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      function savePlaces(places) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(places));
+      }
+
+      function updateStats() {
+        const places = getPlaces();
+        const totalPhotos = places.reduce((sum, p) => sum + (p.photos?.length || 0), 0);
+        document.getElementById('totalPlaces').textContent = places.length;
+        document.getElementById('totalPhotos').textContent = totalPhotos;
+        document.getElementById('totalMemories').textContent = places.filter(p => p.memory).length;
+      }
+
+      function renderPlaces() {
+        const places = getPlaces();
+        const container = document.getElementById('placesList');
+        const empty = document.getElementById('emptyState');
+
+        if (places.length === 0) {
+          empty.style.display = 'block';
+          return;
+        } else {
+          empty.style.display = 'none';
+        }
+
+        const html = places.map((place, idx) => {
+          const photosHtml = (place.photos || []).map(url => 
+            `<div class="placePhoto"><img src="${url}" alt="Foto"></div>`
+          ).join('');
+
+          return `
+            <div class="placeCard">
+              <div class="placeHeader">
+                <div>
+                  <div class="placeTitle">${place.icon || '📍'} ${place.name}</div>
+                  <div class="placeDate">📅 ${place.date || 'Tarix yoxdur'}</div>
+                </div>
+                <button onclick="deletePlace(${idx})" class="btn" style="padding: 6px 12px; font-size: 14px;">🗑️</button>
+              </div>
+              ${place.memory ? `<p style="margin: 8px 0; font-size: 14px; color: var(--muted);">${place.memory}</p>` : ''}
+              ${place.url ? `<a href="${place.url}" target="_blank" class="btn" style="display: inline-block; margin-top: 8px; font-size: 12px; padding: 6px 12px;">🗺️ Xəritədə Aç</a>` : ''}
+              ${photosHtml ? `<div class="placePhotos">${photosHtml}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = html + '<div id="emptyState" style="display: none;"></div>';
+        updateStats();
+      }
+
+      window.openAddPlace = () => {
+        document.getElementById('addPlaceModal').style.display = 'block';
+        document.getElementById('placeDate').valueAsDate = new Date();
+      };
+
+      window.closeAddPlace = () => {
+        document.getElementById('addPlaceModal').style.display = 'none';
+        document.getElementById('placeName').value = '';
+        document.getElementById('placeDate').value = '';
+        document.getElementById('placeMemory').value = '';
+        document.getElementById('placeUrl').value = '';
+        document.getElementById('photoInput').value = '';
+      };
+
+      window.savePlace = () => {
+        const name = document.getElementById('placeName').value.trim();
+        const date = document.getElementById('placeDate').value;
+        const memory = document.getElementById('placeMemory').value.trim();
+        const url = document.getElementById('placeUrl').value.trim();
+        const photoUrl = document.getElementById('photoInput').value.trim();
+
+        if (!name) {
+          if (window.App?.toast) App.toast('❌ Yerin adını daxil edin');
+          return;
+        }
+
+        const places = getPlaces();
+        const newPlace = {
+          name,
+          date: date || new Date().toISOString().split('T')[0],
+          memory,
+          url,
+          photos: photoUrl ? [photoUrl] : [],
+          icon: '📍',
+          addedAt: new Date().toISOString()
+        };
+
+        places.push(newPlace);
+        savePlaces(places);
+        renderPlaces();
+        closeAddPlace();
+        
+        if (window.App?.toast) App.toast('✅ Yer əlavə edildi!');
+      };
+
+      window.deletePlace = (idx) => {
+        if (!confirm('Bu yeri silmək istədiyinizə əminsiniz?')) return;
+        const places = getPlaces();
+        places.splice(idx, 1);
+        savePlaces(places);
+        renderPlaces();
+        if (window.App?.toast) App.toast('🗑️ Yer silindi');
+      };
+
+      // Initialize
+      renderPlaces();
+
+      // Close modal on background click
+      document.getElementById('addPlaceModal').addEventListener('click', (e) => {
+        if (e.target.id === 'addPlaceModal') closeAddPlace();
+      });
+    })();
+  </script>
+</body>
+</html>

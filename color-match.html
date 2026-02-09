@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎨 Color Match</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px;
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 36px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .game-area {
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .target-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .target-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .target-color {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto;
+      border-radius: 24px;
+      box-shadow: 
+        0 12px 32px rgba(0,0,0,0.3),
+        inset 0 4px 12px rgba(255,255,255,0.3);
+      border: 4px solid rgba(255,255,255,0.4);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .target-color.pulse {
+      animation: colorPulse 0.6s ease-out;
+    }
+
+    @keyframes colorPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .color-option {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 3px solid rgba(255,255,255,0.3);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+      border-color: white;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .color-option:active {
+      transform: scale(0.95);
+    }
+
+    .color-option.correct {
+      animation: correctAnswer 0.5s ease-out;
+    }
+
+    @keyframes correctAnswer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2) rotate(5deg); }
+    }
+
+    .color-option.wrong {
+      animation: wrongAnswer 0.5s ease-out;
+    }
+
+    @keyframes wrongAnswer {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      margin-bottom: 12px;
+    }
+
+    .start-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    }
+
+    .start-btn:active {
+      transform: scale(0.97);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .leaderboard-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .leaderboard-btn:hover {
+      transform: scale(1.03);
+    }
+
+    .game-over {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+
+    .game-over.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .game-over-content {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 48px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px) scale(0.9); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .game-over-emoji {
+      font-size: 72px;
+      margin-bottom: 16px;
+      animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .game-over-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .game-over-score {
+      font-size: 24px;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 24px;
+    }
+
+    .game-over-btn {
+      padding: 14px 32px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      color: #667eea;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 6px;
+    }
+
+    .game-over-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .leaderboard {
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .leaderboard-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: #ffd700;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .leaderboard-rank {
+      font-size: 20px;
+      font-weight: 900;
+      width: 40px;
+    }
+
+    .leaderboard-name {
+      flex: 1;
+      font-weight: 600;
+      margin: 0 12px;
+    }
+
+    .leaderboard-score {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffd700;
+    }
+
+    .top-rank {
+      background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,165,0,0.3));
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 48px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 90%;
+      width: 400px;
+    }
+
+    .modal-title {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      color: white;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .target-color {
+        width: 120px;
+        height: 120px;
+      }
+
+      .options-grid {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">🎨 Color Match</div>
+      <a href="index.html" class="back-btn">← Geri</a>
+    </div>
+
+    <div class="subtitle">Rəngləri tez və düzgün seç!</div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">Xal</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Vaxt</div>
+        <div class="stat-value"><span id="time">30</span>s</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Ən Yaxşı</div>
+        <div class="stat-value" id="bestScore">0</div>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="target-section">
+        <div class="target-label">Bu rəngi tap ⬇️</div>
+        <div class="target-color" id="targetColor"></div>
+      </div>
+
+      <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+    <button class="start-btn" onclick="startGame()" id="startBtn">🎮 Başla</button>
+    <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 Sıralama</button>
+  </div>
+
+  <div class="game-over" id="gameOver">
+    <div class="game-over-content">
+      <div class="game-over-emoji">🎨</div>
+      <div class="game-over-title">Oyun Bitti!</div>
+      <div class="game-over-score" id="finalScore"></div>
+      <button class="game-over-btn" onclick="saveScore()">💾 Xalı Saxla</button>
+      <button class="game-over-btn" onclick="closeGameOver()">Yenidən Oyna</button>
+    </div>
+  </div>
+
+  <div class="modal" id="leaderboardModal">
+    <div class="modal-content">
+      <div class="modal-title">🏆 Sıralama</div>
+      <div class="leaderboard" id="leaderboardList"></div>
+      <button class="game-over-btn" onclick="closeLeaderboard()" style="margin-top: 16px;">Bağla</button>
+    </div>
+  </div>
+
+  <script>
+    const colors = [
+      { name: 'Qırmızı', value: '#FF6B6B' },
+      { name: 'Mavi', value: '#4ECDC4' },
+      { name: 'Yaşıl', value: '#45B7D1' },
+      { name: 'Narıncı', value: '#FFA07A' },
+      { name: 'Bənövşəyi', value: '#BB8FCE' },
+      { name: 'Sarı', value: '#F7DC6F' },
+      { name: 'Çəhrayı', value: '#F48FB1' },
+      { name: 'Göy', value: '#85C1E2' }
+    ];
+
+    let score = 0;
+    let bestScore = 0;
+    let timeLeft = 30;
+    let gameActive = false;
+    let timer = null;
+    let currentTarget = null;
+
+    async function loadBestScore() {
+      try {
+        const stored = await window.storage.get('color-match-best');
+        bestScore = stored ? parseInt(stored.value) : 0;
+        document.getElementById('bestScore').textContent = bestScore;
+      } catch {
+        bestScore = 0;
+      }
+    }
+
+    async function saveBestScore() {
+      if (score > bestScore) {
+        bestScore = score;
+        document.getElementById('bestScore').textContent = bestScore;
+        try {
+          await window.storage.set('color-match-best', bestScore.toString());
+        } catch (err) {
+          console.log('Could not save best score:', err);
+        }
+      }
+    }
+
+    function startGame() {
+      if (gameActive) return;
+      
+      score = 0;
+      timeLeft = 30;
+      gameActive = true;
+      
+      document.getElementById('score').textContent = '0';
+      document.getElementById('time').textContent = '30';
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('startBtn').textContent = 'Oynayırsan...';
+      
+      startTimer();
+      nextRound();
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('time').textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function nextRound() {
+      if (!gameActive) return;
+
+      currentTarget = colors[Math.floor(Math.random() * colors.length)];
+      const targetEl = document.getElementById('targetColor');
+      targetEl.style.background = currentTarget.value;
+      targetEl.classList.add('pulse');
+      setTimeout(() => targetEl.classList.remove('pulse'), 600);
+
+      const options = [currentTarget];
+      while (options.length < 6) {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        if (!options.find(c => c.value === randomColor.value)) {
+          options.push(randomColor);
+        }
+      }
+      
+      options.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('optionsGrid');
+      grid.innerHTML = '';
+      
+      options.forEach(color => {
+        const option = document.createElement('div');
+        option.className = 'color-option';
+        option.style.background = color.value;
+        option.onclick = () => checkAnswer(color, option);
+        grid.appendChild(option);
+      });
+    }
+
+    function checkAnswer(selected, element) {
+      if (!gameActive) return;
+
+      if (selected.value === currentTarget.value) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        element.classList.add('correct');
+        setTimeout(() => {
+          element.classList.remove('correct');
+          nextRound();
+        }, 400);
+      } else {
+        element.classList.add('wrong');
+        setTimeout(() => element.classList.remove('wrong'), 500);
+      }
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      gameActive = false;
+      
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('startBtn').textContent = '🎮 Başla';
+      
+      saveBestScore();
+      
+      let message = '';
+      if (score >= 100) message = '🏆 Mükəmmə!';
+      else if (score >= 60) message = '😊 Çox yaxşı!';
+      else if (score >= 30) message = '👍 Yaxşı!';
+      else message = '💪 Daha çox təkmilləşməlisən!';
+      
+      document.getElementById('finalScore').textContent = `${message}\nXalın: ${score}`;
+      document.getElementById('gameOver').classList.add('show');
+    }
+
+    async function saveScore() {
+      const name = prompt('Adınızı daxil edin:');
+      if (!name) return;
+      
+      try {
+        const timestamp = Date.now();
+        const key = `color-match-score-${timestamp}`;
+        const data = JSON.stringify({ 
+          name: name.trim(), 
+          score: score, 
+          date: new Date().toLocaleDateString('az') 
+        });
+        
+        await window.storage.set(key, data, true);
+        alert('✅ Xalınız saxlanıldı!');
+        closeGameOver();
+      } catch (err) {
+        alert('❌ Xal saxlanılmadı: ' + err.message);
+      }
+    }
+
+    async function showLeaderboard() {
+      try {
+        const result = await window.storage.list('color-match-score-', true);
+        
+        if (!result || !result.keys || result.keys.length === 0) {
+          document.getElementById('leaderboardList').innerHTML = '<p style="text-align:center;opacity:0.7;">Hələ heç bir nəticə yoxdur</p>';
+        } else {
+          const scores = [];
+          
+          for (const key of result.keys) {
+            try {
+              const item = await window.storage.get(key, true);
+              if (item && item.value) {
+                const data = JSON.parse(item.value);
+                scores.push(data);
+              }
+            } catch (err) {
+              console.log('Error loading score:', err);
+            }
+          }
+          
+          scores.sort((a, b) => b.score - a.score);
+          
+          const list = document.getElementById('leaderboardList');
+          list.innerHTML = scores.slice(0, 10).map((item, idx) => `
+            <div class="leaderboard-item ${idx < 3 ? 'top-rank' : ''}">
+              <div class="leaderboard-rank">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx + 1)}</div>
+              <div class="leaderboard-name">${item.name}</div>
+              <div class="leaderboard-score">${item.score}</div>
+            </div>
+          `).join('');
+        }
+        
+        document.getElementById('leaderboardModal').classList.add('show');
+      } catch (err) {
+        alert('❌ Sıralama yüklənmədi: ' + err.message);
+      }
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboardModal').classList.remove('show');
+    }
+
+    function closeGameOver() {
+      document.getElementById('gameOver').classList.remove('show');
+    }
+
+    loadBestScore();
+  </script>
+</body>
+</html>

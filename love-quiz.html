@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>❓ Ultimate Love Quiz</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+  <style>
+    .quizContainer { max-width: 600px; margin: 0 auto; }
+    .tabBar { display: flex; gap: 8px; margin: 14px 0; }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 2px solid var(--stroke);
+      cursor: pointer;
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .tab:hover { transform: scale(1.03); }
+    .tab.active {
+      border-color: var(--accent);
+      background: rgba(124,92,255,.15);
+      box-shadow: 0 4px 16px rgba(124,92,255,.2);
+    }
+    .categorySelect { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
+    .catCard {
+      padding: 16px 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--glass2), var(--glass));
+      border: 2px solid var(--stroke);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .catCard:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(124,92,255,.3); }
+    .catCard.selected { border-color: var(--accent); background: rgba(124,92,255,.15); }
+    .catIcon { font-size: 32px; margin-bottom: 6px; }
+    .catName { font-size: 13px; font-weight: 800; color: var(--text); }
+    .questionCard {
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border-radius: 18px;
+      padding: 24px;
+      border: 2px solid var(--stroke);
+      box-shadow: var(--shadowLarge);
+      animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .qNum { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+    .qText { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 20px; line-height: 1.4; }
+    .qDiff {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .qDiff.easy { background: rgba(52,211,153,.2); color: var(--good); }
+    .qDiff.medium { background: rgba(251,191,36,.2); color: var(--warn); }
+    .qDiff.hard { background: rgba(251,113,133,.2); color: var(--bad); }
+    .options { display: grid; gap: 10px; }
+    .option {
+      padding: 14px 16px;
+      background: rgba(255,255,255,.08);
+      border: 2px solid var(--stroke);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-align: left;
+    }
+    .option:hover { background: rgba(255,255,255,.14); transform: translateX(6px); border-color: rgba(255,255,255,.3); }
+    .option:active { transform: scale(0.97); }
+    .progress { margin-bottom: 20px; }
+    .progBar { height: 6px; background: rgba(255,255,255,.15); border-radius: 10px; overflow: hidden; }
+    .progFill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      transition: width 0.3s;
+      box-shadow: 0 0 10px rgba(124,92,255,.4);
+    }
+    .progText { text-align: center; color: var(--text); font-size: 12px; margin-top: 6px; font-weight: 700; }
+    .resultCard { display: none; text-align: center; animation: slideIn 0.5s; }
+    .resultCard.show { display: block; }
+    .resEmoji { font-size: 80px; margin-bottom: 16px; animation: bounce 0.7s; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-25px); }
+      60% { transform: translateY(-10px); }
+    }
+    .resTitle { font-size: 28px; font-weight: 900; color: var(--text); margin-bottom: 12px; }
+    .resScore {
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 16px rgba(255,215,0,.4);
+    }
+    .resMsg { font-size: 16px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    .resDetails { background: rgba(255,255,255,.06); padding: 16px; border-radius: 14px; margin: 16px 0; border: 1px solid var(--stroke); max-height: 300px; overflow-y: auto; }
+    .resDetails h3 { color: var(--text); font-size: 16px; margin-bottom: 10px; }
+    .resDetails p { color: var(--muted); line-height: 1.5; font-size: 14px; margin: 8px 0; }
+    .diffSelect { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+    .diffBtn {
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      cursor: pointer;
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .diffBtn:hover { transform: scale(1.05); }
+    .diffBtn.selected { border-color: var(--accent); background: rgba(124,92,255,.15); }
+    .customQList { display: grid; gap: 10px; margin: 14px 0; max-height: 400px; overflow-y: auto; }
+    .customQCard {
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--stroke);
+    }
+    .customQCard h4 { font-size: 14px; margin: 0 0 8px 0; font-weight: 800; }
+    .customQCard p { font-size: 12px; margin: 4px 0; color: var(--muted); }
+    .openInput {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      resize: none;
+    }
+    .openInput:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255,255,255,.10);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="arcade.html">
+      <div class="brandMark">❓</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Ultimate Love Quiz</div>
+        <div class="brandSub">Məni nə qədər tanıyırsan?</div>
+      </div>
+    </a>
+    <div class="pills"><a class="pill" href="arcade.html">🕹️ Arcade</a></div>
+  </div>
+
+  <main class="container">
+    <div class="quizContainer">
+      <div class="card heroCard" style="margin-top: 14px;">
+        <div class="cardInner">
+          <h1 class="h1"><span class="gradientText">Love Quiz</span> ❤️</h1>
+          <p class="p" style="font-size: 14px; margin-top: 10px;">
+            200+ sual, müxtəlif kateqoriyalar! Hər dəfə yeni suallar! + Özel Suallar sistemi!
+          </p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabBar">
+        <div class="tab active" data-tab="quiz" onclick="switchTab('quiz')">📚 Quiz</div>
+        <div class="tab" data-tab="custom" onclick="switchTab('custom')">💕 Özel Suallar</div>
+      </div>
+
+      <!-- QUIZ TAB -->
+      <div id="quizTab">
+        <div class="card" id="setupCard" style="margin-top: 14px;">
+          <div class="cardInner">
+            <h2 class="h2" style="margin-bottom: 12px;">📋 Kateqoriya Seç</h2>
+            <div class="categorySelect" id="catSelect"></div>
+
+            <h2 class="h2" style="margin: 20px 0 12px;">⚡ Çətinlik</h2>
+            <div class="diffSelect" id="diffSelect"></div>
+
+            <h2 class="h2" style="margin: 20px 0 12px;">📊 Sual Sayı</h2>
+            <div class="field">
+              <input type="range" class="range" id="qCountRange" min="5" max="30" value="10" step="1">
+              <div class="rangeValue" id="qCountValue" style="text-align: center; font-size: 14px; margin-top: 6px; font-weight: 800;">10 sual</div>
+            </div>
+
+            <button class="btn primary" id="startBtn" style="width: 100%; margin-top: 20px;">🎮 Başla</button>
+          </div>
+        </div>
+
+        <div class="card" id="quizCard" style="margin-top: 14px; display: none;">
+          <div class="cardInner">
+            <div class="progress">
+              <div class="progBar"><div class="progFill" id="progFill"></div></div>
+              <div class="progText" id="progText">Sual 1/10</div>
+            </div>
+            <div id="questionArea"></div>
+          </div>
+        </div>
+
+        <div class="card" id="resultCard" style="margin-top: 14px; display: none;">
+          <div class="cardInner">
+            <div class="resultCard show">
+              <div class="resEmoji" id="resEmoji">🏆</div>
+              <div class="resTitle" id="resTitle">Təbriklər!</div>
+              <div class="resScore" id="resScore">10/10</div>
+              <div class="resMsg" id="resMsg"></div>
+              <div class="resDetails" id="resDetails"></div>
+              <button class="btn primary" style="width: 100%; margin-top: 12px;" onclick="restart()">🔄 Yenidən Oyna</button>
+              <button class="btn" style="width: 100%; margin-top: 8px;" onclick="location.href='arcade.html'">🎮 Arcade</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOM QUESTIONS TAB -->
+      <div id="customTab" style="display: none;">
+        <div class="card" style="margin-top: 14px;">
+          <div class="cardInner">
+            <h2 class="h2" style="margin-bottom: 12px;">💕 Yeni Özel Sual Əlavə Et</h2>
+            
+            <div class="field" style="margin-bottom: 10px;">
+              <label class="label">Sual</label>
+              <textarea class="openInput" id="customQ" rows="2" placeholder="Məsələn: Mənim sevimli rəngim nədir?"></textarea>
+            </div>
+
+            <div class="field" style="margin-bottom: 10px;">
+              <label class="label">Sual növü</label>
+              <div class="btnRow">
+                <button class="btn" id="typeChoice" onclick="toggleType()" style="flex:1">📝 Variant</button>
+              </div>
+            </div>
+
+            <div id="variantInputs">
+              <div class="field" style="margin-bottom: 8px;">
+                <label class="label">Variant 1</label>
+                <input class="input" id="opt1" placeholder="Variant 1">
+              </div>
+              <div class="field" style="margin-bottom: 8px;">
+                <label class="label">Variant 2</label>
+                <input class="input" id="opt2" placeholder="Variant 2">
+              </div>
+              <div class="field" style="margin-bottom: 8px;">
+                <label class="label">Variant 3 (istəyə bağlı)</label>
+                <input class="input" id="opt3" placeholder="Variant 3">
+              </div>
+              <div class="field" style="margin-bottom: 8px;">
+                <label class="label">Variant 4 (istəyə bağlı)</label>
+                <input class="input" id="opt4" placeholder="Variant 4">
+              </div>
+              <div class="field" style="margin-bottom: 10px;">
+                <label class="label">Doğru cavab nömrəsi (1, 2, 3 və ya 4)</label>
+                <input class="input" id="correctIdx" type="number" min="1" max="4" value="1" placeholder="1">
+              </div>
+            </div>
+
+            <button class="btn primary" onclick="addCustomQ()" style="width: 100%;">➕ Əlavə Et</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+          <div class="cardInner">
+            <h2 class="h2" style="margin-bottom: 12px;">📝 Sizin Özel Suallar (<span id="customCount">0</span>)</h2>
+            <div class="customQList" id="customList"></div>
+            <button class="btn primary" onclick="playCustomQuiz()" style="width: 100%; margin-top: 12px;">🎮 Özel Sualları Oyna</button>
+            <button class="btn bad" onclick="clearCustom()" style="width: 100%; margin-top: 8px;">🗑️ Hamısını Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottomNav cartoonNav">
+    <a class="navBtn" href="index.html"><div class="navIcon">🏠</div><span>Ana</span></a>
+    <a class="navBtn" href="gift-vault.html"><div class="navIcon">🎁</div><span>Vault</span></a>
+    <a class="navBtn" href="album.html"><div class="navIcon">📖</div><span>Album</span></a>
+    <a class="navBtn" href="plans.html"><div class="navIcon">📋</div><span>Planlar</span></a>
+    <a class="navBtn" href="capsule.html"><div class="navIcon">⏳</div><span>Kapsul</span></a>
+    <a class="navBtn" aria-current="page" href="arcade.html"><div class="navIcon">🕹️</div><span>Arcade</span></a>
+  </nav>
+
+  <script src="assets/js/quiz-questions.js"></script>
+  <script>
+    let selectedCat = 'all', selectedDiff = 'all', qCount = 10, isOpen = false;
+    let currentQ = 0, score = 0, answers = [], questions = [];
+    const CUSTOM_KEY = 'LOVE_QUIZ_CUSTOM_V1';
+
+    // Categories
+    const categories = [
+      {id: 'all', name: 'Hamısı', icon: '🎯'},
+      {id: 'personal', name: 'Şəxsi', icon: '👤'},
+      {id: 'favorites', name: 'Favoritlər', icon: '⭐'},
+      {id: 'memories', name: 'Xatirələr', icon: '💭'},
+      {id: 'lifestyle', name: 'Həyat Tərzi', icon: '🌟'},
+      {id: 'future', name: 'Gələcək', icon: '🔮'},
+    ];
+
+    const difficulties = [
+      {id: 'all', name: '🌈 Hamısı'},
+      {id: 'easy', name: '🟢 Asan'},
+      {id: 'medium', name: '🟡 Orta'},
+      {id: 'hard', name: '🔴 Çətin'},
+    ];
+
+    // Render categories
+    const catSelect = document.getElementById('catSelect');
+    categories.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'catCard';
+      if (c.id === 'all') card.classList.add('selected');
+      card.innerHTML = `<div class="catIcon">${c.icon}</div><div class="catName">${c.name}</div>`;
+      card.onclick = () => {
+        document.querySelectorAll('.catCard').forEach(x => x.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedCat = c.id;
+      };
+      catSelect.appendChild(card);
+    });
+
+    // Render difficulties
+    const diffSelect = document.getElementById('diffSelect');
+    difficulties.forEach(d => {
+      const btn = document.createElement('div');
+      btn.className = 'diffBtn';
+      if (d.id === 'all') btn.classList.add('selected');
+      btn.textContent = d.name;
+      btn.onclick = () => {
+        document.querySelectorAll('.diffBtn').forEach(x => x.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedDiff = d.id;
+      };
+      diffSelect.appendChild(btn);
+    });
+
+    document.getElementById('qCountRange').oninput = (e) => {
+      qCount = +e.target.value;
+      document.getElementById('qCountValue').textContent = `${qCount} sual`;
+    };
+
+    document.getElementById('startBtn').onclick = startQuiz;
+
+    function startQuiz() {
+      let pool = window.QUIZ_QUESTIONS || [];
+      
+      // Filter
+      if (selectedCat !== 'all') pool = pool.filter(q => q.category === selectedCat);
+      if (selectedDiff !== 'all') pool = pool.filter(q => q.difficulty === selectedDiff);
+      
+      if (pool.length < qCount) {
+        App.toast(`⚠️ Bu kateqoriyada ${pool.length} sual var. Hamısını göstərəcəyik.`);
+        qCount = pool.length;
+      }
+
+      if (pool.length === 0) {
+        App.toast('❌ Sual tapılmadı! Başqa seçim edin.');
+        return;
+      }
+
+      // Shuffle and select exact count
+      questions = pool.sort(() => Math.random() - 0.5).slice(0, qCount);
+      
+      currentQ = 0;
+      score = 0;
+      answers = [];
+      isOpen = false;
+      
+      document.getElementById('setupCard').style.display = 'none';
+      document.getElementById('quizCard').style.display = 'block';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQ >= questions.length) {
+        showResult();
+        return;
+      }
+
+      const q = questions[currentQ];
+      const prog = (currentQ / questions.length) * 100;
+      
+      document.getElementById('progFill').style.width = prog + '%';
+      document.getElementById('progText').textContent = `Sual ${currentQ + 1}/${questions.length}`;
+
+      const diffClass = q.difficulty || 'medium';
+      const diffText = { easy: '🟢 Asan', medium: '🟡 Orta', hard: '🔴 Çətin', all: '🌈 Mix' }[diffClass];
+
+      let optionsHtml = '';
+      if (q.type === 'open') {
+        optionsHtml = `<textarea class="openInput" id="openAnswer" rows="3" placeholder="Cavabını yaz..."></textarea>
+          <button class="btn primary" style="margin-top: 10px; width: 100%;" onclick="answerOpen()">✔️ Cavabla</button>`;
+      } else {
+        optionsHtml = `<div class="options">
+          ${q.options.map((opt, i) => `<div class="option" onclick="answer(${i})">${opt}</div>`).join('')}
+        </div>`;
+      }
+
+      const html = `
+        <div class="questionCard">
+          <div class="qNum">Sual ${currentQ + 1}/${questions.length}</div>
+          <div class="qDiff ${diffClass}">${diffText}</div>
+          <div class="qText">${q.question}</div>
+          ${optionsHtml}
+        </div>
+      `;
+
+      document.getElementById('questionArea').innerHTML = html;
+    }
+
+    function answer(idx) {
+      const q = questions[currentQ];
+      const correct = idx === q.correct;
+      
+      if (correct) score++;
+      
+      answers.push({
+        q: q.question,
+        user: q.options[idx],
+        correct: q.options[q.correct],
+        ok: correct,
+        exp: q.explanation
+      });
+
+      currentQ++;
+      setTimeout(showQuestion, 200);
+    }
+
+    function answerOpen() {
+      const userAnswer = document.getElementById('openAnswer').value.trim();
+      if (!userAnswer) {
+        App.toast('⚠️ Cavab yaz!');
+        return;
+      }
+
+      const q = questions[currentQ];
+      const correct = userAnswer.toLowerCase() === q.correctAnswer.toLowerCase();
+      
+      if (correct) score++;
+      
+      answers.push({
+        q: q.question,
+        user: userAnswer,
+        correct: q.correctAnswer,
+        ok: correct,
+        exp: q.explanation || 'Doğru cavab: ' + q.correctAnswer
+      });
+
+      currentQ++;
+      setTimeout(showQuestion, 200);
+    }
+
+    function showResult() {
+      const pct = (score / questions.length * 100).toFixed(0);
+      let emoji = '🏆', title = 'Təbriklər!', msg = '';
+
+      if (pct === 100) {
+        emoji = '🏆';
+        title = 'MÜKƏMMƏL!';
+        msg = 'Məni çox yaxşı tanıyırsan! Hər cavab düzgün! Sən ən yaxın insanımsan! ❤️';
+      } else if (pct >= 80) {
+        emoji = '😍';
+        title = 'ƏLA!';
+        msg = 'Çox yaxşı nəticə! Məni yaxşı tanıyırsan! 💕';
+      } else if (pct >= 60) {
+        emoji = '😊';
+        title = 'YAXŞI!';
+        msg = 'Yaxşı nəticədir! Daha yaxından tanımalısan! 💑';
+      } else if (pct >= 40) {
+        emoji = '🤔';
+        title = 'ORTA!';
+        msg = 'Hələ öyrənməlisən! Birlikdə tanışacağıq! 👫';
+      } else {
+        emoji = '😅';
+        title = 'BAŞLANĞIC!';
+        msg = 'Məni hələ tanımırsan! Daha çox vaxt keçirək! 💖';
+      }
+
+      let details = '';
+      const wrong = answers.filter(a => !a.ok);
+      if (wrong.length > 0 && wrong.length < questions.length) {
+        details = '<h3>Öyrənməli Olduğun Məlumatlar:</h3>';
+        wrong.forEach(a => {
+          details += `<p><strong>✗ ${a.q}</strong><br>Doğru: ${a.correct}<br>${a.exp}</p>`;
+        });
+      } else if (wrong.length === 0) {
+        details = '<p>Bütün cavabların düzgündü! 🎉</p>';
+      }
+
+      document.getElementById('resEmoji').textContent = emoji;
+      document.getElementById('resTitle').textContent = title;
+      document.getElementById('resScore').textContent = `${score}/${questions.length}`;
+      document.getElementById('resMsg').textContent = msg;
+      document.getElementById('resDetails').innerHTML = details;
+      
+      document.getElementById('quizCard').style.display = 'none';
+      document.getElementById('resultCard').style.display = 'block';
+    }
+
+    function restart() {
+      document.getElementById('setupCard').style.display = 'block';
+      document.getElementById('resultCard').style.display = 'none';
+    }
+
+    // CUSTOM QUESTIONS
+    function loadCustom() {
+      try {
+        return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustom(arr) {
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(arr));
+      renderCustomList();
+    }
+
+    function toggleType() {
+      isOpen = !isOpen;
+      const btn = document.getElementById('typeChoice');
+      const inputs = document.getElementById('variantInputs');
+      if (isOpen) {
+        btn.textContent = '💬 Açıq';
+        inputs.style.display = 'none';
+      } else {
+        btn.textContent = '📝 Variant';
+        inputs.style.display = 'block';
+      }
+    }
+
+    function addCustomQ() {
+      const q = document.getElementById('customQ').value.trim();
+      if (!q) {
+        App.toast('⚠️ Sual yaz!');
+        return;
+      }
+
+      const custom = loadCustom();
+
+      if (isOpen) {
+        // Open question - sevgilim cavablar, mən cavablandıracam
+        custom.push({
+          id: Date.now(),
+          question: q,
+          type: 'open',
+          correctAnswer: '', // Sevgilim doldurmalıdır
+          explanation: 'Açıq sual'
+        });
+      } else {
+        const opt1 = document.getElementById('opt1').value.trim();
+        const opt2 = document.getElementById('opt2').value.trim();
+        const opt3 = document.getElementById('opt3').value.trim();
+        const opt4 = document.getElementById('opt4').value.trim();
+        const correctIdx = parseInt(document.getElementById('correctIdx').value) - 1;
+
+        if (!opt1 || !opt2) {
+          App.toast('⚠️ Ən azı 2 variant lazımdır!');
+          return;
+        }
+
+        const options = [opt1, opt2, opt3, opt4].filter(x => x);
+
+        if (correctIdx < 0 || correctIdx >= options.length) {
+          App.toast('⚠️ Doğru cavab nömrəsi düzgün deyil!');
+          return;
+        }
+
+        custom.push({
+          id: Date.now(),
+          question: q,
+          type: 'variant',
+          options: options,
+          correct: correctIdx,
+          explanation: `Doğru cavab: ${options[correctIdx]}`,
+          category: 'custom',
+          difficulty: 'medium'
+        });
+      }
+
+      saveCustom(custom);
+      
+      // Clear inputs
+      document.getElementById('customQ').value = '';
+      document.getElementById('opt1').value = '';
+      document.getElementById('opt2').value = '';
+      document.getElementById('opt3').value = '';
+      document.getElementById('opt4').value = '';
+      document.getElementById('correctIdx').value = '1';
+      
+      App.toast('✅ Sual əlavə olundu!');
+    }
+
+    function renderCustomList() {
+      const custom = loadCustom();
+      const list = document.getElementById('customList');
+      const count = document.getElementById('customCount');
+      
+      count.textContent = custom.length;
+      
+      if (custom.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color: var(--muted);">Hələ özel sual yoxdur</p>';
+        return;
+      }
+
+      list.innerHTML = custom.map(c => `
+        <div class="customQCard">
+          <h4>${c.question}</h4>
+          <p>Növ: ${c.type === 'open' ? '💬 Açıq' : '📝 Variant'}</p>
+          ${c.type === 'variant' ? `<p>Variantlar: ${c.options.join(', ')}</p>` : ''}
+          <div class="btnRow" style="margin-top: 10px;">
+            <button class="btn bad" onclick="deleteCustom(${c.id})">🗑️ Sil</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteCustom(id) {
+      if (!confirm('Bu sualı silmək istədiyinizə əminsiniz?')) return;
+      const custom = loadCustom().filter(c => c.id !== id);
+      saveCustom(custom);
+      App.toast('🗑️ Silindi');
+    }
+
+    function clearCustom() {
+      if (!confirm('Bütün özel sualları silmək istədiyinizə əminsiniz?')) return;
+      localStorage.removeItem(CUSTOM_KEY);
+      renderCustomList();
+      App.toast('🗑️ Hamısı silindi');
+    }
+
+    function playCustomQuiz() {
+      const custom = loadCustom();
+      if (custom.length === 0) {
+        App.toast('❌ Özel sual yoxdur!');
+        return;
+      }
+
+      questions = custom.sort(() => Math.random() - 0.5);
+      qCount = questions.length;
+      currentQ = 0;
+      score = 0;
+      answers = [];
+      
+      switchTab('quiz');
+      document.getElementById('setupCard').style.display = 'none';
+      document.getElementById('quizCard').style.display = 'block';
+      showQuestion();
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+      
+      if (tab === 'quiz') {
+        document.getElementById('quizTab').style.display = 'block';
+        document.getElementById('customTab').style.display = 'none';
+      } else {
+        document.getElementById('quizTab').style.display = 'none';
+        document.getElementById('customTab').style.display = 'block';
+        renderCustomList();
+      }
+    }
+
+    // Init
+    renderCustomList();
+  </script>
+</body>
+</html>

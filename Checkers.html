@@ -1,0 +1,1545 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>🎯 Checkers - Dama Oyunu</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e27;
+      --bg-secondary: #151b3d;
+      --bg-card: #1a2249;
+      --accent: #ff6b9d;
+      --accent2: #ffd93d;
+      --accent3: #6bcf7f;
+      --text: #e0e7ff;
+      --text-muted: #8b93b8;
+      --stroke: rgba(255,255,255,0.1);
+      --glow: rgba(255,107,157,0.4);
+      
+      --board-light: #ffd93d;
+      --board-dark: #ff6b9d;
+      --piece-red: #ff3b5c;
+      --piece-black: #2d3561;
+      --piece-glow: rgba(255,59,92,0.6);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255,107,157,0.15), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,217,61,0.15), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(107,207,127,0.1), transparent 50%);
+      animation: bgPulse 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .backBtn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid var(--stroke);
+      border-radius: 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .backBtn:hover {
+      background: rgba(255,107,157,0.2);
+      border-color: var(--accent);
+      transform: translateX(-5px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .logoIcon {
+      font-size: 48px;
+      filter: drop-shadow(0 4px 20px var(--glow));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .logoText h1 {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    .logoText p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Game Layout */
+    .gameLayout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    /* Board Container */
+    .boardContainer {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+      border: 3px solid var(--stroke);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
+    }
+
+    .boardHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .playerInfo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid var(--stroke);
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+
+    .playerInfo.active {
+      border-color: var(--accent);
+      background: rgba(255,107,157,0.1);
+      box-shadow: 0 0 30px var(--glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .playerAvatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      border: 2px solid;
+    }
+
+    .playerAvatar.red {
+      background: linear-gradient(135deg, var(--piece-red), #ff1744);
+      border-color: var(--piece-red);
+      box-shadow: 0 0 20px var(--piece-glow);
+    }
+
+    .playerAvatar.black {
+      background: linear-gradient(135deg, var(--piece-black), #1a1f3a);
+      border-color: var(--piece-black);
+    }
+
+    .playerDetails h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .playerScore {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Checkers Board */
+    .boardWrapper {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .boardCoordinates {
+      position: absolute;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .boardCoordinates.top,
+    .boardCoordinates.bottom {
+      left: 50px;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 8px;
+    }
+
+    .boardCoordinates.top { top: -25px; }
+    .boardCoordinates.bottom { bottom: -25px; }
+
+    .boardCoordinates.left,
+    .boardCoordinates.right {
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: calc(100% - 16px);
+    }
+
+    .boardCoordinates.left { left: -30px; }
+    .boardCoordinates.right { right: -30px; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      background: rgba(0,0,0,0.3);
+      border: 4px solid var(--stroke);
+      border-radius: 20px;
+      padding: 3px;
+      aspect-ratio: 1;
+      position: relative;
+      overflow: hidden;
+      margin: 0 50px;
+    }
+
+    .board::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg at 50% 50%, 
+        transparent, 
+        rgba(255,107,157,0.1), 
+        transparent 30%);
+      animation: boardShine 10s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes boardShine {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .square {
+      aspect-ratio: 1;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .square.light {
+      background: var(--board-light);
+    }
+
+    .square.dark {
+      background: var(--board-dark);
+    }
+
+    .square:hover:not(.light) {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    .square.valid-move {
+      animation: validMovePulse 1s ease-in-out infinite;
+      box-shadow: inset 0 0 30px rgba(255,255,255,0.6);
+    }
+
+    @keyframes validMovePulse {
+      0%, 100% { box-shadow: inset 0 0 20px rgba(255,255,255,0.4); }
+      50% { box-shadow: inset 0 0 40px rgba(255,255,255,0.8); }
+    }
+
+    .square.selected {
+      box-shadow: 0 0 40px var(--accent), inset 0 0 30px rgba(255,255,255,0.5);
+      transform: scale(1.08);
+      z-index: 10;
+    }
+
+    .piece {
+      width: 80%;
+      height: 80%;
+      margin: 10%;
+      border-radius: 50%;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .piece:active {
+      cursor: grabbing;
+    }
+
+    .piece.red {
+      background: linear-gradient(145deg, #ff5252, var(--piece-red));
+      border: 3px solid #ff1744;
+      color: #fff;
+      box-shadow: 0 8px 20px var(--piece-glow), 0 0 30px var(--piece-glow);
+    }
+
+    .piece.black {
+      background: linear-gradient(145deg, #3d4575, var(--piece-black));
+      border: 3px solid #1a1f3a;
+      color: #8b93b8;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    .piece.king::before {
+      content: "👑";
+      position: absolute;
+      font-size: 22px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+      animation: crownFloat 2s ease-in-out infinite;
+    }
+
+    @keyframes crownFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .piece:hover {
+      transform: scale(1.15) translateY(-5px);
+      filter: brightness(1.2);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+      border: 2px solid var(--stroke);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .cardTitle {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Mode Selection */
+    .modeButtons {
+      display: grid;
+      gap: 12px;
+    }
+
+    .modeBtn {
+      padding: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid var(--stroke);
+      border-radius: 16px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .modeBtn:hover {
+      background: rgba(255,107,157,0.1);
+      border-color: var(--accent);
+      transform: translateX(5px);
+    }
+
+    .modeBtn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 24px var(--glow);
+    }
+
+    .modeIcon {
+      font-size: 24px;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .statItem {
+      background: rgba(255,255,255,0.05);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      text-align: center;
+    }
+
+    .statValue {
+      font-size: 28px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .statLabel {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Settings */
+    .settingRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--stroke);
+    }
+
+    .settingRow:last-child {
+      border-bottom: none;
+    }
+
+    .settingLabel {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .colorPicker {
+      width: 60px;
+      height: 36px;
+      border: 2px solid var(--stroke);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .colorPicker:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    /* Action Buttons */
+    .actionButtons {
+      display: grid;
+      gap: 12px;
+    }
+
+    .actionBtn {
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .actionBtn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 8px 24px var(--glow);
+    }
+
+    .actionBtn.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px var(--glow);
+    }
+
+    .actionBtn.secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 2px solid var(--stroke);
+    }
+
+    .actionBtn.secondary:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Online Room */
+    .roomCode {
+      background: rgba(255,255,255,0.05);
+      padding: 16px;
+      border-radius: 14px;
+      border: 2px dashed var(--stroke);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .roomCodeLabel {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .roomCodeValue {
+      font-size: 24px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      letter-spacing: 4px;
+    }
+
+    .copyBtn {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--stroke);
+      border-radius: 10px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .copyBtn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* Move History */
+    .moveHistory {
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .moveHistory::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .moveHistory::-webkit-scrollbar-thumb {
+      background: var(--stroke);
+      border-radius: 10px;
+    }
+
+    .moveItem {
+      padding: 8px;
+      border-bottom: 1px solid var(--stroke);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Winner Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modalContent {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+      border: 3px solid var(--accent);
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      animation: modalPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 100px var(--glow);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modalIcon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: iconSpin 1s ease-out;
+    }
+
+    @keyframes iconSpin {
+      from { transform: rotate(-180deg) scale(0); }
+      to { transform: rotate(0) scale(1); }
+    }
+
+    .modalTitle {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .modalText {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .gameLayout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: -1;
+      }
+
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 15px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logoText h1 {
+        font-size: 24px;
+      }
+
+      .boardContainer {
+        padding: 20px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .piece {
+        font-size: 14px;
+      }
+
+      .piece.king::before {
+        font-size: 16px;
+      }
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <a href="arcade.html" class="backBtn">
+        <span>←</span>
+        <span>Geri</span>
+      </a>
+      <div class="logo">
+        <div class="logoIcon">🎯</div>
+        <div class="logoText">
+          <h1>Dama Oyunu</h1>
+          <p>Professional Checkers Game</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Layout -->
+    <div class="gameLayout">
+      <!-- Board -->
+      <div class="boardContainer">
+        <div class="boardHeader">
+          <div class="playerInfo" id="player1Info">
+            <div class="playerAvatar red">🔴</div>
+            <div class="playerDetails">
+              <h3 id="player1Name">Player 1</h3>
+              <div class="playerScore">Pieces: <span id="player1Pieces">12</span></div>
+            </div>
+          </div>
+          <div class="playerInfo" id="player2Info">
+            <div class="playerAvatar black">⚫</div>
+            <div class="playerDetails">
+              <h3 id="player2Name">Player 2</h3>
+              <div class="playerScore">Pieces: <span id="player2Pieces">12</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="boardWrapper">
+          <div class="boardCoordinates top">
+            <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+          <div class="boardCoordinates left">
+            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+          </div>
+          <div class="board" id="board"></div>
+          <div class="boardCoordinates right">
+            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+          </div>
+          <div class="boardCoordinates bottom">
+            <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Mode Selection -->
+        <div class="card">
+          <div class="cardTitle">🎮 Oyun Rejimi</div>
+          <div class="modeButtons">
+            <button class="modeBtn active" data-mode="ai">
+              <span class="modeIcon">🤖</span>
+              <div>
+                <div>AI ilə Oyna</div>
+                <div style="font-size: 11px; opacity: 0.7;">Kompüter rəqibi</div>
+              </div>
+            </button>
+            <button class="modeBtn" data-mode="online">
+              <span class="modeIcon">🌐</span>
+              <div>
+                <div>Online Oyna</div>
+                <div style="font-size: 11px; opacity: 0.7;">Sevgilinlə oyna</div>
+              </div>
+            </button>
+            <button class="modeBtn" data-mode="local">
+              <span class="modeIcon">👥</span>
+              <div>
+                <div>Local 2 Oyunçu</div>
+                <div style="font-size: 11px; opacity: 0.7;">Bir cihazda</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Online Room (Hidden by default) -->
+        <div class="card" id="onlineCard" style="display: none;">
+          <div class="cardTitle">🌐 Online Otaq</div>
+          <div id="roomSection">
+            <button class="actionBtn primary" id="createRoomBtn">
+              <span>➕</span>
+              <span>Otaq Yarat</span>
+            </button>
+            <div style="text-align: center; margin: 12px 0; color: var(--text-muted); font-size: 13px;">və ya</div>
+            <input type="text" id="joinRoomInput" placeholder="Kod daxil et" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 2px solid var(--stroke); border-radius: 12px; color: var(--text); font-size: 14px; margin-bottom: 8px;">
+            <button class="actionBtn secondary" id="joinRoomBtn">
+              <span>🔗</span>
+              <span>Otağa Qoşul</span>
+            </button>
+          </div>
+          <div id="activeRoom" style="display: none;">
+            <div class="roomCode">
+              <div class="roomCodeLabel">Otaq Kodu</div>
+              <div class="roomCodeValue" id="roomCodeDisplay">----</div>
+              <button class="copyBtn" id="copyCodeBtn">📋 Kopyala</button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); text-align: center;">
+              <span id="roomStatus">Rəqib gözlənilir...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+          <div class="cardTitle">📊 Statistika</div>
+          <div class="stats">
+            <div class="statItem">
+              <div class="statValue" id="movesCount">0</div>
+              <div class="statLabel">Hərəkətlər</div>
+            </div>
+            <div class="statItem">
+              <div class="statValue" id="capturesCount">0</div>
+              <div class="statLabel">Yeyilmələr</div>
+            </div>
+            <div class="statItem">
+              <div class="statValue" id="winsCount">0</div>
+              <div class="statLabel">Qələbələr</div>
+            </div>
+            <div class="statItem">
+              <div class="statValue" id="timeElapsed">0:00</div>
+              <div class="statLabel">Vaxt</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card">
+          <div class="cardTitle">⚙️ Parametrlər</div>
+          <div class="settingRow">
+            <span class="settingLabel">Açıq Xana</span>
+            <input type="color" class="colorPicker" id="lightSquareColor" value="#ffd93d">
+          </div>
+          <div class="settingRow">
+            <span class="settingLabel">Tünd Xana</span>
+            <input type="color" class="colorPicker" id="darkSquareColor" value="#ff6b9d">
+          </div>
+          <div class="settingRow">
+            <span class="settingLabel">Qırmızı Daş</span>
+            <input type="color" class="colorPicker" id="redPieceColor" value="#ff3b5c">
+          </div>
+          <div class="settingRow">
+            <span class="settingLabel">Qara Daş</span>
+            <input type="color" class="colorPicker" id="blackPieceColor" value="#2d3561">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card">
+          <div class="actionButtons">
+            <button class="actionBtn primary" id="newGameBtn">
+              <span>🎮</span>
+              <span>Yeni Oyun</span>
+            </button>
+            <button class="actionBtn secondary" id="undoBtn">
+              <span>↶</span>
+              <span>Geri Al</span>
+            </button>
+            <button class="actionBtn secondary" id="resetStatsBtn">
+              <span>🔄</span>
+              <span>Statistikanı Sıfırla</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Move History -->
+        <div class="card">
+          <div class="cardTitle">📜 Hərəkət Tarixçəsi</div>
+          <div class="moveHistory" id="moveHistory">
+            <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px;">
+              Hələ hərəkət edilməyib
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Winner Modal -->
+  <div class="modal" id="winnerModal">
+    <div class="modalContent">
+      <div class="modalIcon" id="winnerIcon">🏆</div>
+      <div class="modalTitle" id="winnerTitle">Qələbə!</div>
+      <div class="modalText" id="winnerText">Təbrik edirik!</div>
+      <button class="actionBtn primary" onclick="closeModal()">
+        <span>✓</span>
+        <span>OK</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Game State
+    const gameState = {
+      board: [],
+      currentPlayer: 'red',
+      selectedPiece: null,
+      validMoves: [],
+      mode: 'ai', // 'ai', 'online', 'local'
+      gameOver: false,
+      stats: {
+        moves: 0,
+        captures: 0,
+        wins: parseInt(localStorage.getItem('checkersWins') || '0'),
+        startTime: Date.now()
+      },
+      online: {
+        room: null,
+        player: null,
+        connected: false
+      },
+      history: [],
+      aiDifficulty: 'medium'
+    };
+
+    // Initialize Board
+    function initBoard() {
+      gameState.board = [];
+      for (let row = 0; row < 8; row++) {
+        gameState.board[row] = [];
+        for (let col = 0; col < 8; col++) {
+          let piece = null;
+          if ((row + col) % 2 === 1) {
+            if (row < 3) piece = { color: 'black', king: false };
+            else if (row > 4) piece = { color: 'red', king: false };
+          }
+          gameState.board[row][col] = piece;
+        }
+      }
+      gameState.currentPlayer = 'red';
+      gameState.selectedPiece = null;
+      gameState.validMoves = [];
+      gameState.gameOver = false;
+      gameState.stats.moves = 0;
+      gameState.stats.captures = 0;
+      gameState.stats.startTime = Date.now();
+      gameState.history = [];
+      renderBoard();
+      updateStats();
+    }
+
+    // Render Board
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          square.className = 'square';
+          square.classList.add((row + col) % 2 === 0 ? 'light' : 'dark');
+          square.dataset.row = row;
+          square.dataset.col = col;
+
+          const piece = gameState.board[row][col];
+          if (piece) {
+            const pieceEl = document.createElement('div');
+            pieceEl.className = `piece ${piece.color}`;
+            if (piece.king) pieceEl.classList.add('king');
+            square.appendChild(pieceEl);
+          }
+
+          square.addEventListener('click', () => handleSquareClick(row, col));
+          boardEl.appendChild(square);
+        }
+      }
+
+      updatePlayerInfo();
+    }
+
+    // Handle Square Click
+    function handleSquareClick(row, col) {
+      if (gameState.gameOver) return;
+      
+      // Online mode - check if it's player's turn
+      if (gameState.mode === 'online' && gameState.online.connected) {
+        if (gameState.currentPlayer !== gameState.online.player) {
+          showToast('Rəqibin növbəsidir!');
+          return;
+        }
+      }
+
+      // AI mode - don't allow black moves
+      if (gameState.mode === 'ai' && gameState.currentPlayer === 'black') {
+        return;
+      }
+
+      const piece = gameState.board[row][col];
+      
+      if (gameState.selectedPiece) {
+        // Try to move
+        const isValidMove = gameState.validMoves.some(
+          m => m.row === row && m.col === col
+        );
+
+        if (isValidMove) {
+          makeMove(gameState.selectedPiece.row, gameState.selectedPiece.col, row, col);
+          gameState.selectedPiece = null;
+          gameState.validMoves = [];
+        } else if (piece && piece.color === gameState.currentPlayer) {
+          // Select different piece
+          selectPiece(row, col);
+        } else {
+          // Deselect
+          gameState.selectedPiece = null;
+          gameState.validMoves = [];
+        }
+      } else if (piece && piece.color === gameState.currentPlayer) {
+        selectPiece(row, col);
+      }
+
+      renderBoard();
+      highlightValidMoves();
+    }
+
+    // Select Piece
+    function selectPiece(row, col) {
+      const piece = gameState.board[row][col];
+      if (!piece || piece.color !== gameState.currentPlayer) return;
+
+      // Check if there are mandatory captures
+      const playerHasCaptures = hasCaptures(gameState.currentPlayer);
+      const pieceMoves = getValidMoves(row, col);
+      const pieceHasCaptures = pieceMoves.some(m => m.capture);
+
+      // If player has captures available, only allow selecting pieces that can capture
+      if (playerHasCaptures && !pieceHasCaptures) {
+        showToast('⚠️ Daş yemək məcburidir!');
+        return;
+      }
+
+      gameState.selectedPiece = { row, col };
+      gameState.validMoves = pieceMoves;
+    }
+
+    // Get Valid Moves
+    function getValidMoves(row, col) {
+      const piece = gameState.board[row][col];
+      if (!piece) return [];
+
+      const moves = [];
+      const directions = piece.king 
+        ? [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+        : piece.color === 'red'
+          ? [[-1, -1], [-1, 1]]
+          : [[1, -1], [1, 1]];
+
+      // First check for capture moves (mandatory in checkers)
+      for (const [dr, dc] of directions) {
+        const captureRow = row + dr;
+        const captureCol = col + dc;
+        const landRow = row + 2 * dr;
+        const landCol = col + 2 * dc;
+
+        if (isValidPosition(landRow, landCol)) {
+          const capturedPiece = gameState.board[captureRow][captureCol];
+          if (capturedPiece && capturedPiece.color !== piece.color && 
+              !gameState.board[landRow][landCol]) {
+            moves.push({
+              row: landRow,
+              col: landCol,
+              capture: { row: captureRow, col: captureCol }
+            });
+          }
+        }
+      }
+
+      // If captures are available, only return capture moves (mandatory)
+      if (moves.length > 0) {
+        return moves;
+      }
+
+      // Only check regular moves if no captures available
+      for (const [dr, dc] of directions) {
+        const newRow = row + dr;
+        const newCol = col + dc;
+        if (isValidPosition(newRow, newCol) && !gameState.board[newRow][newCol]) {
+          moves.push({ row: newRow, col: newCol, capture: null });
+        }
+      }
+
+      return moves;
+    }
+
+    // Check if current player has any captures available
+    function hasCaptures(color) {
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const piece = gameState.board[row][col];
+          if (piece && piece.color === color) {
+            const moves = getValidMoves(row, col);
+            if (moves.some(m => m.capture)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    // Make Move
+    function makeMove(fromRow, fromCol, toRow, toCol) {
+      const move = gameState.validMoves.find(m => m.row === toRow && m.col === toCol);
+      if (!move) return;
+
+      // Save history
+      gameState.history.push(JSON.parse(JSON.stringify(gameState.board)));
+
+      const piece = gameState.board[fromRow][fromCol];
+      gameState.board[toRow][toCol] = piece;
+      gameState.board[fromRow][fromCol] = null;
+
+      // Handle capture
+      if (move.capture) {
+        gameState.board[move.capture.row][move.capture.col] = null;
+        gameState.stats.captures++;
+        
+        // Check for multi-jump
+        const nextMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
+        if (nextMoves.length > 0) {
+          gameState.selectedPiece = { row: toRow, col: toCol };
+          gameState.validMoves = nextMoves;
+          renderBoard();
+          highlightValidMoves();
+          return; // Don't switch turns
+        }
+      }
+
+      // Check for king promotion
+      if ((piece.color === 'red' && toRow === 0) || 
+          (piece.color === 'black' && toRow === 7)) {
+        piece.king = true;
+        showToast('👑 Kral oldu!');
+      }
+
+      gameState.stats.moves++;
+      addMoveToHistory(fromRow, fromCol, toRow, toCol);
+      
+      // Switch turns
+      gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+      
+      // Check win condition
+      if (checkWin()) {
+        return;
+      }
+
+      updateStats();
+
+      // Online mode - send move
+      if (gameState.mode === 'online' && gameState.online.connected) {
+        // In real implementation, send move to server
+        console.log('Sending move to opponent');
+      }
+
+      // AI mode
+      if (gameState.mode === 'ai' && gameState.currentPlayer === 'black') {
+        setTimeout(makeAIMove, 800);
+      }
+    }
+
+    // AI Move
+    function makeAIMove() {
+      const allMoves = [];
+      
+      // Get all possible moves for AI
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const piece = gameState.board[row][col];
+          if (piece && piece.color === 'black') {
+            const moves = getValidMoves(row, col);
+            moves.forEach(move => {
+              allMoves.push({ from: { row, col }, to: move });
+            });
+          }
+        }
+      }
+
+      if (allMoves.length === 0) {
+        endGame('red');
+        return;
+      }
+
+      // Prioritize captures
+      const captureMoves = allMoves.filter(m => m.to.capture);
+      const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
+
+      // Simple AI: random move from best moves
+      const selectedMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+      
+      gameState.selectedPiece = selectedMove.from;
+      gameState.validMoves = [selectedMove.to];
+      
+      setTimeout(() => {
+        makeMove(selectedMove.from.row, selectedMove.from.col, selectedMove.to.row, selectedMove.to.col);
+      }, 300);
+    }
+
+    // Check Win
+    function checkWin() {
+      let redPieces = 0;
+      let blackPieces = 0;
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const piece = gameState.board[row][col];
+          if (piece) {
+            if (piece.color === 'red') redPieces++;
+            else blackPieces++;
+          }
+        }
+      }
+
+      if (redPieces === 0) {
+        endGame('black');
+        return true;
+      }
+      if (blackPieces === 0) {
+        endGame('red');
+        return true;
+      }
+
+      return false;
+    }
+
+    // End Game
+    function endGame(winner) {
+      gameState.gameOver = true;
+      
+      if (winner === 'red' || (gameState.mode === 'ai' && winner === gameState.online.player)) {
+        gameState.stats.wins++;
+        localStorage.setItem('checkersWins', gameState.stats.wins);
+      }
+
+      const modal = document.getElementById('winnerModal');
+      const icon = document.getElementById('winnerIcon');
+      const title = document.getElementById('winnerTitle');
+      const text = document.getElementById('winnerText');
+
+      if (winner === 'red') {
+        icon.textContent = '🏆';
+        title.textContent = 'Qələbə!';
+        text.textContent = 'Qırmızı oyunçu qalib gəldi!';
+      } else {
+        icon.textContent = '👑';
+        title.textContent = 'Oyun Bitdi';
+        text.textContent = 'Qara oyunçu qalib gəldi!';
+      }
+
+      modal.classList.add('show');
+      updateStats();
+    }
+
+    // Highlight Valid Moves
+    function highlightValidMoves() {
+      document.querySelectorAll('.square').forEach(sq => {
+        sq.classList.remove('valid-move', 'selected');
+      });
+
+      if (gameState.selectedPiece) {
+        const selectedSq = document.querySelector(
+          `[data-row="${gameState.selectedPiece.row}"][data-col="${gameState.selectedPiece.col}"]`
+        );
+        if (selectedSq) selectedSq.classList.add('selected');
+
+        gameState.validMoves.forEach(move => {
+          const sq = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+          if (sq) sq.classList.add('valid-move');
+        });
+      }
+    }
+
+    // Update Player Info
+    function updatePlayerInfo() {
+      let redPieces = 0;
+      let blackPieces = 0;
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const piece = gameState.board[row][col];
+          if (piece) {
+            if (piece.color === 'red') redPieces++;
+            else blackPieces++;
+          }
+        }
+      }
+
+      document.getElementById('player1Pieces').textContent = redPieces;
+      document.getElementById('player2Pieces').textContent = blackPieces;
+
+      document.getElementById('player1Info').classList.toggle('active', gameState.currentPlayer === 'red');
+      document.getElementById('player2Info').classList.toggle('active', gameState.currentPlayer === 'black');
+    }
+
+    // Update Stats
+    function updateStats() {
+      document.getElementById('movesCount').textContent = gameState.stats.moves;
+      document.getElementById('capturesCount').textContent = gameState.stats.captures;
+      document.getElementById('winsCount').textContent = gameState.stats.wins;
+    }
+
+    // Update Timer
+    setInterval(() => {
+      if (!gameState.gameOver) {
+        const elapsed = Math.floor((Date.now() - gameState.stats.startTime) / 1000);
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
+        document.getElementById('timeElapsed').textContent = 
+          `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+    }, 1000);
+
+    // Add Move to History
+    function addMoveToHistory(fromRow, fromCol, toRow, toCol) {
+      const historyEl = document.getElementById('moveHistory');
+      const moveNum = gameState.stats.moves;
+      
+      if (moveNum === 1) {
+        historyEl.innerHTML = '';
+      }
+
+      const moveItem = document.createElement('div');
+      moveItem.className = 'moveItem';
+      moveItem.innerHTML = `
+        <span>#${moveNum}</span>
+        <span>${String.fromCharCode(65 + fromCol)}${8 - fromRow} → ${String.fromCharCode(65 + toCol)}${8 - toRow}</span>
+      `;
+      historyEl.appendChild(moveItem);
+      historyEl.scrollTop = historyEl.scrollHeight;
+    }
+
+    // Utility Functions
+    function isValidPosition(row, col) {
+      return row >= 0 && row < 8 && col >= 0 && col < 8;
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function closeModal() {
+      document.getElementById('winnerModal').classList.remove('show');
+    }
+
+    // Event Listeners
+    document.getElementById('newGameBtn').addEventListener('click', () => {
+      initBoard();
+      showToast('🎮 Yeni oyun başladı!');
+    });
+
+    document.getElementById('undoBtn').addEventListener('click', () => {
+      if (gameState.history.length > 0) {
+        gameState.board = gameState.history.pop();
+        gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+        gameState.selectedPiece = null;
+        gameState.validMoves = [];
+        renderBoard();
+        showToast('↶ Hərəkət geri alındı');
+      }
+    });
+
+    document.getElementById('resetStatsBtn').addEventListener('click', () => {
+      if (confirm('Statistikanı sıfırlamaq istədiyinizə əminsiniz?')) {
+        gameState.stats.wins = 0;
+        localStorage.setItem('checkersWins', '0');
+        updateStats();
+        showToast('🔄 Statistika sıfırlandı');
+      }
+    });
+
+    // Mode Selection
+    document.querySelectorAll('.modeBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.modeBtn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const mode = btn.dataset.mode;
+        gameState.mode = mode;
+        
+        document.getElementById('onlineCard').style.display = mode === 'online' ? 'block' : 'none';
+        
+        if (mode === 'ai') {
+          document.getElementById('player2Name').textContent = 'AI Bot';
+        } else if (mode === 'local') {
+          document.getElementById('player2Name').textContent = 'Player 2';
+        }
+        
+        initBoard();
+        showToast(`🎮 ${mode.toUpperCase()} rejimi seçildi`);
+      });
+    });
+
+    // Online Room
+    document.getElementById('createRoomBtn').addEventListener('click', () => {
+      const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      document.getElementById('roomCodeDisplay').textContent = roomCode;
+      document.getElementById('roomSection').style.display = 'none';
+      document.getElementById('activeRoom').style.display = 'block';
+      gameState.online.room = roomCode;
+      gameState.online.player = 'red';
+      showToast('🌐 Otaq yaradıldı!');
+    });
+
+    document.getElementById('joinRoomBtn').addEventListener('click', () => {
+      const code = document.getElementById('joinRoomInput').value.trim().toUpperCase();
+      if (code.length === 6) {
+        document.getElementById('roomCodeDisplay').textContent = code;
+        document.getElementById('roomSection').style.display = 'none';
+        document.getElementById('activeRoom').style.display = 'block';
+        gameState.online.room = code;
+        gameState.online.player = 'black';
+        gameState.online.connected = true;
+        document.getElementById('roomStatus').textContent = '✓ Bağlandı!';
+        showToast('🔗 Otağa qoşuldunuz!');
+      } else {
+        showToast('❌ Keçərsiz kod!');
+      }
+    });
+
+    document.getElementById('copyCodeBtn').addEventListener('click', () => {
+      const code = document.getElementById('roomCodeDisplay').textContent;
+      navigator.clipboard.writeText(code);
+      showToast('📋 Kod kopyalandı!');
+    });
+
+    // Color Customization
+    document.getElementById('lightSquareColor').addEventListener('change', (e) => {
+      document.documentElement.style.setProperty('--board-light', e.target.value);
+    });
+
+    document.getElementById('darkSquareColor').addEventListener('change', (e) => {
+      document.documentElement.style.setProperty('--board-dark', e.target.value);
+    });
+
+    document.getElementById('redPieceColor').addEventListener('change', (e) => {
+      document.documentElement.style.setProperty('--piece-red', e.target.value);
+    });
+
+    document.getElementById('blackPieceColor').addEventListener('change', (e) => {
+      document.documentElement.style.setProperty('--piece-black', e.target.value);
+    });
+
+    // Initialize
+    initBoard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>🐍 Love Snake - Duo Mode</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/app.js"></script>
+  <style>
+    .snakeContainer { max-width: 1000px; margin: 0 auto; }
+    .avatarGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
+    .avatarCard {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--stroke);
+      text-align: center;
+    }
+    .avatarPreview {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      overflow: hidden;
+      border: 2px solid var(--stroke);
+    }
+    .avatarPreview img { width: 100%; height: 100%; object-fit: cover; }
+    .avatarTitle { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+    .fileBtn {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .fileBtn input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .snakeCanvas {
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      aspect-ratio: 16/11;
+      border-radius: 18px;
+      border: 2px solid var(--stroke);
+      background: rgba(0,0,0,.3);
+      display: block;
+      margin: 0 auto;
+      box-shadow: var(--shadowLarge);
+    }
+    .snakeOverlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 18px;
+      padding: 20px;
+      opacity: 1;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .snakeOverlay.hide { opacity: 0; }
+    .snakeStage { position: relative; margin: 14px 0; }
+    .controlGrid { display: grid; grid-template-columns: repeat(3, 60px); gap: 8px; justify-content: center; margin: 14px auto; }
+    .controlGrid button {
+      aspect-ratio: 1;
+      padding: 0;
+      font-size: 20px;
+      border-radius: 12px;
+    }
+    .controlGrid .empty { visibility: hidden; }
+    .scoreRow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
+    .scorePill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--stroke);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .ctrlRow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
+    .speedSlider {
+      width: 120px;
+      height: 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.15);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .speedSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(124,92,255,.4);
+    }
+    .missionBar {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--stroke);
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+      margin: 14px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a class="brand" href="arcade.html">
+      <div class="brandMark">🐍</div>
+      <div style="min-width:0">
+        <div class="brandTitle">Love Snake</div>
+        <div class="brandSub">Duo Mode + Avatar Sistem</div>
+      </div>
+    </a>
+    <div class="pills">
+      <a class="pill" href="arcade.html">🕹️ Arcade</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="snakeContainer">
+      <div class="card" style="margin-top: 14px;">
+        <div class="cardInner">
+          <h2 class="h2" style="margin-bottom: 12px;">🎮 Avatar Sistemi</h2>
+          <p class="p" style="font-size: 12px; margin-bottom: 14px;">
+            İlan başlarını və almanı şəkillə dəyişdir! Duo modda 2 ilan olur.
+          </p>
+          
+          <div class="avatarGrid">
+            <div class="avatarCard">
+              <div class="avatarPreview" id="p1Preview">😎</div>
+              <div class="avatarTitle">Player 1 (Sən)</div>
+              <label class="btn fileBtn">
+                Şəkil Seç
+                <input type="file" accept="image/*" id="p1ImgInput">
+              </label>
+            </div>
+            
+            <div class="avatarCard">
+              <div class="avatarPreview" id="p2Preview">💖</div>
+              <div class="avatarTitle">Player 2 (Sevgilim)</div>
+              <label class="btn fileBtn">
+                Şəkil Seç
+                <input type="file" accept="image/*" id="p2ImgInput">
+              </label>
+            </div>
+            
+            <div class="avatarCard">
+              <div class="avatarPreview" id="applePreview">🍎</div>
+              <div class="avatarTitle">Alma</div>
+              <label class="btn fileBtn">
+                Şəkil Seç
+                <input type="file" accept="image/*" id="appleImgInput">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <div class="cardInner">
+          <div class="snakeStage">
+            <canvas id="snakeCanvas" class="snakeCanvas"></canvas>
+            <div class="snakeOverlay" id="snakeOverlay">
+              Başla düyməsinə bas ✨<br>
+              <span style="opacity:.85">Solo: WASD | Duo: P1(WASD) P2(Oxlar)</span>
+            </div>
+          </div>
+
+          <div class="scoreRow">
+            <div class="scorePill" id="p1Score">😎 P1: 0</div>
+            <div class="scorePill" id="p2Score">💖 P2: 0</div>
+            <div class="scorePill" id="bestScore">🏆 Rekor: 0</div>
+          </div>
+
+          <div class="ctrlRow">
+            <div class="scorePill" id="speedLabel">⚡ 9</div>
+            <input type="range" id="speedSlider" class="speedSlider" min="6" max="16" value="9">
+            <button class="btn" id="wrapBtn">🧱 Divar: Açıq</button>
+            <button class="btn primary" id="duoBtn">👥 Duo: Söndür</button>
+          </div>
+
+          <div class="btnRow">
+            <button class="btn primary" id="startBtn">▶️ Başla</button>
+            <button class="btn" id="pauseBtn">⏸️ Pauza</button>
+            <button class="btn" id="resetBtn">🔄 Yenidən</button>
+          </div>
+
+          <div class="missionBar" id="missionBar">
+            🎯 Məqsəd: 15 alma yığ!
+          </div>
+
+          <div class="controlGrid">
+            <div class="empty"></div>
+            <button class="btn" id="upBtn">⬆️</button>
+            <div class="empty"></div>
+            <button class="btn" id="leftBtn">⬅️</button>
+            <button class="btn" id="downBtn">⬇️</button>
+            <button class="btn" id="rightBtn">➡️</button>
+          </div>
+
+          <div class="note">
+            <b>Kontrol:</b><br>
+            👤 <b>Solo:</b> WASD ilə oyna<br>
+            👥 <b>Duo:</b> P1 (WASD), P2 (Ox düymələri / ekran düymələri)<br>
+            🎯 <b>Məqsəd:</b> 15 alma yığ (Duo-da kim əvvəl 15-ə çatsa qalib)<br>
+            ⚠️ Divardan, özündən və ya digər ilandan qaç!
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottomNav cartoonNav">
+    <a class="navBtn" href="index.html"><div class="navIcon">🏠</div><span>Ana</span></a>
+    <a class="navBtn" href="gift-vault.html"><div class="navIcon">🎁</div><span>Vault</span></a>
+    <a class="navBtn" href="album.html"><div class="navIcon">📖</div><span>Album</span></a>
+    <a class="navBtn" href="plans.html"><div class="navIcon">📋</div><span>Planlar</span></a>
+    <a class="navBtn" href="capsule.html"><div class="navIcon">⏳</div><span>Kapsul</span></a>
+    <a class="navBtn" aria-current="page" href="arcade.html"><div class="navIcon">🕹️</div><span>Arcade</span></a>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const canvas = document.getElementById('snakeCanvas');
+    let ctx = canvas.getContext('2d');
+    let dpr = 1;
+
+    // State
+    let cols = 26, rows = 18, cell = 20;
+    let running = false, duo = false, wrapWalls = true;
+    let timer = null, touchStart = null;
+    let best = parseInt(localStorage.getItem('SNAKE_BEST') || '0');
+
+    const p1 = { snake: [], dir: {x:1,y:0}, next: {x:1,y:0}, score: 0 };
+    const p2 = { snake: [], dir: {x:-1,y:0}, next: {x:-1,y:0}, score: 0 };
+    let apple = {x:0, y:0};
+
+    // Images
+    let imgP1, imgP2, imgApple;
+    let p1Ready = false, p2Ready = false, appleReady = false;
+
+    // Load images
+    function loadImg(input, previewId, onLoad) {
+      input.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            onLoad(img);
+            const prev = document.getElementById(previewId);
+            prev.innerHTML = '';
+            const im = document.createElement('img');
+            im.src = ev.target.result;
+            prev.appendChild(im);
+            draw();
+            App.toast('✅ Şəkil yükləndi!');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    loadImg(document.getElementById('p1ImgInput'), 'p1Preview', img => { imgP1 = img; p1Ready = true; });
+    loadImg(document.getElementById('p2ImgInput'), 'p2Preview', img => { imgP2 = img; p2Ready = true; });
+    loadImg(document.getElementById('appleImgInput'), 'applePreview', img => { imgApple = img; appleReady = true; });
+
+    function fitCanvas() {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(dpr, dpr);
+      const w = rect.width, h = rect.height;
+      cell = Math.max(18, Math.min(30, Math.floor(w / 26)));
+      cols = Math.max(18, Math.floor(w / cell));
+      rows = Math.max(14, Math.floor(h / cell));
+    }
+
+    function randInt(n) { return Math.floor(Math.random() * n); }
+    function key(x,y) { return `${x},${y}`; }
+    function eq(a,b) { return a.x===b.x && a.y===b.y; }
+
+    function spawnApple() {
+      const taken = new Set();
+      for (const s of p1.snake) taken.add(key(s.x,s.y));
+      for (const s of p2.snake) taken.add(key(s.x,s.y));
+      let pt;
+      do { pt = {x: randInt(cols), y: randInt(rows)}; } while (taken.has(key(pt.x,pt.y)));
+      apple = pt;
+    }
+
+    function updateUI() {
+      document.getElementById('p1Score').textContent = `😎 P1: ${p1.score}`;
+      document.getElementById('p2Score').textContent = `💖 P2: ${p2.score}`;
+      document.getElementById('bestScore').textContent = `🏆 Rekor: ${best}`;
+      document.getElementById('speedLabel').textContent = `⚡ ${getSpeed()}`;
+      document.getElementById('wrapBtn').textContent = wrapWalls ? "🧱 Divar: Açıq" : "🌀 Wrap";
+      document.getElementById('duoBtn').textContent = duo ? "👥 Duo: Açıq" : "👤 Solo";
+
+      const goal = 15;
+      const mb = document.getElementById('missionBar');
+      if (duo) {
+        mb.textContent = `🎯 P1: ${p1.score}/15 | P2: ${p2.score}/15`;
+      } else {
+        mb.textContent = p1.score >= goal ? "🎯 Məqsəd tamamlandı! 💗" : `🎯 Məqsəd: ${goal} alma (qaldı: ${goal - p1.score})`;
+      }
+    }
+
+    function getSpeed() {
+      return Math.max(6, Math.min(16, Number(document.getElementById('speedSlider').value || 9)));
+    }
+
+    function setDir(player, name) {
+      const map = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
+      const nd = map[name];
+      if (!nd) return;
+      if (nd.x === -player.dir.x && nd.y === -player.dir.y) return;
+      player.next = nd;
+    }
+
+    function initState() {
+      fitCanvas();
+      p1.score = 0; p2.score = 0;
+
+      const y1 = Math.floor(rows/2);
+      const x1 = Math.floor(cols/2) - 4;
+      p1.dir = {x:1,y:0}; p1.next = {x:1,y:0};
+      p1.snake = [{x:x1,y:y1}, {x:x1-1,y:y1}, {x:x1-2,y:y1}, {x:x1-3,y:y1}];
+
+      const y2 = Math.floor(rows/2);
+      const x2 = Math.floor(cols/2) + 4;
+      p2.dir = {x:-1,y:0}; p2.next = {x:-1,y:0};
+      p2.snake = [{x:x2,y:y2}, {x:x2+1,y:y2}, {x:x2+2,y:y2}, {x:x2+3,y:y2}];
+
+      spawnApple();
+      updateUI();
+      draw();
+      setOverlay(`Başla düyməsinə bas ✨<br><span style="opacity:.85">${duo ? "Duo: WASD + Ox" : "Solo: WASD"}</span>`, true);
+    }
+
+    function setOverlay(html, show) {
+      const ov = document.getElementById('snakeOverlay');
+      ov.innerHTML = html;
+      if (show) ov.classList.remove('hide');
+      else ov.classList.add('hide');
+    }
+
+    function gameOver(reason) {
+      pause(true);
+      setOverlay(`💥 Oyun bitdi!<br><b>${reason}</b><br>"Yenidən" bas`, true);
+      App.toast('💥 Game Over!');
+    }
+
+    function winnerCheck() {
+      const goal = 15;
+      if (!duo && p1.score >= goal) {
+        pause(true);
+        setOverlay(`🎉 QAZANDIN! 💗<br>Bal: ${p1.score}`, true);
+        App.toast('🎉 Məqsəd tamam!');
+        return true;
+      }
+      if (duo) {
+        if (p1.score >= goal) {
+          pause(true);
+          setOverlay(`🏆 QALİB: P1 😎<br>P1: ${p1.score} | P2: ${p2.score}`, true);
+          App.toast('🏆 P1 qalib!');
+          return true;
+        }
+        if (p2.score >= goal) {
+          pause(true);
+          setOverlay(`🏆 QALİB: P2 💖<br>P1: ${p1.score} | P2: ${p2.score}`, true);
+          App.toast('🏆 P2 qalib!');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function stepPlayer(player, other) {
+      player.dir = player.next;
+      const head = player.snake[0];
+      let nx = head.x + player.dir.x;
+      let ny = head.y + player.dir.y;
+
+      if (wrapWalls) {
+        nx = (nx + cols) % cols;
+        ny = (ny + rows) % rows;
+      } else {
+        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) {
+          return { dead:true, reason:"Divara dəydi" };
+        }
+      }
+
+      const newHead = {x:nx, y:ny};
+
+      for (const s of player.snake) {
+        if (eq(newHead, s)) return { dead:true, reason:"Özünə dəydi" };
+      }
+
+      if (duo) {
+        for (const s of other.snake) {
+          if (eq(newHead, s)) return { dead:true, reason:"Digər ilana dəydi" };
+        }
+      }
+
+      player.snake.unshift(newHead);
+
+      if (eq(newHead, apple)) {
+        player.score++;
+        if (player.score > best) {
+          best = player.score;
+          localStorage.setItem('SNAKE_BEST', best);
+        }
+        spawnApple();
+      } else {
+        player.snake.pop();
+      }
+
+      return { dead:false };
+    }
+
+    function step() {
+      const res1 = stepPlayer(p1, p2);
+      if (res1.dead) return gameOver(`P1 uduzdu: ${res1.reason}`);
+
+      if (duo) {
+        const res2 = stepPlayer(p2, p1);
+        if (res2.dead) return gameOver(`P2 uduzdu: ${res2.reason}`);
+      }
+
+      updateUI();
+      draw();
+      winnerCheck();
+    }
+
+    function drawAvatar(img, ready, cx, cy, size, fallback) {
+      const r = size/2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+
+      if (ready && img && img.complete) {
+        const scale = Math.max(size / img.naturalWidth, size / img.naturalHeight);
+        const dw = img.naturalWidth * scale;
+        const dh = img.naturalHeight * scale;
+        ctx.drawImage(img, cx - dw/2, cy - dh/2, dw, dh);
+      } else {
+        ctx.fillStyle = "rgba(255,255,255,.08)";
+        ctx.fillRect(cx-r, cy-r, size, size);
+        ctx.fillStyle = "#fff";
+        ctx.font = `900 ${Math.floor(size*0.55)}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(fallback, cx, cy);
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = "rgba(255,255,255,.3)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r-1, 0, Math.PI*2);
+      ctx.stroke();
+    }
+
+    function draw() {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width, h = rect.height;
+      ctx.clearRect(0,0,w,h);
+
+      // Grid
+      ctx.save();
+      ctx.globalAlpha = 0.08;
+      ctx.strokeStyle = "rgba(255,255,255,.3)";
+      ctx.lineWidth = 1;
+      for (let x=0; x<=cols; x++) {
+        const px = x*cell + 0.5;
+        ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, rows*cell); ctx.stroke();
+      }
+      for (let y=0; y<=rows; y++) {
+        const py = y*cell + 0.5;
+        ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(cols*cell, py); ctx.stroke();
+      }
+      ctx.restore();
+
+      // Apple
+      const ax = apple.x*cell + cell/2;
+      const ay = apple.y*cell + cell/2;
+      drawAvatar(imgApple, appleReady, ax, ay, Math.min(cell*1.7, 60), "🍎");
+
+      // Snakes body
+      function drawBody(snake, color) {
+        for (let i=snake.length-1; i>0; i--) {
+          const s = snake[i];
+          const alpha = Math.max(0.2, 0.6 - i*0.01);
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fillRect(s.x*cell+2, s.y*cell+2, cell-4, cell-4);
+        }
+      }
+
+      drawBody(p1.snake, '#3d7bfd');
+      if (duo) drawBody(p2.snake, '#ff4d9d');
+
+      // Heads
+      const h1 = p1.snake[0];
+      drawAvatar(imgP1, p1Ready, h1.x*cell + cell/2, h1.y*cell + cell/2, Math.min(cell*1.5, 48), "😎");
+
+      if (duo) {
+        const h2 = p2.snake[0];
+        drawAvatar(imgP2, p2Ready, h2.x*cell + cell/2, h2.y*cell + cell/2, Math.min(cell*1.5, 48), "💖");
+      }
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      setOverlay("", false);
+      const sp = getSpeed();
+      timer = setInterval(step, Math.floor(1000 / sp));
+      App.toast('🐍 Başladı!');
+    }
+
+    function pause(silent=false) {
+      if (!running && !timer) return;
+      running = false;
+      clearInterval(timer);
+      timer = null;
+      if (!silent) App.toast('⏸️ Pauza');
+    }
+
+    function reset() {
+      running = false;
+      clearInterval(timer);
+      timer = null;
+      initState();
+      App.toast('🔁 Yenidən');
+    }
+
+    function toggleWrap() {
+      wrapWalls = !wrapWalls;
+      localStorage.setItem('SNAKE_WRAP', wrapWalls ? '1' : '0');
+      updateUI();
+      draw();
+      App.toast(wrapWalls ? '🧱 Divar açıq' : '🌀 Wrap');
+    }
+
+    function toggleDuo() {
+      duo = !duo;
+      localStorage.setItem('SNAKE_DUO', duo ? '1' : '0');
+      reset();
+    }
+
+    // Controls
+    document.getElementById('startBtn').onclick = start;
+    document.getElementById('pauseBtn').onclick = () => pause();
+    document.getElementById('resetBtn').onclick = reset;
+    document.getElementById('wrapBtn').onclick = toggleWrap;
+    document.getElementById('duoBtn').onclick = toggleDuo;
+
+    document.getElementById('upBtn').onclick = () => setDir(duo ? p2 : p1, 'up');
+    document.getElementById('downBtn').onclick = () => setDir(duo ? p2 : p1, 'down');
+    document.getElementById('leftBtn').onclick = () => setDir(duo ? p2 : p1, 'left');
+    document.getElementById('rightBtn').onclick = () => setDir(duo ? p2 : p1, 'right');
+
+    document.getElementById('speedSlider').oninput = () => {
+      updateUI();
+      if (running) { clearInterval(timer); start(); }
+    };
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+      const k = e.key.toLowerCase();
+      if (k === ' ') { e.preventDefault(); if (running) pause(); else start(); return; }
+      
+      const mapP1 = { w:'up', a:'left', s:'down', d:'right' };
+      if (mapP1[k]) { e.preventDefault(); setDir(p1, mapP1[k]); return; }
+      
+      if (duo) {
+        const mapP2 = { arrowup:'up', arrowleft:'left', arrowdown:'down', arrowright:'right' };
+        if (mapP2[k]) { e.preventDefault(); setDir(p2, mapP2[k]); }
+      }
+    });
+
+    // Touch
+    canvas.addEventListener('touchstart', e => {
+      const t = e.touches?.[0];
+      if (t) touchStart = {x: t.clientX, y: t.clientY};
+    });
+
+    canvas.addEventListener('touchend', e => {
+      if (!touchStart) return;
+      const t = e.changedTouches?.[0];
+      if (!t) return;
+
+      const dx = t.clientX - touchStart.x;
+      const dy = t.clientY - touchStart.y;
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
+
+      if (Math.max(adx, ady) < 20) return;
+
+      let dir;
+      if (adx > ady) dir = dx > 0 ? 'right' : 'left';
+      else dir = dy > 0 ? 'down' : 'up';
+
+      setDir(duo ? p2 : p1, dir);
+      touchStart = null;
+    });
+
+    // Load saved
+    duo = localStorage.getItem('SNAKE_DUO') === '1';
+    wrapWalls = localStorage.getItem('SNAKE_WRAP') !== '0';
+    document.getElementById('bestScore').textContent = `🏆 Rekor: ${best}`;
+
+    // Init
+    window.addEventListener('resize', () => { fitCanvas(); draw(); });
+    initState();
+  </script>
+</body>
+</html>
