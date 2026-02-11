@@ -1,880 +1,377 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>🎬 CinePartyy - REAL Birlikdə İzləyin!</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CineParty: Birlikdə İzlə</title>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --bg: #0f1014; --panel: #1b1d25; --primary: #e50914; --text: #fff; --accent: #46d369; }
+    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+    body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* LOBBY */
+    #lobby { position: fixed; inset: 0; z-index: 999; background: #000 url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; display: flex; align-items: center; justify-content: center; }
+    #lobby::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
     
-    :root {
-      --bg: #0a0a0f;
-      --surface: #1a1a24;
-      --surface-light: #252534;
-      --primary: #6366f1;
-      --success: #10b981;
-      --error: #ef4444;
-      --text: #ffffff;
-      --text-muted: #9ca3af;
-      --border: rgba(255,255,255,0.1);
-    }
+    .card { position: relative; width: 90%; max-width: 400px; background: rgba(27, 29, 37, 0.95); padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+    .logo { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 20px; letter-spacing: 1px; }
+    .btn { width: 100%; padding: 14px; margin-top: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    .btn-red { background: var(--primary); color: white; }
+    .btn-red:hover { background: #b2070f; }
+    .btn-gray { background: #333; color: white; }
+    .btn-gray:hover { background: #444; }
+    
+    .room-code-display { background: #000; padding: 15px; border-radius: 10px; border: 1px dashed #555; font-family: monospace; font-size: 24px; letter-spacing: 2px; color: var(--accent); margin: 15px 0; cursor: pointer; user-select: all; }
+    .copy-hint { font-size: 12px; color: #aaa; margin-bottom: 15px; }
+    input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; border-radius: 10px; color: white; text-align: center; font-size: 18px; margin-bottom: 10px; }
 
-    body { 
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    /* ROOM UI */
+    #room-ui { display: none; flex-direction: column; height: 100%; width: 100%; }
+    
+    /* VIDEO AREA */
+    .cinema-mode { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    video { width: 100%; height: 100%; object-fit: contain; max-height: 80vh; }
+    
+    /* Mobile Overlay for Audio */
+    #start-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    #start-overlay button { padding: 15px 30px; font-size: 18px; border-radius: 50px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+    /* CONTROLS */
+    .controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 20; padding: 10px 20px; background: rgba(0,0,0,0.6); border-radius: 30px; backdrop-filter: blur(5px); }
+    .c-btn { width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .btn-share { background: #333; }
+    .btn-share.active { background: var(--accent); color: #000; }
+    .btn-leave { background: var(--primary); }
 
-    .header {
-      text-align: center;
-      padding: 60px 20px;
-      background: linear-gradient(135deg, var(--primary), #764ba2);
-      border-radius: 20px;
-      margin-bottom: 30px;
-    }
+    /* CHAT AREA */
+    .chat-container { height: 35vh; background: var(--panel); display: flex; flex-direction: column; border-top: 1px solid #333; }
+    .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+    .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+    .msg.me { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+    .msg.other { align-self: flex-start; background: #333; color: white; border-bottom-left-radius: 2px; }
+    .msg.sys { align-self: center; background: transparent; color: #888; font-size: 12px; text-align: center; padding: 5px; }
+    
+    .chat-input { padding: 10px; background: #111; display: flex; gap: 10px; align-items: center; }
+    .chat-input input { margin: 0; text-align: left; padding: 12px; font-size: 14px; }
+    .chat-input button { width: 50px; height: 50px; border-radius: 10px; background: var(--primary); color: white; border: none; cursor: pointer; }
 
-    .logo { font-size: 80px; margin-bottom: 20px; }
-    .title { font-size: 48px; font-weight: 900; color: white; margin-bottom: 10px; }
-    .subtitle { font-size: 18px; color: rgba(255,255,255,0.9); }
-
-    .box {
-      background: var(--surface);
-      padding: 40px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-
-    .boxTitle {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    .formGroup {
-      margin-bottom: 24px;
-    }
-
-    .label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    .input {
-      width: 100%;
-      padding: 16px 20px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 16px;
-      font-family: 'Poppins', sans-serif;
-      transition: all 0.3s;
-    }
-
-    .input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .btn {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--primary), #764ba2);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-    }
-
-    .watchRoom {
-      display: none;
-    }
-
-    .watchRoom.active {
-      display: block;
-    }
-
-    .watchHeader {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .roomTitle {
-      font-size: 28px;
-      font-weight: 900;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .actionBtn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
-      color: white;
-    }
-
-    .actionBtn.share {
-      background: var(--success);
-    }
-
-    .actionBtn.leave {
-      background: var(--error);
-    }
-
-    .actionBtn:hover {
-      transform: translateY(-2px);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 24px;
-    }
-
-    @media (max-width: 1024px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border);
-    }
-
-    .cardTitle {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sourceTabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 14px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-    }
-
-    .tab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .videoWrapper {
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 16 / 9;
-      margin-bottom: 20px;
-      position: relative;
-    }
-
-    .videoWrapper iframe,
-    .videoWrapper video {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-    }
-
-    .placeholderIcon {
-      font-size: 80px;
-      margin-bottom: 20px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 12px;
-    }
-
-    .controls input {
-      flex: 1;
-    }
-
-    .loadBtn {
-      padding: 14px 24px;
-      background: var(--success);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .loadBtn:hover {
-      background: #059669;
-    }
-
-    .viewers {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .viewer {
-      padding: 8px 16px;
-      background: var(--surface-light);
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .chatMessages {
-      height: 400px;
-      overflow-y: auto;
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .message {
-      padding: 12px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      font-size: 14px;
-    }
-
-    .message.own {
-      background: var(--primary);
-      align-self: flex-end;
-      max-width: 70%;
-    }
-
-    .messageAuthor {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .message.own .messageAuthor {
-      color: rgba(255,255,255,0.8);
-    }
-
-    .message.system {
-      background: rgba(16, 185, 129, 0.2);
-      text-align: center;
-      align-self: center;
-      max-width: 100%;
-    }
-
-    .chatInput {
-      display: flex;
-      gap: 12px;
-    }
-
-    .chatInput input {
-      flex: 1;
-      padding: 12px 18px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    .sendBtn {
-      padding: 12px 20px;
-      background: var(--primary);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .sendBtn:hover {
-      background: #4f46e5;
-    }
-
-    .status {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--surface);
-      padding: 12px 20px;
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 1000;
-    }
-
-    .statusDot {
-      width: 10px;
-      height: 10px;
-      background: var(--success);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .notification {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      background: var(--surface);
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 10000;
-      transform: translateX(400px);
-      transition: transform 0.3s;
-    }
-
-    .notification.show {
-      transform: translateX(0);
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--surface-light);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border-radius: 4px;
+    /* Responsive for PC vs Mobile */
+    @media (min-width: 768px) {
+      #room-ui { flex-direction: row; }
+      .cinema-mode { flex: 3; height: 100vh; }
+      video { max-height: 100vh; }
+      .chat-container { width: 350px; height: 100vh; border-top: none; border-left: 1px solid #333; }
     }
   </style>
 </head>
 <body>
 
-<div class="notification" id="notification">
-  <div id="notificationIcon">✅</div>
-  <div id="notificationText"></div>
-</div>
-
-<div class="status" id="status">
-  <div class="statusDot"></div>
-  <span>Bağlandı</span>
-</div>
-
-<div class="container">
-  <div id="homeScreen">
-    <div class="header">
-      <div class="logo">🎬</div>
-      <div class="title">CineParty REAL</div>
-      <div class="subtitle">REAL-TIME sinxronizasiya - Hər şey CANLI işləyir! ✅</div>
+  <div id="lobby">
+    <div class="card" id="menu-main">
+      <div class="logo"><i class="fas fa-film"></i> CineParty</div>
+      <p style="color:#ccc; margin-bottom:20px;">Sevgilinlə və dostlarınla eyni anda film izlə.</p>
+      <button class="btn btn-red" onclick="createRoom()">🎬 Otaq Yarat</button>
+      <button class="btn btn-gray" onclick="showJoin()">👋 Otağa Qoşul</button>
     </div>
 
-    <div class="box">
-      <div class="boxTitle">🎬 Otaq Yarat və ya Qoşul</div>
+    <div class="card" id="menu-create" style="display:none;">
+      <div class="logo">Otaq Hazırdır!</div>
+      <p style="font-size:14px; color:#ccc;">Bu linki və ya kodu dostlarına göndər:</p>
       
-      <div class="formGroup">
-        <label class="label">Sizin adınız</label>
-        <input type="text" class="input" id="username" placeholder="Adınızı yazın" maxlength="20">
+      <div class="room-code-display" id="my-id" onclick="copyLink()">...</div>
+      <p class="copy-hint" id="copy-text">Kodu kopyalamaq üçün üzərinə toxun</p>
+      
+      <button class="btn btn-accent" style="background:var(--accent); color:black" onclick="copyLink()">🔗 Linki Kopyala</button>
+      <button class="btn btn-red" onclick="enterRoomAsHost()">Otağa Daxil Ol</button>
+      <button class="btn btn-gray" onclick="location.reload()">Geri</button>
+    </div>
+
+    <div class="card" id="menu-join" style="display:none;">
+      <div class="logo">Qoşul</div>
+      <input type="text" id="join-input" placeholder="Otaq Kodu">
+      <button class="btn btn-red" id="btn-connect" onclick="joinRoom()">Qoşul</button>
+      <button class="btn btn-gray" onclick="location.reload()">Geri</button>
+    </div>
+  </div>
+
+  <div id="room-ui">
+    <div class="cinema-mode">
+      <video id="remote-video" playsinline autoplay></video>
+
+      <div id="start-overlay" style="display:none">
+        <button onclick="enableAudio()"><i class="fas fa-play"></i> SƏSİ AÇ & BAŞLA</button>
+        <p style="margin-top:10px; font-size:12px; color:#ccc;">(Telefonda səs üçün vacibdir)</p>
       </div>
 
-      <div class="formGroup">
-        <label class="label">Otaq kodu (yaratmaq və ya qoşulmaq üçün)</label>
-        <input type="text" class="input" id="roomCode" placeholder="Məs: bizim-film-2024" maxlength="30">
+      <div class="controls">
+        <button class="c-btn btn-share" id="share-btn" onclick="toggleScreenShare()" title="Ekran Paylaş">
+          <i class="fas fa-desktop"></i>
+        </button>
+        <button class="c-btn" onclick="toggleMute()" title="Səsi Bağla/Aç">
+          <i class="fas fa-volume-up" id="vol-icon"></i>
+        </button>
+        <button class="c-btn btn-leave" onclick="location.href=location.pathname" title="Çıxış">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
+    </div>
 
-      <button class="btn" onclick="joinOrCreateRoom()">
-        🚀 Başla
-      </button>
-
-      <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px;">
-        <strong style="display: block; margin-bottom: 10px;">💡 Necə işləyir:</strong>
-        <div style="font-size: 14px; line-height: 1.6;">
-          1. Eyni otaq kodunu yazın (siz və sevgiliniz)<br>
-          2. Hər ikiniz "Başla" basın<br>
-          3. Avtomatik eyni otağa qoşularsınız!<br>
-          4. Video açanda O DA görəcək! ✅
-        </div>
+    <div class="chat-container">
+      <div class="messages" id="chat-box">
+        <div class="msg sys">Xoş gəldiniz! ❤️<br>Ekranı PC-dən paylaşmaq məsləhətdir.</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="msg-in" placeholder="Mesaj yaz..." onkeypress="handleEnter(event)">
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
   </div>
 
-  <div class="watchRoom" id="watchRoom">
-    <div class="watchHeader">
-      <div class="roomTitle" id="roomTitleDisplay">🎬 Film Otağı</div>
-      <div class="actions">
-        <button class="actionBtn share" onclick="shareRoom()">📤 Otaq Kodunu Paylaş</button>
-        <button class="actionBtn leave" onclick="leaveRoom()">🚪 Çıx</button>
-      </div>
-    </div>
+  <script>
+    // --- CONFIGURATION ---
+    const generateID = () => Math.floor(100000 + Math.random() * 900000).toString(); // 6 rəqəmli sadə kod
+    let myPeerId = null;
+    let peer = null;
+    let myStream = null;
+    let connections = []; // Bütün qoşulanların siyahısı (Chat üçün)
+    let isHost = false;
 
-    <div class="grid">
-      <div>
-        <div class="card">
-          <div class="cardTitle">📺 Video Player</div>
-
-          <div class="sourceTabs">
-            <div class="tab active" onclick="selectSource('youtube')" id="youtubeTab">
-              📺 YouTube
-            </div>
-            <div class="tab" onclick="selectSource('screen')" id="screenTab">
-              🖥️ Ekran Paylaş
-            </div>
-          </div>
-
-          <div class="videoWrapper" id="videoWrapper">
-            <div class="placeholder">
-              <div class="placeholderIcon">🎬</div>
-              <div class="placeholderText">Mənbə seçin</div>
-            </div>
-          </div>
-
-          <div class="controls" id="youtubeControls">
-            <input type="text" class="input" id="videoUrl" placeholder="YouTube linki yapışdırın">
-            <button class="loadBtn" onclick="loadVideo()">▶️ Yüklə</button>
-          </div>
-
-          <div class="controls" id="screenControls" style="display: none;">
-            <button class="btn" onclick="shareScreen()">🖥️ Ekran Paylaşımını Başlat</button>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <div class="cardTitle">👥 İzləyicilər (<span id="viewerCount">0</span>)</div>
-          <div class="viewers" id="viewersList"></div>
-        </div>
-
-        <div class="card">
-          <div class="cardTitle">💬 Söhbət</div>
-          <div class="chatMessages" id="chatMessages"></div>
-          <div class="chatInput">
-            <input type="text" class="input" id="chatInput" placeholder="Mesaj yazın...">
-            <button class="sendBtn" onclick="sendMessage()">📤</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  // PubNub Configuration (DEMO keys - işləyir!)
-  const pubnub = new PubNub({
-    publishKey: 'demo',
-    subscribeKey: 'demo',
-    uuid: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-  });
-
-  let username = '';
-  let roomCode = '';
-  let currentSource = 'youtube';
-  let viewers = [];
-
-  function updateStatus(text) {
-    document.getElementById('status').innerHTML = `
-      <div class="statusDot"></div>
-      <span>${text}</span>
-    `;
-  }
-
-  function joinOrCreateRoom() {
-    const usernameInput = document.getElementById('username');
-    const roomCodeInput = document.getElementById('roomCode');
-
-    username = usernameInput.value.trim();
-    roomCode = roomCodeInput.value.trim().toLowerCase().replace(/\s+/g, '-');
-
-    if (!username) {
-      showNotification('⚠️ Adınızı daxil edin!', '❌');
-      return;
-    }
-
-    if (!roomCode) {
-      showNotification('⚠️ Otaq kodu daxil edin!', '❌');
-      return;
-    }
-
-    // Subscribe to room channel
-    pubnub.subscribe({
-      channels: [roomCode]
-    });
-
-    // Listen for messages
-    pubnub.addListener({
-      message: function(event) {
-        handleMessage(event.message);
-      },
-      presence: function(event) {
-        updateViewers();
+    // URL Parametrindən otaq kodunu yoxla (Linklə giriş üçün)
+    window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomCode = urlParams.get('room');
+      if (roomCode) {
+        showJoin();
+        document.getElementById('join-input').value = roomCode;
       }
-    });
+    };
 
-    // Announce presence
-    publishMessage({
-      type: 'join',
-      username: username
-    });
+    // --- LOBBY LOGIC ---
+    function createRoom() {
+      myPeerId = generateID();
+      initPeer(myPeerId);
+      document.getElementById('menu-main').style.display = 'none';
+      document.getElementById('menu-create').style.display = 'block';
+      document.getElementById('my-id').innerText = myPeerId;
+      isHost = true;
+    }
 
-    // Show room
-    document.getElementById('homeScreen').style.display = 'none';
-    document.getElementById('watchRoom').classList.add('active');
-    document.getElementById('roomTitleDisplay').textContent = '🎬 ' + roomCode;
+    function showJoin() {
+      document.getElementById('menu-main').style.display = 'none';
+      document.getElementById('menu-join').style.display = 'block';
+    }
 
-    updateStatus('Bağlandı ✅');
-    showNotification('✅ Otağa qoşuldunuz!', '🎉');
-    addSystemMessage(`${username} otağa qoşuldu! 👋`);
-  }
-
-  function handleMessage(message) {
-    switch(message.type) {
-      case 'join':
-        if (message.username !== username) {
-          addSystemMessage(`${message.username} qoşuldu! 👋`);
-          updateViewers();
-        }
-        break;
+    function joinRoom() {
+      const roomId = document.getElementById('join-input').value.trim();
+      if (!roomId) return alert("Zəhmət olmasa kodu daxil edin!");
       
-      case 'video':
-        if (message.username !== username) {
-          loadVideoFromMessage(message.videoId);
-          showNotification(`${message.username} video yüklədi`, '📺');
-        }
-        break;
-      
-      case 'chat':
-        if (message.username !== username) {
-          addMessage(message.text, message.username, false);
-        }
-        break;
-      
-      case 'viewers':
-        viewers = message.viewers || [];
-        displayViewers();
-        break;
-    }
-  }
-
-  function publishMessage(message) {
-    pubnub.publish({
-      channel: roomCode,
-      message: message
-    });
-  }
-
-  function selectSource(source) {
-    currentSource = source;
-    
-    document.getElementById('youtubeTab').classList.toggle('active', source === 'youtube');
-    document.getElementById('screenTab').classList.toggle('active', source === 'screen');
-    
-    document.getElementById('youtubeControls').style.display = source === 'youtube' ? 'flex' : 'none';
-    document.getElementById('screenControls').style.display = source === 'screen' ? 'flex' : 'none';
-
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `
-      <div class="placeholder">
-        <div class="placeholderIcon">${source === 'youtube' ? '📺' : '🖥️'}</div>
-        <div class="placeholderText">${source === 'youtube' ? 'YouTube linki daxil edin' : 'Ekran paylaşımını başladın'}</div>
-      </div>
-    `;
-  }
-
-  function loadVideo() {
-    const input = document.getElementById('videoUrl');
-    const url = input.value.trim();
-
-    if (!url) {
-      showNotification('⚠️ YouTube linki daxil edin!', '❌');
-      return;
+      document.getElementById('btn-connect').innerText = "Qoşulur...";
+      // Qonaq üçün random ID yaradaq
+      initPeer(null, roomId);
     }
 
-    let videoId = '';
-    if (url.includes('youtube.com/watch?v=')) {
-      videoId = url.split('v=')[1]?.split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1]?.split('?')[0];
-    } else if (url.includes('youtube.com/embed/')) {
-      videoId = url.split('embed/')[1]?.split('?')[0];
+    function enterRoomAsHost() {
+      document.getElementById('lobby').style.display = 'none';
+      document.getElementById('room-ui').style.display = 'flex';
+      addSystemMessage("Otaq yaradıldı. 'Ekran Paylaş' düyməsi ilə filmi başlat.");
     }
 
-    if (!videoId) {
-      showNotification('⚠️ Düzgün YouTube linki deyil!', '❌');
-      return;
+    function copyLink() {
+      const link = `${window.location.origin}${window.location.pathname}?room=${myPeerId}`;
+      navigator.clipboard.writeText(link).then(() => {
+        document.getElementById('copy-text').innerText = "Link kopyalandı! Dostuna göndər.";
+        document.getElementById('copy-text').style.color = "#46d369";
+      });
     }
 
-    loadVideoFromMessage(videoId);
-    
-    // Broadcast to others
-    publishMessage({
-      type: 'video',
-      username: username,
-      videoId: videoId
-    });
-
-    showNotification('✅ Video yükləndi və HAMIYA GÖNDƏRILDI!', '🎬');
-    addSystemMessage(`${username} video yüklədi! 📺`);
-  }
-
-  function loadVideoFromMessage(videoId) {
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `
-      <iframe 
-        src="https://www.youtube.com/embed/${videoId}?autoplay=0" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen
-      ></iframe>
-    `;
-  }
-
-  async function shareScreen() {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
-        audio: true
+    // --- PEERJS LOGIC ---
+    function initPeer(id, connectToId = null) {
+      peer = new Peer(id, {
+        debug: 1,
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] }
       });
 
-      const wrapper = document.getElementById('videoWrapper');
-      wrapper.innerHTML = '';
-
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.autoplay = true;
-      video.muted = false;
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.style.objectFit = 'contain';
-
-      wrapper.appendChild(video);
-
-      showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
-      addSystemMessage(`${username} ekran paylaşır 🖥️`);
-
-      publishMessage({
-        type: 'chat',
-        username: 'Sistem',
-        text: `${username} ekran paylaşır (yalnız o görür)`
+      peer.on('open', (id) => {
+        console.log('My ID:', id);
+        if (connectToId) {
+          connectToHost(connectToId);
+        }
       });
 
-      stream.getVideoTracks()[0].onended = () => {
-        showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
-        wrapper.innerHTML = `
-          <div class="placeholder">
-            <div class="placeholderIcon">🖥️</div>
-            <div class="placeholderText">Ekran paylaşımını başladın</div>
-          </div>
-        `;
-      };
-    } catch (err) {
-      showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
-    }
-  }
+      // Biri bizə qoşulanda (Host və ya Qonaq) - DATA (Chat)
+      peer.on('connection', (conn) => {
+        connections.push(conn);
+        setupConnection(conn);
+        
+        // Əgər Hostuqsa və ekran paylaşırıqsa, yeni gələnə dərhal videonu ataq
+        if (isHost && myStream) {
+          peer.call(conn.peer, myStream);
+        }
+      });
 
-  function updateViewers() {
-    pubnub.hereNow(
-      {
-        channels: [roomCode],
-        includeUUIDs: true
-      },
-      function (status, response) {
-        const count = response.totalOccupancy || 1;
-        document.getElementById('viewerCount').textContent = count;
+      // Biri bizə zəng edəndə (Video Stream)
+      peer.on('call', (call) => {
+        call.answer(); // Cavab veririk
+        
+        call.on('stream', (remoteStream) => {
+          const video = document.getElementById('remote-video');
+          video.srcObject = remoteStream;
+          
+          // Mobile Policy: Video gəldi, amma play etmək üçün düymə göstər
+          document.getElementById('start-overlay').style.display = 'flex';
+        });
+      });
+
+      peer.on('error', (err) => {
+        alert("Xəta baş verdi: " + err.type);
+        location.reload();
+      });
+    }
+
+    function connectToHost(hostId) {
+      const conn = peer.connect(hostId);
+      connections.push(conn);
+      setupConnection(conn);
+      
+      conn.on('open', () => {
+        document.getElementById('lobby').style.display = 'none';
+        document.getElementById('room-ui').style.display = 'flex';
+        addSystemMessage("Otağa qoşuldunuz! Yayımı gözləyin...");
+      });
+    }
+
+    function setupConnection(conn) {
+      conn.on('data', (data) => {
+        if (data.type === 'msg') {
+          addMessage(data.user, data.text, 'other');
+        }
+      });
+      conn.on('close', () => {
+        addSystemMessage("Bir nəfər ayrıldı.");
+        connections = connections.filter(c => c !== conn);
+      });
+      conn.on('open', () => {
+        if(isHost) addSystemMessage("Yeni izləyici qoşuldu!");
+      });
+    }
+
+    // --- SCREEN SHARE (HOST ONLY) ---
+    async function toggleScreenShare() {
+      if (!isHost) {
+        alert("Yalnız otaq sahibi ekran paylaşa bilər!");
+        return;
       }
-    );
-  }
 
-  function displayViewers() {
-    const list = document.getElementById('viewersList');
-    const uniqueViewers = [...new Set(viewers)];
-    
-    list.innerHTML = uniqueViewers.map(viewer => `
-      <div class="viewer">${viewer}</div>
-    `).join('');
-  }
+      if (myStream) {
+        // Stop sharing
+        myStream.getTracks().forEach(track => track.stop());
+        myStream = null;
+        document.getElementById('share-btn').classList.remove('active');
+        document.getElementById('remote-video').srcObject = null;
+        addSystemMessage("Yayım dayandırıldı.");
+        return;
+      }
 
-  function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
+      try {
+        // Səs ilə birlikdə ekran paylaşımı istəyirik
+        myStream = await navigator.mediaDevices.getDisplayMedia({ 
+          video: { cursor: "always" }, 
+          audio: { 
+            echoCancellation: false, 
+            noiseSuppression: false, 
+            autoGainControl: false 
+          } 
+        });
 
-    if (!text) return;
+        // Host özü də görsün nə paylaşır (Səssiz)
+        const v = document.getElementById('remote-video');
+        v.srcObject = myStream;
+        v.muted = true; 
+        v.play();
 
-    addMessage(text, username, true);
-    input.value = '';
+        document.getElementById('share-btn').classList.add('active');
+        addSystemMessage("Yayım başladı! Səs üçün 'Share Audio' seçdiyinə əmin ol.");
 
-    // Broadcast to others
-    publishMessage({
-      type: 'chat',
-      username: username,
-      text: text
-    });
-  }
+        // Bütün qoşulu istifadəçilərə zəng et
+        connections.forEach(conn => {
+          peer.call(conn.peer, myStream);
+        });
 
-  function addMessage(text, author, isOwn = false) {
-    const messagesDiv = document.getElementById('chatMessages');
-    
-    const messageEl = document.createElement('div');
-    messageEl.className = 'message' + (isOwn ? ' own' : '');
-    
-    messageEl.innerHTML = `
-      <div class="messageAuthor">${author}</div>
-      <div>${text}</div>
-    `;
+        // Yayım dayananda (browser UI-dan stop edəndə)
+        myStream.getVideoTracks()[0].onended = () => {
+            myStream = null;
+            document.getElementById('share-btn').classList.remove('active');
+            addSystemMessage("Yayım dayandırıldı.");
+        };
 
-    messagesDiv.appendChild(messageEl);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  function addSystemMessage(text) {
-    const messagesDiv = document.getElementById('chatMessages');
-    
-    const messageEl = document.createElement('div');
-    messageEl.className = 'message system';
-    messageEl.textContent = text;
-
-    messagesDiv.appendChild(messageEl);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  function shareRoom() {
-    const message = `🎬 CINEPARTY OTAĞI!\n\nOtaq kodu: ${roomCode}\n\n1. Bu faylı aç: cineparty-REAL.html\n2. Adını yaz\n3. Otaq kodu yaz: ${roomCode}\n4. "Başla" bas\n\nGörüşənədək! 🍿`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'CineParty Otağı',
-        text: message
-      });
-    } else {
-      navigator.clipboard.writeText(message).then(() => {
-        alert(message);
-      });
+      } catch (err) {
+        console.error("Screen Share Error:", err);
+        alert("Ekran paylaşımı ləğv edildi və ya dəstəklənmir.");
+      }
     }
-    
-    showNotification('✅ Otaq məlumatı kopyalandı!', '📋');
-  }
 
-  function leaveRoom() {
-    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      pubnub.unsubscribe({
-        channels: [roomCode]
-      });
-      
-      publishMessage({
-        type: 'chat',
-        username: 'Sistem',
-        text: `${username} otaqdan çıxdı 👋`
-      });
-      
-      window.location.reload();
+    // --- VIDEO CONTROLS ---
+    function enableAudio() {
+      const v = document.getElementById('remote-video');
+      v.muted = false;
+      v.play()
+        .then(() => {
+          document.getElementById('start-overlay').style.display = 'none';
+        })
+        .catch(e => alert("Xəta: Ekrana toxun sonra yenidən cəhd et."));
     }
-  }
 
-  function showNotification(text, icon = '✅') {
-    const notification = document.getElementById('notification');
-    document.getElementById('notificationText').textContent = text;
-    document.getElementById('notificationIcon').textContent = icon;
-
-    notification.classList.add('show');
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3500);
-  }
-
-  // Event listeners
-  document.getElementById('chatInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
-
-  document.getElementById('videoUrl').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') loadVideo();
-  });
-
-  document.getElementById('roomCode').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') joinOrCreateRoom();
-  });
-
-  // Update viewers periodically
-  setInterval(() => {
-    if (roomCode) {
-      updateViewers();
+    function toggleMute() {
+      const v = document.getElementById('remote-video');
+      v.muted = !v.muted;
+      document.getElementById('vol-icon').className = v.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
     }
-  }, 5000);
-</script>
 
+    // --- CHAT FUNCTIONS ---
+    function sendMessage() {
+      const input = document.getElementById('msg-in');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Özümüzə göstərək
+      addMessage("Mən", text, 'me');
+
+      // Hamıya göndərək
+      connections.forEach(conn => {
+        if(conn.open) {
+          conn.send({ type: 'msg', user: isHost ? 'Host' : 'Qonaq', text: text });
+        }
+      });
+
+      input.value = '';
+    }
+
+    function addMessage(user, text, type) {
+      const box = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      div.innerHTML = `<strong>${user}:</strong> ${text}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function addSystemMessage(text) {
+      const box = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = 'msg sys';
+      div.innerText = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function handleEnter(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+  </script>
 </body>
 </html>
