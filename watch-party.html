@@ -1,2055 +1,597 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <title>🎬 CineePartyy - Ultimate Watch Together</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineParty - Birlikdə İzlə</title>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent;
-    }
-    
+    /* --- ÜMUMİ DİZAYN (CineParty Style) --- */
     :root {
       --bg: #0a0a0f;
       --surface: #1a1a24;
       --surface-light: #252534;
-      --surface-hover: #2f2f3f;
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --accent: #f59e0b;
+      --primary: #6366f1; /* Bənövşəyi əsas rəng */
+      --accent: #f59e0b;  /* Qızılı rəng */
       --success: #10b981;
       --error: #ef4444;
       --text: #ffffff;
       --text-muted: #9ca3af;
       --border: rgba(255,255,255,0.1);
-      --curtain: #8b0000;
-      --gold: #ffd700;
     }
 
-    [data-theme="light"] {
-      --bg: #f5f5f5;
-      --surface: #ffffff;
-      --surface-light: #f9fafb;
-      --surface-hover: #e5e7eb;
-      --text: #1a1a24;
-      --text-muted: #6b7280;
-      --border: rgba(0,0,0,0.1);
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body { 
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    body {
+      font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
-      overflow-x: hidden;
-      -webkit-text-size-adjust: 100%;
-      transition: background 0.3s, color 0.3s;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ========== CINEMA INTRO ========== */
-    .cinemaIntro {
+    /* --- PƏRDƏ ANİMASİYASI --- */
+    .intro-overlay {
       position: fixed;
       inset: 0;
       background: #000;
-      z-index: 99999;
+      z-index: 9999;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 1;
-      transition: opacity 1s;
+      transition: opacity 1s, visibility 1s;
     }
-
-    .cinemaIntro.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .curtains {
-      position: absolute;
-      inset: 0;
-      display: flex;
-    }
-
-    .curtain {
-      flex: 1;
-      background: linear-gradient(90deg, var(--curtain) 0%, #a00 50%, var(--curtain) 100%);
-      position: relative;
-      transition: transform 2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-    }
-
-    .curtain::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 40px,
-        rgba(0,0,0,0.1) 40px,
-        rgba(0,0,0,0.1) 80px
-      );
-    }
-
-    .curtain.left {
-      transform: translateX(0);
-      border-right: 3px solid var(--gold);
-    }
-
-    .curtain.right {
-      transform: translateX(0);
-      border-left: 3px solid var(--gold);
-    }
-
-    .curtains.open .curtain.left {
-      transform: translateX(-100%);
-    }
-
-    .curtains.open .curtain.right {
-      transform: translateX(100%);
-    }
-
-    .introContent {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      animation: fadeInScale 1.5s ease;
-    }
-
-    @keyframes fadeInScale {
-      0% { opacity: 0; transform: scale(0.8); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-
-    .introLogo {
-      font-size: 120px;
-      margin-bottom: 20px;
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .introTitle {
-      font-size: 64px;
+    .intro-overlay.hidden { opacity: 0; visibility: hidden; }
+    
+    .intro-text {
+      font-size: 80px;
       font-weight: 900;
-      background: linear-gradient(135deg, var(--gold), #fff, var(--gold));
+      background: linear-gradient(135deg, var(--accent), #fff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 16px;
-      letter-spacing: 4px;
+      animation: scaleUp 1s ease forwards;
     }
+    @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    .introSubtitle {
-      font-size: 20px;
-      color: #fff;
-      opacity: 0.9;
-      letter-spacing: 8px;
-      text-transform: uppercase;
-    }
-
-    /* ========== SIDEBAR MENU ========== */
-    .sidebar {
-      position: fixed;
-      left: -320px;
-      top: 0;
-      bottom: 0;
-      width: 320px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      z-index: 9000;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow-y: auto;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.3);
-    }
-
-    .sidebar.open {
-      left: 0;
-    }
-
-    .sidebarHeader {
-      padding: 24px 20px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .sidebarTitleWrapper {
-      flex: 1;
-    }
-
-    .sidebarTitle {
-      font-size: 26px;
-      font-weight: 900;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .sidebarSubtitle {
-      font-size: 13px;
-      font-weight: 600;
-      opacity: 0.9;
-    }
-
-    .sidebarCloseBtn {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 50%;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-    }
-
-    .sidebarCloseBtn:hover {
-      background: rgba(255,255,255,0.3);
-      transform: rotate(90deg);
-    }
-
-    .sidebarSection {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sectionTitle {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-
-    .menuItem {
-      padding: 14px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-    }
-
-    .menuItem:hover {
-      background: var(--surface-hover);
-      transform: translateX(4px);
-    }
-
-    .menuIcon {
-      font-size: 20px;
-      width: 24px;
-    }
-
-    .themeToggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .themeSwitch {
-      width: 56px;
-      height: 28px;
-      background: var(--surface-hover);
-      border-radius: 14px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .themeSwitch.active {
-      background: var(--primary);
-    }
-
-    .themeSwitch::after {
-      content: '☾';
+    /* --- LOBBY (GİRİŞ) EKRANI --- */
+    #lobby-screen {
       position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 50%;
-      transition: all 0.3s;
+      inset: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
-    }
-
-    .themeSwitch.active::after {
-      left: 30px;
-      content: '☀';
-    }
-
-    .roomList {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .roomItem {
-      padding: 14px 16px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid var(--border);
-    }
-
-    .roomItem:hover {
-      background: var(--surface-hover);
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    .roomName {
-      font-weight: 700;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .roomMeta {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .roomBadge {
-      padding: 2px 8px;
-      background: var(--primary);
-      border-radius: 8px;
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .passwordBadge {
-      background: var(--error);
-    }
-
-    /* ========== MAIN CONTENT ========== */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 8000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      backdrop-filter: blur(4px);
-    }
-
-    .overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .topBar {
-      position: sticky;
-      top: 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: radial-gradient(circle at center, #1a1a24 0%, #000 100%);
       z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.5s ease-in-out;
     }
 
-    .menuBtn {
-      width: 48px;
-      height: 48px;
-      background: var(--primary);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .menuBtn:hover {
-      background: var(--primary-dark);
-      transform: scale(1.05);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logoIcon {
-      font-size: 32px;
-    }
-
-    .logoText {
-      font-size: 24px;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .userInfo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-      background: var(--surface-light);
+    .lobby-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 40px;
       border-radius: 24px;
-    }
-
-    .userAvatar {
-      width: 36px;
-      height: 36px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    .userName {
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    /* ========== HOME SCREEN ========== */
-    .homeScreen {
-      padding: 40px 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .homeScreen.hidden {
-      display: none;
-    }
-
-    .hero {
+      width: 400px;
       text-align: center;
-      margin-bottom: 48px;
-      padding: 60px 24px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      border-radius: 24px;
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
 
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: pulse 4s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.5; }
-      50% { transform: scale(1.1); opacity: 0.8; }
-    }
-
-    .heroContent {
-      position: relative;
-      z-index: 1;
-    }
-
-    .heroTitle {
-      font-size: 56px;
-      font-weight: 900;
-      margin-bottom: 16px;
-      color: white;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-
-    .heroSubtitle {
-      font-size: 20px;
-      color: rgba(255,255,255,0.9);
-      margin-bottom: 32px;
-    }
-
-    .ctaButtons {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .ctaBtn {
-      padding: 16px 32px;
-      border: none;
-      border-radius: 12px;
-      font-size: 18px;
+    .lobby-title {
+      font-size: 32px;
       font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .ctaBtn.primary {
-      background: white;
+      margin-bottom: 10px;
       color: var(--primary);
     }
 
-    .ctaBtn.primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(255,255,255,0.3);
-    }
-
-    .ctaBtn.secondary {
-      background: transparent;
-      color: white;
-      border: 2px solid white;
-    }
-
-    .ctaBtn.secondary:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    /* ========== MODALS ========== */
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modalOverlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(8px);
-    }
-
-    .modalContent {
-      background: var(--surface);
-      border-radius: 24px;
-      padding: 40px;
-      max-width: 500px;
-      width: 100%;
-      position: relative;
-      z-index: 1;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      animation: modalSlideIn 0.3s ease;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .modalHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .modalTitle {
-      font-size: 28px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .modalClose {
-      width: 40px;
-      height: 40px;
-      background: var(--surface-light);
-      border: none;
-      border-radius: 50%;
-      color: var(--text);
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modalClose:hover {
-      background: var(--error);
-      color: white;
-      transform: rotate(90deg);
-    }
-
-    .formGroup {
-      margin-bottom: 24px;
-    }
-
-    .formLabel {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
+    .lobby-desc {
       color: var(--text-muted);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .formInput {
-      width: 100%;
-      padding: 14px 18px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 16px;
-      font-family: 'Poppins', sans-serif;
-      transition: all 0.3s;
-    }
-
-    .formInput:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: var(--surface-hover);
-    }
-
-    .formSelect {
-      width: 100%;
-      padding: 14px 18px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 16px;
-      font-family: 'Poppins', sans-serif;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .formSelect:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .checkbox {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      padding: 12px;
-      background: var(--surface-light);
-      border-radius: 12px;
-      transition: all 0.3s;
-    }
-
-    .checkbox:hover {
-      background: var(--surface-hover);
-    }
-
-    .checkboxInput {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-
-    .checkboxLabel {
-      font-size: 15px;
-      font-weight: 600;
+      margin-bottom: 30px;
+      font-size: 14px;
     }
 
     .btn {
       width: 100%;
       padding: 16px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border: none;
       border-radius: 12px;
-      color: white;
-      font-size: 18px;
+      border: none;
       font-weight: 700;
+      font-size: 16px;
       cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
+      transition: transform 0.2s, box-shadow 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
     }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6); }
 
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn.secondary {
+    .btn-secondary {
       background: var(--surface-light);
       color: var(--text);
-    }
-
-    .btn.secondary:hover {
-      background: var(--surface-hover);
-      box-shadow: none;
-    }
-
-    /* ========== WATCH ROOM ========== */
-    .watchRoom {
-      display: none;
-      min-height: 100vh;
-      padding: 24px;
-    }
-
-    .watchRoom.active {
-      display: block;
-    }
-
-    .watchContainer {
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-
-    .watchHeader {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
       border: 1px solid var(--border);
     }
+    .btn-secondary:hover { background: #2f2f3f; }
 
-    .watchRoomTitle {
-      font-size: 28px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .watchActions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .actionBtn {
-      padding: 12px 24px;
-      border: none;
+    input.code-input {
+      width: 100%;
+      padding: 16px;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
+      color: white;
       font-family: 'Poppins', sans-serif;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 16px;
+      outline: none;
+    }
+    input.code-input:focus { border-color: var(--primary); }
+
+    /* Kod Göstərmə Sahəsi */
+    .room-code-display {
+      background: #111;
+      border: 1px dashed var(--accent);
+      color: var(--accent);
+      padding: 15px;
+      border-radius: 12px;
+      font-family: monospace;
+      font-size: 20px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .copy-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+    /* --- OTAQ EKRANI (MAIN) --- */
+    #room-screen {
+      display: none; /* Başlanğıcda gizli */
+      width: 100%;
+      height: 100%;
+      flex-direction: row;
+    }
+
+    /* Sol tərəf: Video */
+    .video-container {
+      flex: 1;
+      background: #000;
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
     }
 
-    .actionBtn.share {
-      background: var(--success);
-      color: white;
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Videonun kəsilməməsi üçün */
     }
 
-    .actionBtn.leave {
-      background: var(--error);
-      color: white;
-    }
-
-    .actionBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-
-    .watchGrid {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 1024px) {
-      .watchGrid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .videoSection {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
+    /* Kontrol Paneli (Üzən) */
+    .controls-bar {
+      position: absolute;
+      bottom: 30px;
+      background: rgba(26, 26, 36, 0.9);
+      padding: 15px 25px;
+      border-radius: 50px;
+      display: flex;
+      gap: 20px;
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border);
+      transition: opacity 0.3s;
+    }
+    
+    /* Mouse tərpənməyəndə gizlətmək olar, hələlik sabit qalsın */
+    
+    .ctrl-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+      background: rgba(255,255,255,0.1);
+      color: white;
     }
 
-    .videoWrapper {
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 16 / 9;
-      margin-bottom: 20px;
+    .ctrl-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.2); }
+    .ctrl-btn.share-active { background: var(--success); box-shadow: 0 0 15px var(--success); }
+    .ctrl-btn.leave { background: var(--error); }
+
+    /* Sağ tərəf: Çat */
+    .chat-sidebar {
+      width: 350px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 20px;
+      background: var(--surface-light);
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.4;
       position: relative;
     }
 
-    .videoWrapper iframe,
-    .videoWrapper video {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .videoPlaceholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-    }
-
-    .placeholderIcon {
-      font-size: 80px;
-      margin-bottom: 20px;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .placeholderText {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .sourceSelection {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .sourceBtn {
-      flex: 1;
-      padding: 14px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .sourceBtn.active {
+    .message.mine {
       background: var(--primary);
-      border-color: var(--primary);
       color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
     }
 
-    .sourceBtn:hover:not(.active) {
-      background: var(--surface-hover);
-      border-color: var(--primary);
-    }
-
-    .videoControls {
-      display: flex;
-      gap: 12px;
-    }
-
-    .videoInput {
-      flex: 1;
-      padding: 14px 18px;
+    .message.theirs {
       background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
       color: var(--text);
-      font-size: 15px;
-      font-family: 'Poppins', sans-serif;
-      transition: all 0.3s;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
     }
 
-    .videoInput:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .videoBtn {
-      padding: 14px 24px;
-      background: var(--success);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: 'Poppins', sans-serif;
-      white-space: nowrap;
-    }
-
-    .videoBtn:hover {
-      background: #059669;
-      transform: translateY(-2px);
-    }
-
-    .chatSection {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .viewersCard {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border);
-    }
-
-    .cardTitle {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .viewersList {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .viewerTag {
-      padding: 8px 16px;
-      background: var(--surface-light);
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .chatCard {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      height: 500px;
-    }
-
-    .chatMessages {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .chatMessage {
-      display: flex;
-      gap: 12px;
-    }
-
-    .chatMessage.own {
-      flex-direction: row-reverse;
-    }
-
-    .messageAvatar {
-      width: 36px;
-      height: 36px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .chatMessage.own .messageAvatar {
-      background: var(--accent);
-    }
-
-    .messageBubble {
-      flex: 1;
-      max-width: 70%;
-    }
-
-    .messageAuthor {
+    .sys-msg {
+      text-align: center;
       font-size: 12px;
-      font-weight: 700;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin: 10px 0;
     }
 
-    .messageText {
-      padding: 12px 16px;
+    .chat-input-area {
+      padding: 20px;
       background: var(--surface-light);
-      border-radius: 12px;
-      font-size: 14px;
-      word-wrap: break-word;
-    }
-
-    .chatMessage.own .messageText {
-      background: var(--primary);
-      color: white;
-    }
-
-    .messageTime {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .chatInput {
       display: flex;
-      gap: 12px;
+      gap: 10px;
+      border-top: 1px solid var(--border);
     }
 
-    .chatInputField {
+    #msg-input {
       flex: 1;
-      padding: 12px 18px;
-      background: var(--surface-light);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: 'Poppins', sans-serif;
-      resize: none;
-      transition: all 0.3s;
-    }
-
-    .chatInputField:focus {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 12px 15px;
+      color: white;
       outline: none;
-      border-color: var(--primary);
     }
 
-    .chatSendBtn {
-      padding: 12px 20px;
+    #send-btn {
       background: var(--primary);
       border: none;
-      border-radius: 12px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
       color: white;
-      font-size: 20px;
       cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .chatSendBtn:hover {
-      background: var(--primary-dark);
-      transform: scale(1.05);
-    }
-
-    /* ========== NOTIFICATION ========== */
-    .notification {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      background: var(--surface);
-      padding: 16px 24px;
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
-      gap: 12px;
-      z-index: 99999;
-      transform: translateX(400px);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      justify-content: center;
     }
-
-    .notification.show {
-      transform: translateX(0);
-    }
-
-    .notificationIcon {
-      font-size: 24px;
-    }
-
-    .notificationText {
-      font-weight: 600;
-      font-size: 15px;
-    }
-
-    /* ========== SCROLLBAR ========== */
-    ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--surface-light);
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--surface-hover);
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
-    }
-
-    /* ========== MOBILE ========== */
+    
+    /* Mobil Uyğunluq */
     @media (max-width: 768px) {
-      .heroTitle {
-        font-size: 36px;
-      }
-
-      .heroSubtitle {
-        font-size: 16px;
-      }
-
-      .ctaButtons {
-        flex-direction: column;
-      }
-
-      .ctaBtn {
-        width: 100%;
-      }
-
-      .watchGrid {
-        grid-template-columns: 1fr;
-      }
-
-      .chatCard {
-        height: 400px;
-      }
-
-      .modalContent {
-        padding: 24px;
-      }
+      #room-screen { flex-direction: column; }
+      .chat-sidebar { width: 100%; height: 40%; }
+      .video-container { height: 60%; }
+      .lobby-card { width: 90%; }
     }
   </style>
 </head>
 <body>
 
-<!-- Cinema Intro -->
-<div class="cinemaIntro" id="cinemaIntro">
-  <div class="curtains" id="curtains">
-    <div class="curtain left"></div>
-    <div class="curtain right"></div>
+  <div class="intro-overlay" id="intro">
+    <div class="intro-text">🎬 CineParty</div>
   </div>
-  <div class="introContent">
-    <div class="introLogo">🎬</div>
-    <div class="introTitle">CineParty</div>
-    <div class="introSubtitle">Birlikdə İzləyin</div>
-  </div>
-</div>
 
-<!-- Overlay -->
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  <div id="lobby-screen">
+    <div class="lobby-card" id="main-menu">
+      <div class="lobby-title">Xoş Gəlmisiniz!</div>
+      <div class="lobby-desc">Sevgilinizlə film izləmək üçün otaq yaradın və ya mövcud otağa qoşulun.</div>
+      
+      <button class="btn btn-primary" onclick="showCreateUI()">
+        <i class="fas fa-plus-circle"></i> Otaq Yarat
+      </button>
+      <button class="btn btn-secondary" onclick="showJoinUI()">
+        <i class="fas fa-sign-in-alt"></i> Otağa Qoşul
+      </button>
+    </div>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebarHeader">
-    <div class="sidebarTitleWrapper">
-      <div class="sidebarTitle">
-        <span>🎬</span>
-        <span>CineParty</span>
+    <div class="lobby-card" id="create-ui" style="display: none;">
+      <div class="lobby-title">Otaq Yaradılır...</div>
+      <div class="lobby-desc">Bu kodu sevgilinə göndər:</div>
+      
+      <div id="my-code-display" class="room-code-display" onclick="copyCode()">
+        Yüklənir...
       </div>
-      <div class="sidebarSubtitle">Birlikdə Film İzləyin</div>
-    </div>
-    <button class="sidebarCloseBtn" onclick="closeSidebar()">✕</button>
-  </div>
-
-  <div class="sidebarSection">
-    <div class="sectionTitle">MÖVZU</div>
-    <div class="themeToggle">
-      <span>🌙 Qaranlıq Mövzu</span>
-      <div class="themeSwitch" id="themeSwitch" onclick="toggleTheme()"></div>
-    </div>
-  </div>
-
-  <div class="sidebarSection">
-    <div class="sectionTitle">OTAQLAR (<span id="sidebarRoomCount">0</span>)</div>
-    <div class="roomList" id="sidebarRoomList">
-      <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-        Hələ otaq yoxdur
+      <div class="copy-hint" id="copy-status">Kopyalamaq üçün üzərinə kliklə</div>
+      
+      <div style="margin-top: 20px; color: var(--success); font-weight: bold; font-size: 14px;">
+        <i class="fas fa-spinner fa-spin"></i> Qoşulma gözlənilir...
       </div>
+      
+      <button class="btn btn-secondary" onclick="backToMain()" style="margin-top: 20px;">Geri</button>
+    </div>
+
+    <div class="lobby-card" id="join-ui" style="display: none;">
+      <div class="lobby-title">Otağa Qoşul</div>
+      <div class="lobby-desc">Sevgilinin verdiyi kodu daxil et.</div>
+      
+      <input type="text" id="join-input" class="code-input" placeholder="Otaq Kodu">
+      
+      <button class="btn btn-primary" onclick="joinRoom()">Daxil Ol</button>
+      <button class="btn btn-secondary" onclick="backToMain()">Geri</button>
     </div>
   </div>
 
-  <div class="sidebarSection">
-    <div class="sectionTitle">HAQQINDA</div>
-    <div class="menuItem" onclick="showAbout()">
-      <span class="menuIcon">ℹ️</span>
-      <span>Haqqında</span>
-    </div>
-  </div>
-</div>
-
-<!-- Top Bar -->
-<div class="topBar">
-  <button class="menuBtn" onclick="openSidebar()">☰</button>
-  <div class="logo">
-    <div class="logoIcon">🎬</div>
-    <div class="logoText">CineParty</div>
-  </div>
-  <div class="userInfo" id="userInfo" style="display: none;">
-    <div class="userAvatar" id="userAvatar">U</div>
-    <div class="userName" id="userName">İstifadəçi</div>
-  </div>
-</div>
-
-<!-- Home Screen -->
-<div class="homeScreen" id="homeScreen">
-  <div class="hero">
-    <div class="heroContent">
-      <div class="heroTitle">🎬 CineParty</div>
-      <div class="heroSubtitle">Sevdiyiniz insanlarla birlikdə film izləyin</div>
-      <div class="ctaButtons">
-        <button class="ctaBtn primary" onclick="openCreateRoomModal()">
-          <span>➕</span>
-          <span>Yeni Otaq Yarat</span>
+  <div id="room-screen">
+    <div class="video-container">
+      <video id="remote-video" autoplay playsinline></video>
+      
+      <div class="controls-bar">
+        <button class="ctrl-btn" id="share-btn" onclick="startScreenShare()" title="Ekran Paylaş">
+          <i class="fas fa-desktop"></i>
         </button>
-        <button class="ctaBtn secondary" onclick="openJoinRoomModal()">
-          <span>🔗</span>
-          <span>Otağa Qoşul</span>
+        <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()" title="Səsi aç/bağla">
+          <i class="fas fa-volume-up"></i>
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Create Room Modal -->
-<div class="modal" id="createRoomModal">
-  <div class="modalOverlay" onclick="closeCreateRoomModal()"></div>
-  <div class="modalContent">
-    <div class="modalHeader">
-      <div class="modalTitle">
-        <span>➕</span>
-        <span>Yeni Otaq Yarat</span>
-      </div>
-      <button class="modalClose" onclick="closeCreateRoomModal()">✕</button>
-    </div>
-
-    <div class="formGroup">
-      <label class="formLabel">Otaq Adı</label>
-      <input type="text" class="formInput" id="createRoomName" placeholder="Məsələn: Film Gecəsi" maxlength="30">
-    </div>
-
-    <div class="formGroup">
-      <label class="formLabel">Növ</label>
-      <select class="formSelect" id="createRoomType">
-        <option value="public">🌍 Açıq (Hamı görə bilər)</option>
-        <option value="private">🔒 Şəxsi (Yalnız link ilə)</option>
-      </select>
-    </div>
-
-    <div class="formGroup">
-      <label class="checkbox">
-        <input type="checkbox" class="checkboxInput" id="createRoomPassword">
-        <span class="checkboxLabel">🔐 Şifrə əlavə et</span>
-      </label>
-    </div>
-
-    <div class="formGroup" id="passwordGroup" style="display: none;">
-      <label class="formLabel">Şifrə</label>
-      <input type="password" class="formInput" id="createRoomPasswordInput" placeholder="Şifrə daxil edin" maxlength="20">
-    </div>
-
-    <button class="btn" onclick="createRoom()">
-      <span>🎬</span>
-      <span>Otaq Yarat</span>
-    </button>
-  </div>
-</div>
-
-<!-- Join Room Modal -->
-<div class="modal" id="joinRoomModal">
-  <div class="modalOverlay" onclick="closeJoinRoomModal()"></div>
-  <div class="modalContent">
-    <div class="modalHeader">
-      <div class="modalTitle">
-        <span>🔗</span>
-        <span>Otağa Qoşul</span>
-      </div>
-      <button class="modalClose" onclick="closeJoinRoomModal()">✕</button>
-    </div>
-
-    <div class="formGroup">
-      <label class="formLabel">Otaq Kodu</label>
-      <input type="text" class="formInput" id="joinRoomCode" placeholder="Otaq kodunu daxil edin" maxlength="20">
-    </div>
-
-    <div class="formGroup" id="joinPasswordGroup" style="display: none;">
-      <label class="formLabel">Şifrə</label>
-      <input type="password" class="formInput" id="joinRoomPassword" placeholder="Şifrə daxil edin" maxlength="20">
-    </div>
-
-    <button class="btn" onclick="joinRoomByCode()">
-      <span>🚪</span>
-      <span>Qoşul</span>
-    </button>
-  </div>
-</div>
-
-<!-- Username Modal -->
-<div class="modal active" id="usernameModal">
-  <div class="modalOverlay"></div>
-  <div class="modalContent">
-    <div class="modalHeader">
-      <div class="modalTitle">
-        <span>👤</span>
-        <span>Adınızı Daxil Edin</span>
-      </div>
-    </div>
-
-    <div class="formGroup">
-      <label class="formLabel">İstifadəçi Adı</label>
-      <input type="text" class="formInput" id="usernameInput" placeholder="Adınızı yazın" maxlength="20">
-    </div>
-
-    <button class="btn" onclick="setUsername()">
-      <span>🚀</span>
-      <span>Başla</span>
-    </button>
-  </div>
-</div>
-
-<!-- Watch Room -->
-<div class="watchRoom" id="watchRoom">
-  <div class="watchContainer">
-    <div class="watchHeader">
-      <div class="watchRoomTitle" id="watchRoomTitle">
-        <span>🎬</span>
-        <span>Film Otağı</span>
-      </div>
-      <div class="watchActions">
-        <button class="actionBtn share" onclick="shareRoom()">
-          <span>📤</span>
-          <span>Paylaş</span>
+        <button class="ctrl-btn" onclick="toggleFullscreen()" title="Tam Ekran">
+          <i class="fas fa-expand"></i>
         </button>
-        <button class="actionBtn leave" onclick="leaveRoom()">
-          <span>🚪</span>
-          <span>Çıx</span>
+        <button class="ctrl-btn leave" onclick="location.reload()" title="Çıxış">
+          <i class="fas fa-phone-slash"></i>
         </button>
       </div>
     </div>
 
-    <div class="watchGrid">
-      <div class="videoSection">
-        <div class="cardTitle">
-          <span>📺</span>
-          <span>Video Player</span>
-        </div>
-
-        <div class="sourceSelection">
-          <button class="sourceBtn active" onclick="selectSource('youtube')" id="youtubeSourceBtn">
-            <span>📺</span>
-            <span>YouTube</span>
-          </button>
-          <button class="sourceBtn" onclick="selectSource('screen')" id="screenSourceBtn">
-            <span>🖥️</span>
-            <span>Ekran Paylaş</span>
-          </button>
-        </div>
-
-        <div class="videoWrapper" id="videoWrapper">
-          <div class="videoPlaceholder">
-            <div class="placeholderIcon">🎬</div>
-            <div class="placeholderText">Mənbə seçin və video yükləyin</div>
-          </div>
-        </div>
-
-        <div class="videoControls" id="youtubeControls">
-          <input type="text" class="videoInput" id="videoUrlInput" placeholder="YouTube video linki (https://youtube.com/watch?v=...)">
-          <button class="videoBtn" onclick="loadYouTubeVideo()">
-            <span>▶️</span>
-            <span>Yüklə</span>
-          </button>
-        </div>
-
-        <div class="videoControls" id="screenControls" style="display: none;">
-          <button class="btn" onclick="startScreenShare()">
-            <span>🖥️</span>
-            <span>Ekran Paylaşımını Başlat</span>
-          </button>
-        </div>
+    <div class="chat-sidebar">
+      <div class="chat-header">
+        <i class="fas fa-heart" style="color: var(--accent);"></i> Canlı Çat
       </div>
-
-      <div class="chatSection">
-        <div class="viewersCard">
-          <div class="cardTitle">
-            <span>👥</span>
-            <span>İzləyicilər (<span id="viewerCount">1</span>)</span>
-          </div>
-          <div class="viewersList" id="viewersList"></div>
-        </div>
-
-        <div class="chatCard">
-          <div class="cardTitle">
-            <span>💬</span>
-            <span>Söhbət</span>
-          </div>
-          <div class="chatMessages" id="chatMessages"></div>
-          <div class="chatInput">
-            <textarea class="chatInputField" id="messageInput" placeholder="Mesaj yazın..." rows="1"></textarea>
-            <button class="chatSendBtn" onclick="sendMessage()">📤</button>
-          </div>
-        </div>
+      <div class="chat-messages" id="messages">
+        <div class="sys-msg">Otağa xoş gəldiniz! 🍿</div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="msg-input" placeholder="Mesaj yaz..." onkeypress="handleEnter(event)">
+        <button id="send-btn" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Notification -->
-<div class="notification" id="notification">
-  <div class="notificationIcon" id="notificationIcon">✅</div>
-  <div class="notificationText" id="notificationText"></div>
-</div>
-
-<script>
-  // ========== GLOBAL VARIABLES ==========
-  let username = '';
-  let rooms = [];
-  let currentRoom = null;
-  let currentSource = 'youtube';
-  let localStream = null;
-
-  // ========== INITIALIZATION ==========
-  window.addEventListener('DOMContentLoaded', () => {
-    // Cinema intro
-    setTimeout(() => {
-      document.getElementById('curtains').classList.add('open');
-    }, 1000);
-
-    setTimeout(() => {
-      document.getElementById('cinemaIntro').classList.add('hidden');
-    }, 3000);
-
-    // Load rooms from storage
-    loadRooms();
-
-    // Check for room in URL
-    checkUrlForRoom();
-
-    // Event listeners
-    document.getElementById('createRoomPassword').addEventListener('change', (e) => {
-      document.getElementById('passwordGroup').style.display = e.target.checked ? 'block' : 'none';
+  <script>
+    // --- INTRO ---
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('intro').classList.add('hidden');
+      }, 1500);
     });
 
-    document.getElementById('usernameInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') setUsername();
-    });
+    // --- MƏNTİQ (PEERJS) ---
+    let peer = null;
+    let conn = null;
+    let myId = null;
+    let localStream = null;
 
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
+    // Peeri başlat
+    function initPeer() {
+      peer = new Peer(null, { debug: 2 });
 
-    document.getElementById('videoUrlInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') loadYouTubeVideo();
-    });
+      peer.on('open', (id) => {
+        myId = id;
+        console.log("My ID:", myId);
+        document.getElementById('my-code-display').innerText = myId;
+      });
 
-    document.getElementById('joinRoomCode').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') joinRoomByCode();
-    });
+      // Zəng gələndə (Video axını)
+      peer.on('call', (call) => {
+        call.answer();
+        call.on('stream', (remoteStream) => {
+          document.getElementById('remote-video').srcObject = remoteStream;
+        });
+      });
 
-    document.getElementById('createRoomName').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') createRoom();
-    });
-  });
-
-  // ========== USERNAME ==========
-  function setUsername() {
-    const input = document.getElementById('usernameInput');
-    const name = input.value.trim();
-
-    if (!name) {
-      showNotification('⚠️ Adınızı daxil edin!', '❌');
-      return;
+      // Qoşulma olanda (Çat əlaqəsi)
+      peer.on('connection', (c) => {
+        conn = c;
+        setupConnection();
+        enterRoomUI();
+        addSystemMessage("Sevgilin qoşuldu! ❤️");
+      });
     }
 
-    if (name.length < 2) {
-      showNotification('⚠️ Ad ən azı 2 simvol olmalıdır!', '❌');
-      return;
+    initPeer();
+
+    // --- UI NAVIGATION ---
+    function showCreateUI() {
+      document.getElementById('main-menu').style.display = 'none';
+      document.getElementById('create-ui').style.display = 'block';
     }
 
-    username = name;
-    localStorage.setItem('cineparty_username', username);
-
-    document.getElementById('usernameModal').classList.remove('active');
-    document.getElementById('userAvatar').textContent = username[0].toUpperCase();
-    document.getElementById('userName').textContent = username;
-    document.getElementById('userInfo').style.display = 'flex';
-
-    showNotification(`Xoş gəlmisiniz, ${username}! 🎉`, '👋');
-  }
-
-  // ========== SIDEBAR ==========
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('overlay').classList.add('active');
-  }
-
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('active');
-  }
-
-  function toggleTheme() {
-    const html = document.documentElement;
-    const themeSwitch = document.getElementById('themeSwitch');
-    
-    if (html.getAttribute('data-theme') === 'light') {
-      html.removeAttribute('data-theme');
-      themeSwitch.classList.remove('active');
-      localStorage.setItem('cineparty_theme', 'dark');
-    } else {
-      html.setAttribute('data-theme', 'light');
-      themeSwitch.classList.add('active');
-      localStorage.setItem('cineparty_theme', 'light');
-    }
-  }
-
-  // ========== ROOMS MANAGEMENT ==========
-  function loadRooms() {
-    const stored = localStorage.getItem('cineparty_rooms');
-    if (stored) {
-      rooms = JSON.parse(stored);
-      updateRoomsList();
-    }
-  }
-
-  function saveRooms() {
-    localStorage.setItem('cineparty_rooms', JSON.stringify(rooms));
-    updateRoomsList();
-  }
-
-  function updateRoomsList() {
-    const sidebarList = document.getElementById('sidebarRoomList');
-    const count = document.getElementById('sidebarRoomCount');
-    
-    count.textContent = rooms.length;
-
-    if (rooms.length === 0) {
-      sidebarList.innerHTML = `
-        <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-          Hələ otaq yoxdur
-        </div>
-      `;
-      return;
+    function showJoinUI() {
+      document.getElementById('main-menu').style.display = 'none';
+      document.getElementById('join-ui').style.display = 'block';
     }
 
-    sidebarList.innerHTML = rooms.map(room => `
-      <div class="roomItem" onclick="joinRoom('${room.id}')">
-        <div class="roomName">
-          <span>${room.type === 'private' ? '🔒' : '🌍'}</span>
-          <span>${room.name}</span>
-          ${room.hasPassword ? '<span class="roomBadge passwordBadge">🔐</span>' : ''}
-        </div>
-        <div class="roomMeta">
-          <span>👤 ${room.host}</span>
-          <span>👥 ${room.viewers.length}</span>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function generateRoomId() {
-    return 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  }
-
-  function openCreateRoomModal() {
-    document.getElementById('createRoomModal').classList.add('active');
-  }
-
-  function closeCreateRoomModal() {
-    document.getElementById('createRoomModal').classList.remove('active');
-  }
-
-  function createRoom() {
-    const nameInput = document.getElementById('createRoomName');
-    const typeSelect = document.getElementById('createRoomType');
-    const hasPasswordCheck = document.getElementById('createRoomPassword');
-    const passwordInput = document.getElementById('createRoomPasswordInput');
-
-    const roomName = nameInput.value.trim();
-    const roomType = typeSelect.value;
-    const hasPassword = hasPasswordCheck.checked;
-    const password = hasPassword ? passwordInput.value.trim() : '';
-
-    if (!roomName) {
-      showNotification('⚠️ Otaq adı daxil edin!', '❌');
-      return;
+    function backToMain() {
+      document.getElementById('create-ui').style.display = 'none';
+      document.getElementById('join-ui').style.display = 'none';
+      document.getElementById('main-menu').style.display = 'block';
     }
 
-    if (hasPassword && !password) {
-      showNotification('⚠️ Şifrə daxil edin!', '❌');
-      return;
-    }
-
-    const room = {
-      id: generateRoomId(),
-      name: roomName,
-      type: roomType,
-      host: username,
-      hasPassword: hasPassword,
-      password: password,
-      viewers: [username],
-      videoUrl: '',
-      videoType: 'youtube',
-      createdAt: Date.now()
-    };
-
-    rooms.push(room);
-    saveRooms();
-
-    closeCreateRoomModal();
-    joinRoom(room.id);
-
-    showNotification('✅ Otaq yaradıldı!', '🎉');
-  }
-
-  function openJoinRoomModal() {
-    document.getElementById('joinRoomModal').classList.add('active');
-  }
-
-  function closeJoinRoomModal() {
-    document.getElementById('joinRoomModal').classList.remove('active');
-  }
-
-  function joinRoomByCode() {
-    const codeInput = document.getElementById('joinRoomCode');
-    const passwordInput = document.getElementById('joinRoomPassword');
-    
-    const code = codeInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!code) {
-      showNotification('⚠️ Otaq kodunu daxil edin!', '❌');
-      return;
-    }
-
-    const room = rooms.find(r => r.id === code);
-    
-    if (!room) {
-      showNotification('❌ Otaq tapılmadı!', '⚠️');
-      return;
-    }
-
-    if (room.hasPassword && room.password !== password) {
-      showNotification('❌ Şifrə yanlışdır!', '🔐');
-      return;
-    }
-
-    closeJoinRoomModal();
-    joinRoom(room.id);
-  }
-
-  function joinRoom(roomId) {
-    const room = rooms.find(r => r.id === roomId);
-    
-    if (!room) {
-      showNotification('❌ Otaq tapılmadı!', '⚠️');
-      return;
-    }
-
-    if (room.hasPassword) {
-      // Show password prompt if needed
-      const passwordInput = document.getElementById('joinRoomPassword');
-      const password = passwordInput.value.trim();
-
-      if (!password) {
-        document.getElementById('joinRoomCode').value = roomId;
-        document.getElementById('joinPasswordGroup').style.display = 'block';
-        openJoinRoomModal();
-        return;
-      }
-
-      if (room.password !== password) {
-        showNotification('❌ Şifrə yanlışdır!', '🔐');
-        return;
+    function copyCode() {
+      if(myId) {
+        navigator.clipboard.writeText(myId);
+        const status = document.getElementById('copy-status');
+        status.innerText = "Kopyalandı! ✅";
+        status.style.color = "var(--success)";
+        setTimeout(() => {
+          status.innerText = "Kopyalamaq üçün üzərinə kliklə";
+          status.style.color = "var(--text-muted)";
+        }, 2000);
       }
     }
 
-    currentRoom = room;
+    // --- OTAQ ƏMƏLİYYATLARI ---
+    function joinRoom() {
+      const code = document.getElementById('join-input').value.trim();
+      if (!code) return alert("Kodu daxil et!");
 
-    // Add viewer if not already in
-    if (!room.viewers.includes(username)) {
-      room.viewers.push(username);
-      saveRooms();
+      conn = peer.connect(code);
+      
+      conn.on('open', () => {
+        setupConnection();
+        enterRoomUI();
+        addSystemMessage("Otağa uğurla qoşuldun! 🚀");
+      });
+
+      conn.on('error', (err) => alert("Xəta: " + err));
     }
 
-    // Update URL
-    window.location.hash = roomId;
+    function setupConnection() {
+      conn.on('data', (data) => {
+        if (data.type === 'chat') {
+          addMessage(data.msg, 'theirs');
+        }
+      });
 
-    // Show watch room
-    document.getElementById('homeScreen').classList.add('hidden');
-    document.getElementById('watchRoom').classList.add('active');
-    document.getElementById('watchRoomTitle').innerHTML = `
-      <span>🎬</span>
-      <span>${room.name}</span>
-    `;
+      conn.on('close', () => {
+        alert("Əlaqə kəsildi 😢");
+        location.reload();
+      });
+    }
 
-    closeSidebar();
-    updateViewers();
-    loadRoomVideo();
+    function enterRoomUI() {
+      document.getElementById('lobby-screen').style.transform = 'translateY(-100%)';
+      setTimeout(() => {
+        document.getElementById('lobby-screen').style.display = 'none';
+        document.getElementById('room-screen').style.display = 'flex';
+      }, 500);
+    }
 
-    showNotification('✅ Otağa qoşuldunuz!', '🎉');
+    // --- EKRAN PAYLAŞIMI ---
+    async function startScreenShare() {
+      try {
+        localStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: "always" },
+          audio: true 
+        });
 
-    // Add welcome message
-    addMessage(`${username} otağa qoşuldu! 👋`, 'Sistem', false, true);
-  }
+        // Öz ekranımızı görək (amma səssiz)
+        const videoEl = document.getElementById('remote-video');
+        videoEl.srcObject = localStream;
+        videoEl.muted = true;
 
-  function leaveRoom() {
-    if (!currentRoom) return;
+        // Qarşı tərəfə göndərək
+        if (conn) {
+          const call = peer.call(conn.peer, localStream);
+        }
 
-    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      // Remove viewer
-      currentRoom.viewers = currentRoom.viewers.filter(v => v !== username);
+        // Paylaşım bitəndə
+        localStream.getVideoTracks()[0].onended = () => {
+          stopScreenShare();
+        };
 
-      // Delete room if empty
-      if (currentRoom.viewers.length === 0) {
-        rooms = rooms.filter(r => r.id !== currentRoom.id);
-        showNotification('🗑️ Otaq silindi (boş idi)', '🚮');
+        document.getElementById('share-btn').classList.add('share-active');
+
+      } catch (err) {
+        console.error("Screen share error:", err);
       }
+    }
 
-      saveRooms();
-
-      // Stop media
+    function stopScreenShare() {
       if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
         localStream = null;
       }
-
-      // Clear URL
-      window.location.hash = '';
-
-      // Show home
-      document.getElementById('watchRoom').classList.remove('active');
-      document.getElementById('homeScreen').classList.remove('hidden');
-
-      currentRoom = null;
-      showNotification('👋 Otaqdan çıxdınız', '🚪');
+      document.getElementById('share-btn').classList.remove('share-active');
     }
-  }
 
-  function shareRoom() {
-    if (!currentRoom) return;
-
-    const shareUrl = window.location.origin + window.location.pathname + '#' + currentRoom.id;
-    
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      showNotification('✅ Link kopyalandı! Sevgilinizə göndərin! 💕', '📋');
+    // --- ÇAT ---
+    function sendMessage() {
+      const input = document.getElementById('msg-input');
+      const msg = input.value.trim();
       
-      // Show share info
-      alert(`🔗 Otaq Linki Kopyalandı!\n\n${shareUrl}\n\n${currentRoom.hasPassword ? `🔐 Şifrə: ${currentRoom.password}` : ''}\n\nBu linki sevgilinizə göndərin!`);
-    }).catch(() => {
-      prompt('Link kopyalana bilmədi. Manuel kopyalayın:', shareUrl);
-    });
-  }
-
-  function checkUrlForRoom() {
-    const hash = window.location.hash.substring(1);
-    if (hash) {
-      // Check if username is set
-      const storedUsername = localStorage.getItem('cineparty_username');
-      if (storedUsername) {
-        username = storedUsername;
-        document.getElementById('usernameModal').classList.remove('active');
-        document.getElementById('userAvatar').textContent = username[0].toUpperCase();
-        document.getElementById('userName').textContent = username;
-        document.getElementById('userInfo').style.display = 'flex';
+      if (msg && conn && conn.open) {
+        conn.send({ type: 'chat', msg: msg });
+        addMessage(msg, 'mine');
+        input.value = '';
       }
-
-      // Try to join room
-      setTimeout(() => {
-        joinRoom(hash);
-      }, 500);
-    }
-  }
-
-  // ========== VIDEO SOURCES ==========
-  function selectSource(source) {
-    currentSource = source;
-
-    // Update buttons
-    document.getElementById('youtubeSourceBtn').classList.toggle('active', source === 'youtube');
-    document.getElementById('screenSourceBtn').classList.toggle('active', source === 'screen');
-
-    // Update controls
-    document.getElementById('youtubeControls').style.display = source === 'youtube' ? 'flex' : 'none';
-    document.getElementById('screenControls').style.display = source === 'screen' ? 'flex' : 'none';
-
-    // Clear video
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `
-      <div class="videoPlaceholder">
-        <div class="placeholderIcon">${source === 'youtube' ? '📺' : '🖥️'}</div>
-        <div class="placeholderText">${source === 'youtube' ? 'YouTube linki daxil edin' : 'Ekran paylaşımını başladın'}</div>
-      </div>
-    `;
-
-    if (currentRoom) {
-      currentRoom.videoType = source;
-      currentRoom.videoUrl = '';
-      saveRooms();
-    }
-  }
-
-  function loadYouTubeVideo() {
-    const input = document.getElementById('videoUrlInput');
-    const url = input.value.trim();
-
-    if (!url) {
-      showNotification('⚠️ YouTube linki daxil edin!', '❌');
-      return;
     }
 
-    let videoId = '';
-
-    // Extract YouTube ID
-    if (url.includes('youtube.com/watch?v=')) {
-      videoId = url.split('v=')[1]?.split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1]?.split('?')[0];
-    } else if (url.includes('youtube.com/embed/')) {
-      videoId = url.split('embed/')[1]?.split('?')[0];
+    function addMessage(msg, type) {
+      const chatBox = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.innerText = msg;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    if (!videoId) {
-      showNotification('⚠️ Düzgün YouTube linki deyil!', '❌');
-      return;
+    function addSystemMessage(text) {
+      const chatBox = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'sys-msg';
+      div.innerText = text;
+      chatBox.appendChild(div);
     }
 
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `
-      <iframe 
-        src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen
-      ></iframe>
-    `;
-
-    if (currentRoom) {
-      currentRoom.videoUrl = url;
-      currentRoom.videoType = 'youtube';
-      saveRooms();
+    function handleEnter(e) {
+      if (e.key === 'Enter') sendMessage();
     }
 
-    showNotification('✅ Video yükləndi!', '🎬');
-  }
+    // --- KONTROLLAR ---
+    function toggleMute() {
+      const video = document.getElementById('remote-video');
+      video.muted = !video.muted;
+      const btn = document.getElementById('mute-btn');
+      btn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
 
-  async function startScreenShare() {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
-        audio: true
-      });
-
-      localStream = stream;
-
-      const wrapper = document.getElementById('videoWrapper');
-      wrapper.innerHTML = '';
-
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.autoplay = true;
-      video.muted = false;
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.style.objectFit = 'contain';
-
-      wrapper.appendChild(video);
-
-      showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
-
-      stream.getVideoTracks()[0].onended = () => {
-        showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
-        wrapper.innerHTML = `
-          <div class="videoPlaceholder">
-            <div class="placeholderIcon">🖥️</div>
-            <div class="placeholderText">Ekran paylaşımını başladın</div>
-          </div>
-        `;
-        localStream = null;
-      };
-
-      if (currentRoom) {
-        currentRoom.videoType = 'screen';
-        currentRoom.videoUrl = 'screen_sharing';
-        saveRooms();
+    function toggleFullscreen() {
+      const elem = document.querySelector('.video-container');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Tam ekrana keçmək olmadı: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
       }
-    } catch (err) {
-      showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
-      console.error('Screen share error:', err);
     }
-  }
-
-  function loadRoomVideo() {
-    if (!currentRoom || !currentRoom.videoUrl) return;
-
-    if (currentRoom.videoType === 'youtube') {
-      selectSource('youtube');
-      document.getElementById('videoUrlInput').value = currentRoom.videoUrl;
-      loadYouTubeVideo();
-    } else if (currentRoom.videoType === 'screen' && currentRoom.videoUrl === 'screen_sharing') {
-      selectSource('screen');
-      showNotification('ℹ️ Host ekran paylaşır', '🖥️');
-    }
-  }
-
-  // ========== VIEWERS ==========
-  function updateViewers() {
-    if (!currentRoom) return;
-
-    const list = document.getElementById('viewersList');
-    const count = document.getElementById('viewerCount');
-
-    count.textContent = currentRoom.viewers.length;
-
-    list.innerHTML = currentRoom.viewers.map(viewer => `
-      <div class="viewerTag">
-        <span>${viewer[0].toUpperCase()}</span>
-        <span>${viewer}</span>
-        ${viewer === currentRoom.host ? ' 👑' : ''}
-      </div>
-    `).join('');
-  }
-
-  // ========== CHAT ==========
-  function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const text = input.value.trim();
-
-    if (!text) return;
-
-    addMessage(text, username, true);
-    input.value = '';
-  }
-
-  function addMessage(text, author, isOwn, isSystem = false) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageEl = document.createElement('div');
-    messageEl.className = 'chatMessage' + (isOwn ? ' own' : '');
-
-    if (isSystem) {
-      messageEl.innerHTML = `
-        <div style="width: 100%; text-align: center; padding: 8px; background: var(--surface-light); border-radius: 12px; font-size: 13px; color: var(--text-muted);">
-          ${text}
-        </div>
-      `;
-    } else {
-      const avatar = isOwn ? username[0].toUpperCase() : author[0].toUpperCase();
-      const time = new Date().toLocaleTimeString('az', { hour: '2-digit', minute: '2-digit' });
-
-      messageEl.innerHTML = `
-        <div class="messageAvatar">${avatar}</div>
-        <div class="messageBubble">
-          <div class="messageAuthor">${author}</div>
-          <div class="messageText">${text}</div>
-          <div class="messageTime">${time}</div>
-        </div>
-      `;
-    }
-
-    messagesDiv.appendChild(messageEl);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  // ========== NOTIFICATION ==========
-  function showNotification(text, icon = '✅') {
-    const notification = document.getElementById('notification');
-    document.getElementById('notificationText').textContent = text;
-    document.getElementById('notificationIcon').textContent = icon;
-
-    notification.classList.add('show');
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3500);
-  }
-
-  // ========== ABOUT ==========
-  function showAbout() {
-    alert('🎬 CineParty v4.0 Ultimate\n\nSevdiyiniz insanlarla birlikdə film və video izləmək üçün ən yaxşı platforma!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma sistemi\n• Private/Public otaqlar\n• Şifrə qoruması\n• YouTube player\n• Ekran paylaşımı\n• Otaq link paylaşımı\n• Real-time chat\n\n💕 Sevgilinizlə istifadə üçün mükəmməldir!\n\nYaradıcı: CineParty Team 2024');
-    closeSidebar();
-  }
-
-  // ========== LOAD SAVED THEME ==========
-  const savedTheme = localStorage.getItem('cineparty_theme');
-  if (savedTheme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    document.getElementById('themeSwitch').classList.add('active');
-  }
-
-  // ========== LOAD SAVED USERNAME ==========
-  const savedUsername = localStorage.getItem('cineparty_username');
-  if (savedUsername) {
-    username = savedUsername;
-    document.getElementById('usernameModal').classList.remove('active');
-    document.getElementById('userAvatar').textContent = username[0].toUpperCase();
-    document.getElementById('userName').textContent = username;
-    document.getElementById('userInfo').style.display = 'flex';
-  }
-</script>
-
+  </script>
 </body>
 </html>
