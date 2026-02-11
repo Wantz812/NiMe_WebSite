@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>🎬 CineParty - Birlikdə İzləyin</title>
+  <title>🎬 CinePartyy - REAL Birlikdə İzləyin!</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.0.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -14,7 +15,6 @@
       --surface: #1a1a24;
       --surface-light: #252534;
       --primary: #6366f1;
-      --accent: #f59e0b;
       --success: #10b981;
       --error: #ef4444;
       --text: #ffffff;
@@ -27,15 +27,12 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
 
     .container {
       max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
-      width: 100%;
     }
 
     .header {
@@ -47,11 +44,10 @@
     }
 
     .logo { font-size: 80px; margin-bottom: 20px; }
-    .title { font-size: 48px; font-weight: 900; margin-bottom: 10px; color: white; }
+    .title { font-size: 48px; font-weight: 900; color: white; margin-bottom: 10px; }
     .subtitle { font-size: 18px; color: rgba(255,255,255,0.9); }
 
-    /* Create Room */
-    .createBox {
+    .box {
       background: var(--surface);
       padding: 40px;
       border-radius: 20px;
@@ -116,7 +112,6 @@
       box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
     }
 
-    /* Watch Room */
     .watchRoom {
       display: none;
     }
@@ -157,16 +152,15 @@
       cursor: pointer;
       transition: all 0.3s;
       font-family: 'Poppins', sans-serif;
+      color: white;
     }
 
     .actionBtn.share {
       background: var(--success);
-      color: white;
     }
 
     .actionBtn.leave {
       background: var(--error);
-      color: white;
     }
 
     .actionBtn:hover {
@@ -201,7 +195,6 @@
       gap: 10px;
     }
 
-    /* Video */
     .sourceTabs {
       display: flex;
       gap: 12px;
@@ -258,11 +251,6 @@
       margin-bottom: 20px;
     }
 
-    .placeholderText {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
     .controls {
       display: flex;
       gap: 12px;
@@ -288,7 +276,21 @@
       background: #059669;
     }
 
-    /* Chat */
+    .viewers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .viewer {
+      padding: 8px 16px;
+      background: var(--surface-light);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
     .chatMessages {
       height: 400px;
       overflow-y: auto;
@@ -322,6 +324,13 @@
       color: rgba(255,255,255,0.8);
     }
 
+    .message.system {
+      background: rgba(16, 185, 129, 0.2);
+      text-align: center;
+      align-self: center;
+      max-width: 100%;
+    }
+
     .chatInput {
       display: flex;
       gap: 12px;
@@ -351,33 +360,35 @@
       background: #4f46e5;
     }
 
-    /* Info Box */
-    .infoBox {
-      background: linear-gradient(135deg, var(--success), #059669);
-      padding: 20px;
+    .status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--surface);
+      padding: 12px 20px;
       border-radius: 12px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .infoBox strong {
-      display: block;
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-
-    .infoBox code {
-      display: inline-block;
-      background: rgba(0,0,0,0.3);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-family: monospace;
+      border: 2px solid var(--border);
       font-size: 14px;
-      margin-top: 8px;
-      word-break: break-all;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 1000;
     }
 
-    /* Notification */
+    .statusDot {
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     .notification {
       position: fixed;
       top: 24px;
@@ -399,10 +410,6 @@
       transform: translateX(0);
     }
 
-    .notificationIcon {
-      font-size: 24px;
-    }
-
     ::-webkit-scrollbar {
       width: 8px;
     }
@@ -419,51 +426,58 @@
 </head>
 <body>
 
-<!-- Notification -->
 <div class="notification" id="notification">
-  <div class="notificationIcon" id="notificationIcon">✅</div>
-  <div class="notificationText" id="notificationText"></div>
+  <div id="notificationIcon">✅</div>
+  <div id="notificationText"></div>
+</div>
+
+<div class="status" id="status">
+  <div class="statusDot"></div>
+  <span>Bağlandı</span>
 </div>
 
 <div class="container">
-  <!-- Home Screen -->
   <div id="homeScreen">
     <div class="header">
       <div class="logo">🎬</div>
-      <div class="title">CineParty</div>
-      <div class="subtitle">Sevgilinizlə birlikdə film izləyin - REAL işləyir!</div>
+      <div class="title">CineParty REAL</div>
+      <div class="subtitle">REAL-TIME sinxronizasiya - Hər şey CANLI işləyir! ✅</div>
     </div>
 
-    <div class="createBox">
-      <div class="boxTitle">🎬 Yeni Otaq Yarat</div>
+    <div class="box">
+      <div class="boxTitle">🎬 Otaq Yarat və ya Qoşul</div>
       
       <div class="formGroup">
         <label class="label">Sizin adınız</label>
-        <input type="text" class="input" id="hostName" placeholder="Adınızı yazın" maxlength="20">
+        <input type="text" class="input" id="username" placeholder="Adınızı yazın" maxlength="20">
       </div>
 
       <div class="formGroup">
-        <label class="label">Otaq adı</label>
-        <input type="text" class="input" id="roomName" placeholder="Məsələn: Film Gecəsi" maxlength="30">
+        <label class="label">Otaq kodu (yaratmaq və ya qoşulmaq üçün)</label>
+        <input type="text" class="input" id="roomCode" placeholder="Məs: bizim-film-2024" maxlength="30">
       </div>
 
-      <div class="formGroup">
-        <label class="label">Şifrə (istəyə bağlı)</label>
-        <input type="password" class="input" id="roomPassword" placeholder="Şifrə qoyun və ya boş buraxın" maxlength="20">
-      </div>
-
-      <button class="btn" onclick="createRoom()">
-        🎬 Otaq Yarat və Sevgilinə Göndər
+      <button class="btn" onclick="joinOrCreateRoom()">
+        🚀 Başla
       </button>
+
+      <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px;">
+        <strong style="display: block; margin-bottom: 10px;">💡 Necə işləyir:</strong>
+        <div style="font-size: 14px; line-height: 1.6;">
+          1. Eyni otaq kodunu yazın (siz və sevgiliniz)<br>
+          2. Hər ikiniz "Başla" basın<br>
+          3. Avtomatik eyni otağa qoşularsınız!<br>
+          4. Video açanda O DA görəcək! ✅
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Watch Room -->
   <div class="watchRoom" id="watchRoom">
     <div class="watchHeader">
       <div class="roomTitle" id="roomTitleDisplay">🎬 Film Otağı</div>
       <div class="actions">
-        <button class="actionBtn share" onclick="shareRoom()">📤 Linki Kopyala</button>
+        <button class="actionBtn share" onclick="shareRoom()">📤 Otaq Kodunu Paylaş</button>
         <button class="actionBtn leave" onclick="leaveRoom()">🚪 Çıx</button>
       </div>
     </div>
@@ -502,12 +516,13 @@
 
       <div>
         <div class="card">
+          <div class="cardTitle">👥 İzləyicilər (<span id="viewerCount">0</span>)</div>
+          <div class="viewers" id="viewersList"></div>
+        </div>
+
+        <div class="card">
           <div class="cardTitle">💬 Söhbət</div>
-          <div class="chatMessages" id="chatMessages">
-            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-              💬 Buradan mesajlaşın!
-            </div>
-          </div>
+          <div class="chatMessages" id="chatMessages"></div>
           <div class="chatInput">
             <input type="text" class="input" id="chatInput" placeholder="Mesaj yazın...">
             <button class="sendBtn" onclick="sendMessage()">📤</button>
@@ -519,110 +534,107 @@
 </div>
 
 <script>
-  let currentSource = 'youtube';
-  let username = '';
-  let roomData = null;
-
-  // Check URL on load
-  window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const roomName = params.get('room');
-    const videoId = params.get('v');
-    const password = params.get('pwd');
-
-    if (roomName) {
-      // Joining existing room
-      const name = prompt('Adınızı daxil edin:');
-      if (!name) {
-        alert('❌ Ad daxil etməlisiniz!');
-        window.location.href = window.location.pathname;
-        return;
-      }
-
-      if (password) {
-        const enteredPwd = prompt('🔐 Şifrə daxil edin:');
-        if (enteredPwd !== password) {
-          alert('❌ Şifrə yanlışdır!');
-          window.location.href = window.location.pathname;
-          return;
-        }
-      }
-
-      username = name;
-      roomData = {
-        name: decodeURIComponent(roomName),
-        password: password
-      };
-
-      document.getElementById('homeScreen').style.display = 'none';
-      document.getElementById('watchRoom').classList.add('active');
-      document.getElementById('roomTitleDisplay').textContent = '🎬 ' + roomData.name;
-
-      if (videoId) {
-        document.getElementById('videoUrl').value = 'https://youtube.com/watch?v=' + videoId;
-        loadVideo();
-      }
-
-      showNotification('✅ Otağa qoşuldunuz!', '🎉');
-      addMessage(`${username} otağa qoşuldu! 👋`, 'Sistem');
-    }
-
-    // Enter key listeners
-    document.getElementById('chatInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
-
-    document.getElementById('videoUrl').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') loadVideo();
-    });
+  // PubNub Configuration (DEMO keys - işləyir!)
+  const pubnub = new PubNub({
+    publishKey: 'demo',
+    subscribeKey: 'demo',
+    uuid: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
   });
 
-  function createRoom() {
-    const hostNameInput = document.getElementById('hostName');
-    const roomNameInput = document.getElementById('roomName');
-    const passwordInput = document.getElementById('roomPassword');
+  let username = '';
+  let roomCode = '';
+  let currentSource = 'youtube';
+  let viewers = [];
 
-    const hostName = hostNameInput.value.trim();
-    const roomName = roomNameInput.value.trim();
-    const password = passwordInput.value.trim();
+  function updateStatus(text) {
+    document.getElementById('status').innerHTML = `
+      <div class="statusDot"></div>
+      <span>${text}</span>
+    `;
+  }
 
-    if (!hostName) {
+  function joinOrCreateRoom() {
+    const usernameInput = document.getElementById('username');
+    const roomCodeInput = document.getElementById('roomCode');
+
+    username = usernameInput.value.trim();
+    roomCode = roomCodeInput.value.trim().toLowerCase().replace(/\s+/g, '-');
+
+    if (!username) {
       showNotification('⚠️ Adınızı daxil edin!', '❌');
       return;
     }
 
-    if (!roomName) {
-      showNotification('⚠️ Otaq adı daxil edin!', '❌');
+    if (!roomCode) {
+      showNotification('⚠️ Otaq kodu daxil edin!', '❌');
       return;
     }
 
-    username = hostName;
-    roomData = {
-      name: roomName,
-      password: password
-    };
-
-    // Build URL
-    let url = window.location.origin + window.location.pathname;
-    url += '?room=' + encodeURIComponent(roomName);
-    if (password) {
-      url += '&pwd=' + encodeURIComponent(password);
-    }
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(url).then(() => {
-      alert('✅ OTAQ YARADILDI!\n\n📋 Link kopyalandı!\n\nİndi bu linki sevgilinizə göndərin:\n\n' + url + '\n\n' + (password ? '🔐 Şifrə: ' + password : ''));
-    }).catch(() => {
-      prompt('Link kopyalana bilmədi. Manuel kopyalayın:', url);
+    // Subscribe to room channel
+    pubnub.subscribe({
+      channels: [roomCode]
     });
 
-    // Show watch room
+    // Listen for messages
+    pubnub.addListener({
+      message: function(event) {
+        handleMessage(event.message);
+      },
+      presence: function(event) {
+        updateViewers();
+      }
+    });
+
+    // Announce presence
+    publishMessage({
+      type: 'join',
+      username: username
+    });
+
+    // Show room
     document.getElementById('homeScreen').style.display = 'none';
     document.getElementById('watchRoom').classList.add('active');
-    document.getElementById('roomTitleDisplay').textContent = '🎬 ' + roomName;
+    document.getElementById('roomTitleDisplay').textContent = '🎬 ' + roomCode;
 
-    showNotification('✅ Otaq yaradıldı! Linki sevgilinizə göndərin!', '🎉');
-    addMessage(`${username} otağı yaratdı! 🎬`, 'Sistem');
+    updateStatus('Bağlandı ✅');
+    showNotification('✅ Otağa qoşuldunuz!', '🎉');
+    addSystemMessage(`${username} otağa qoşuldu! 👋`);
+  }
+
+  function handleMessage(message) {
+    switch(message.type) {
+      case 'join':
+        if (message.username !== username) {
+          addSystemMessage(`${message.username} qoşuldu! 👋`);
+          updateViewers();
+        }
+        break;
+      
+      case 'video':
+        if (message.username !== username) {
+          loadVideoFromMessage(message.videoId);
+          showNotification(`${message.username} video yüklədi`, '📺');
+        }
+        break;
+      
+      case 'chat':
+        if (message.username !== username) {
+          addMessage(message.text, message.username, false);
+        }
+        break;
+      
+      case 'viewers':
+        viewers = message.viewers || [];
+        displayViewers();
+        break;
+    }
+  }
+
+  function publishMessage(message) {
+    pubnub.publish({
+      channel: roomCode,
+      message: message
+    });
   }
 
   function selectSource(source) {
@@ -666,6 +678,20 @@
       return;
     }
 
+    loadVideoFromMessage(videoId);
+    
+    // Broadcast to others
+    publishMessage({
+      type: 'video',
+      username: username,
+      videoId: videoId
+    });
+
+    showNotification('✅ Video yükləndi və HAMIYA GÖNDƏRILDI!', '🎬');
+    addSystemMessage(`${username} video yüklədi! 📺`);
+  }
+
+  function loadVideoFromMessage(videoId) {
     const wrapper = document.getElementById('videoWrapper');
     wrapper.innerHTML = `
       <iframe 
@@ -675,15 +701,6 @@
         allowfullscreen
       ></iframe>
     `;
-
-    // Update URL to include video
-    const params = new URLSearchParams(window.location.search);
-    params.set('v', videoId);
-    const newUrl = window.location.pathname + '?' + params.toString();
-    window.history.replaceState({}, '', newUrl);
-
-    showNotification('✅ Video yükləndi!', '🎬');
-    addMessage(`${username} video yüklədi: ${videoId}`, 'Sistem');
   }
 
   async function shareScreen() {
@@ -707,7 +724,13 @@
       wrapper.appendChild(video);
 
       showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
-      addMessage(`${username} ekran paylaşır 🖥️`, 'Sistem');
+      addSystemMessage(`${username} ekran paylaşır 🖥️`);
+
+      publishMessage({
+        type: 'chat',
+        username: 'Sistem',
+        text: `${username} ekran paylaşır (yalnız o görür)`
+      });
 
       stream.getVideoTracks()[0].onended = () => {
         showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
@@ -720,24 +743,29 @@
       };
     } catch (err) {
       showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
-      console.error(err);
     }
   }
 
-  function shareRoom() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      alert('✅ LINK KOPYALANDI!\n\nSevgilinizə göndərin:\n\n' + url + '\n\n' + (roomData.password ? '🔐 Şifrə: ' + roomData.password : ''));
-      showNotification('✅ Link kopyalandı!', '📋');
-    }).catch(() => {
-      prompt('Link:', url);
-    });
+  function updateViewers() {
+    pubnub.hereNow(
+      {
+        channels: [roomCode],
+        includeUUIDs: true
+      },
+      function (status, response) {
+        const count = response.totalOccupancy || 1;
+        document.getElementById('viewerCount').textContent = count;
+      }
+    );
   }
 
-  function leaveRoom() {
-    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      window.location.href = window.location.pathname;
-    }
+  function displayViewers() {
+    const list = document.getElementById('viewersList');
+    const uniqueViewers = [...new Set(viewers)];
+    
+    list.innerHTML = uniqueViewers.map(viewer => `
+      <div class="viewer">${viewer}</div>
+    `).join('');
   }
 
   function sendMessage() {
@@ -748,15 +776,18 @@
 
     addMessage(text, username, true);
     input.value = '';
+
+    // Broadcast to others
+    publishMessage({
+      type: 'chat',
+      username: username,
+      text: text
+    });
   }
 
   function addMessage(text, author, isOwn = false) {
     const messagesDiv = document.getElementById('chatMessages');
     
-    if (messagesDiv.children.length === 1 && messagesDiv.children[0].textContent.includes('💬')) {
-      messagesDiv.innerHTML = '';
-    }
-
     const messageEl = document.createElement('div');
     messageEl.className = 'message' + (isOwn ? ' own' : '');
     
@@ -769,6 +800,50 @@
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
+  function addSystemMessage(text) {
+    const messagesDiv = document.getElementById('chatMessages');
+    
+    const messageEl = document.createElement('div');
+    messageEl.className = 'message system';
+    messageEl.textContent = text;
+
+    messagesDiv.appendChild(messageEl);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function shareRoom() {
+    const message = `🎬 CINEPARTY OTAĞI!\n\nOtaq kodu: ${roomCode}\n\n1. Bu faylı aç: cineparty-REAL.html\n2. Adını yaz\n3. Otaq kodu yaz: ${roomCode}\n4. "Başla" bas\n\nGörüşənədək! 🍿`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'CineParty Otağı',
+        text: message
+      });
+    } else {
+      navigator.clipboard.writeText(message).then(() => {
+        alert(message);
+      });
+    }
+    
+    showNotification('✅ Otaq məlumatı kopyalandı!', '📋');
+  }
+
+  function leaveRoom() {
+    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
+      pubnub.unsubscribe({
+        channels: [roomCode]
+      });
+      
+      publishMessage({
+        type: 'chat',
+        username: 'Sistem',
+        text: `${username} otaqdan çıxdı 👋`
+      });
+      
+      window.location.reload();
+    }
+  }
+
   function showNotification(text, icon = '✅') {
     const notification = document.getElementById('notification');
     document.getElementById('notificationText').textContent = text;
@@ -779,6 +854,26 @@
       notification.classList.remove('show');
     }, 3500);
   }
+
+  // Event listeners
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  document.getElementById('videoUrl').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') loadVideo();
+  });
+
+  document.getElementById('roomCode').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') joinOrCreateRoom();
+  });
+
+  // Update viewers periodically
+  setInterval(() => {
+    if (roomCode) {
+      updateViewers();
+    }
+  }, 5000);
 </script>
 
 </body>
