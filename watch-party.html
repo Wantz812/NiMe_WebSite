@@ -2,215 +2,400 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>Uzaktan Film · Sohbet & Ekran Paylaşımı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes, viewport-fit=cover">
+    <title>🎬 Film Gecesi · TURN + Sohbet + Ekran</title>
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- PEERJS 1.5.5 - KARARLI SÜRÜM, BAĞLANTI SORUNU YOK [citation:2] -->
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
     <style>
+        /* ----------------------------------------------
+            MODERN, RESPONSIVE, TAM EKRAN UYUMLU TASARIM
+        ------------------------------------------------ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #0b0e14 0%, #1a1f2a 100%);
+            background: radial-gradient(circle at 20% 30%, #0c0f14, #030507);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 12px;
         }
 
         .container {
-            max-width: 1300px;
+            max-width: 1400px;
             width: 100%;
+        }
+
+        /* Ana Giriş Kartı */
+        .home-card {
+            background: rgba(18, 22, 30, 0.85);
+            backdrop-filter: blur(25px);
+            border-radius: 48px;
+            padding: 40px 28px;
+            border: 1px solid rgba(255, 138, 92, 0.2);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.7);
+            color: white;
+            max-width: 500px;
             margin: 0 auto;
         }
 
-        .card {
-            background: rgba(18, 22, 30, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.7);
-            padding: 32px 24px;
-            color: white;
-        }
-
-        /* Ana sayfa (giriş) */
         .home-header {
             text-align: center;
-            margin-bottom: 32px;
         }
+
         .home-header i {
-            font-size: 48px;
+            font-size: 56px;
             color: #ff8a5c;
-            background: rgba(255, 138, 92, 0.2);
-            padding: 20px;
+            background: rgba(255, 138, 92, 0.15);
+            padding: 22px;
             border-radius: 30px;
-            margin-bottom: 16px;
-        }
-        h1 { font-size: 1.9rem; font-weight: 600; color: white; }
-        .subtitle { color: #a8b3cf; margin-top: 8px; }
-        .btn-group { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
-        .btn {
-            border: none; padding: 16px 24px; border-radius: 60px; font-size: 1.1rem;
-            font-weight: 600; display: flex; align-items: center; justify-content: center;
-            gap: 12px; background: rgba(255,255,255,0.05); color: white;
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.2s; cursor: pointer;
-        }
-        .btn-primary { background: #ff8a5c; color: #0b0e14; }
-        .btn-outline { background: transparent; border: 1.5px solid rgba(255,138,92,0.5); color: #ff8a5c; }
-        .btn:hover { transform: scale(0.98); background: #ff9e77; }
-        .btn-outline:hover { background: rgba(255,138,92,0.1); }
-
-        /* Oda görünümü (grid) */
-        .room-grid {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 20px;
-        }
-        @media (max-width: 900px) {
-            .room-grid { grid-template-columns: 1fr; }
+            margin-bottom: 20px;
         }
 
-        .main-col {
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #ffd0b5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-group {
             display: flex;
             flex-direction: column;
             gap: 16px;
+            margin-top: 36px;
         }
 
-        .sidebar {
-            background: rgba(0,0,0,0.25);
-            border-radius: 32px;
-            padding: 20px;
+        .btn {
+            border: none;
+            padding: 18px 28px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
             display: flex;
-            flex-direction: column;
-            gap: 24px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.05);
+            color: white;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.2s;
+            cursor: pointer;
         }
 
-        /* Oda bilgi başlığı */
+        .btn-primary {
+            background: #ff8a5c;
+            color: #0b0e14;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.8px solid #ff8a5c;
+            color: #ff8a5c;
+        }
+
+        /* ------------- ODA GÖRÜNÜMÜ (GRID) ------------- */
+        .room-card {
+            background: rgba(10, 12, 18, 0.8);
+            backdrop-filter: blur(25px);
+            border-radius: 40px;
+            padding: 28px 24px;
+            border: 1px solid rgba(255,138,92,0.2);
+            color: white;
+        }
+
         .room-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
+
         .room-code-badge {
-            background: rgba(0,0,0,0.4); padding: 12px 20px; border-radius: 50px;
-            font-size: 1.2rem; font-weight: 600; border: 1px solid #ff8a5c;
-            color: #ff8a5c; display: flex; align-items: center; gap: 10px;
+            background: #1e1e2a;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: 1px solid #ff8a5c;
+            color: #ff8a5c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+
         .status {
-            display: flex; align-items: center; gap: 8px; background: #1e2430;
-            padding: 10px 18px; border-radius: 40px; font-size: 0.9rem; color: #b9c2d9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1a1e26;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            color: #cbd5e6;
         }
 
+        /* ANA GRID: SOL / SAĞ */
+        .room-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .room-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ---------- SOL TARAF: VİDEO ---------- */
+        .video-section {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* TAM EKRAN DESTEKLİ VİDEO WRAPPER */
         .video-wrapper {
-            position: relative; width: 100%; aspect-ratio: 16 / 9;
-            background: #000; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.7);
+            cursor: pointer;
+            transition: 0.2s;
         }
-        #player { width: 100%; height: 100%; }
+        .video-wrapper:hover {
+            box-shadow: 0 0 0 2px #ff8a5c;
+        }
 
-        /* Kontroller */
-        .video-info { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); }
-        .video-id-area { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .video-id-input {
-            flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50px; padding: 14px 20px; color: white; font-size: 1rem;
-            outline: none;
+        #player {
+            width: 100%;
+            height: 100%;
         }
-        .video-id-input:focus { border-color: #ff8a5c; background: rgba(255,138,92,0.1); }
-        .btn-small {
-            padding: 14px 28px; border-radius: 50px; background: #ff8a5c;
-            border: none; color: #0b0e14; font-weight: 600; display: flex;
-            align-items: center; gap: 8px; cursor: pointer;
-        }
-        .controls {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
-        }
-        .control-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 14px 18px; color: white; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 8px; cursor: pointer;
-            min-width: 60px;
-        }
-        .control-btn:hover:not(.disabled) { background: #ff8a5c; color: black; border-color: #ff8a5c; }
-        .seek-slider { flex: 2; min-width: 180px; height: 6px; accent-color: #ff8a5c; }
-        .time-display { font-size: 0.9rem; color: #ccd6f0; }
 
-        /* Ekran paylaşımı alanı */
-        .screen-share-area {
-            background: rgba(0,0,0,0.4); border-radius: 20px; padding: 16px;
+        /* FLOATING CHAT BUTTON - TAM EKRANDA YAZIŞMAK İÇİN */
+        .chat-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #ff8a5c;
+            color: black;
+            border: none;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(255,138,92,0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: 0.2s;
         }
-        .screen-share-video {
-            width: 100%; aspect-ratio: 16/9; background: #0a0c10;
-            border-radius: 16px; overflow: hidden; margin-top: 12px;
+        .chat-toggle-btn:hover {
+            transform: scale(1.1);
         }
-        #screenVideo {
-            width: 100%; height: 100%; object-fit: contain;
-            background: #000; border-radius: 16px;
-        }
-        .btn-share {
-            background: #3b3f4a; color: white; width: 100%;
-            margin-top: 8px;
-        }
-        .btn-share.active { background: #ff4d4d; }
 
-        /* Sohbet */
-        .chat-container {
-            display: flex; flex-direction: column; height: 350px;
-            background: rgba(0,0,0,0.2); border-radius: 20px; padding: 16px;
+        /* OVERLAY CHAT PANELİ (TAM EKRANDAYMIŞ HİSSİ) */
+        .overlay-chat {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 320px;
+            height: 450px;
+            background: rgba(10, 12, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255,138,92,0.4);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 15px 40px black;
+            z-index: 999;
+            transition: 0.3s;
         }
+        .overlay-chat.hidden {
+            display: none;
+        }
+
         .chat-messages {
-            flex: 1; overflow-y: auto; display: flex; flex-direction: column;
-            gap: 10px; padding-right: 6px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 6px;
         }
+
         .message {
-            background: rgba(255,255,255,0.08); padding: 10px 14px;
-            border-radius: 20px; max-width: 85%; word-break: break-word;
+            background: rgba(255,255,255,0.08);
+            padding: 12px 16px;
+            border-radius: 22px;
+            max-width: 85%;
+            word-break: break-word;
             align-self: flex-start;
+            color: white;
         }
         .message.own {
-            background: #ff8a5c; color: black; align-self: flex-end;
+            background: #ff8a5c;
+            color: black;
+            align-self: flex-end;
         }
         .message small {
-            display: block; font-size: 0.7rem; opacity: 0.8; margin-top: 4px;
-        }
-        .chat-input-area {
-            display: flex; gap: 10px; margin-top: 16px;
-        }
-        .chat-input {
-            flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 12px 18px; color: white; outline: none;
-        }
-        .chat-send {
-            background: #ff8a5c; border: none; border-radius: 50px;
-            padding: 12px 20px; color: black; cursor: pointer;
+            display: block;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 5px;
         }
 
-        .hidden { display: none; }
-        .disabled { opacity: 0.4; pointer-events: none; }
-        hr { border: 0.5px solid rgba(255,255,255,0.1); margin: 24px 0; }
-        .footer-info { font-size: 0.8rem; color: #6f7a95; text-align: center; }
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 14px 20px;
+            color: white;
+            outline: none;
+        }
+        .chat-send {
+            background: #ff8a5c;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 20px;
+            color: black;
+            cursor: pointer;
+        }
+
+        /* KONTROL PANELİ */
+        .controls-panel {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-id-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .video-id-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 60px;
+            padding: 14px 22px;
+            color: white;
+            font-size: 1rem;
+        }
+        .btn-small {
+            background: #ff8a5c;
+            border: none;
+            border-radius: 60px;
+            padding: 14px 26px;
+            color: black;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+        }
+        .control-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 14px 20px;
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .control-btn:hover:not(.disabled) {
+            background: #ff8a5c;
+            color: black;
+        }
+        .seek-slider {
+            flex: 2;
+            min-width: 180px;
+            height: 6px;
+            accent-color: #ff8a5c;
+        }
+
+        /* SAĞ SIDEBAR: EKRAN PAYLAŞIMI */
+        .screen-sidebar {
+            background: rgba(0,0,0,0.3);
+            border-radius: 28px;
+            padding: 22px;
+            backdrop-filter: blur(12px);
+        }
+
+        .screen-video-box {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #0a0c10;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        #screenVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: black;
+        }
+        .btn-share {
+            background: #3b3f4a;
+            color: white;
+            width: 100%;
+        }
+        .btn-share.active {
+            background: #ff4d4d;
+        }
+
+        .disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- ========== ANA SAYFA ========== -->
-        <div id="homeView" class="card">
+        <div id="homeView" class="home-card">
             <div class="home-header">
-                <i class="fas fa-heart"></i>
-                <h1>Uzaktan Film Gecesi</h1>
-                <div class="subtitle">Sevgilinle senkronize izle, sohbet et, ekranını paylaş ❤️</div>
+                <i class="fas fa-couch"></i>
+                <h1>Film Gecesi</h1>
+                <div class="subtitle" style="color:#b9c2da; margin-top:12px;">Sevgilinle uzaktan, TURN destekli kesintisiz ❤️</div>
             </div>
             <div class="btn-group">
                 <button id="createRoomBtn" class="btn btn-primary">
@@ -220,87 +405,84 @@
                     <i class="fas fa-door-open"></i> Odaya Katıl
                 </button>
             </div>
-            <hr>
-            <div class="footer-info">
-                <i class="fas fa-shield-alt"></i> PeerJS ile uçtan uca • Ekran paylaşımı için Chrome önerilir
+            <div style="margin-top:28px; text-align:center; font-size:0.9rem; color:#7e8aa8;">
+                <i class="fas fa-shield"></i> TURN + STUN | PeerJS 1.5.5 | Her ağda çalışır
             </div>
         </div>
 
         <!-- ========== ODA GÖRÜNÜMÜ ========== -->
-        <div id="roomView" class="card hidden">
-            <!-- Oda başlık satırı -->
+        <div id="roomView" class="room-card hidden">
+            <!-- Oda kodu ve durum -->
             <div class="room-header">
                 <div class="room-code-badge">
                     <i class="fas fa-hashtag"></i> <span id="roomCodeDisplay">...</span>
                 </div>
                 <div id="connectionStatus" class="status">
-                    <i class="fas fa-circle"></i> Bağlantı bekleniyor...
+                    <i class="fas fa-circle"></i> Bağlanıyor...
                 </div>
             </div>
 
-            <!-- Ana Grid: Sol tarafta video, sağda sohbet+ekran paylaşımı -->
+            <!-- GRID: SOL VİDEO / SAĞ EKRAN PAYLAŞIMI -->
             <div class="room-grid">
-                <!-- SOL ANA KOLON: YouTube oynatıcı ve kontroller -->
-                <div class="main-col">
-                    <div class="video-wrapper">
+                <!-- SOL: YOUTUBE + KONTROLLER -->
+                <div class="video-section">
+                    <!-- TAM EKRAN TIKLANABİLİR VİDEO -->
+                    <div id="videoWrapper" class="video-wrapper">
                         <div id="player"></div>
                     </div>
-                    <div class="video-info">
+
+                    <div class="controls-panel">
                         <div class="video-id-area">
-                            <input type="text" id="videoIdInput" class="video-id-input" placeholder="YouTube video ID (örn: dQw4w9WgXcQ)" value="dQw4w9WgXcQ">
-                            <button id="loadVideoBtn" class="btn-small">
-                                <i class="fas fa-cloud-upload-alt"></i> Yükle
-                            </button>
+                            <input type="text" id="videoIdInput" class="video-id-input" placeholder="YouTube video ID (örnek: dQw4w9WgXcQ)" value="dQw4w9WgXcQ">
+                            <button id="loadVideoBtn" class="btn-small"><i class="fas fa-cloud-upload-alt"></i> Yükle</button>
                         </div>
-                        <div class="controls">
+                        <div class="control-buttons">
                             <button id="seekBackBtn" class="control-btn" title="10 sn geri"><i class="fas fa-backward"></i> 10</button>
                             <button id="playPauseBtn" class="control-btn" title="Oynat/Durdur"><i class="fas fa-play"></i></button>
                             <button id="seekForwardBtn" class="control-btn" title="10 sn ileri"><i class="fas fa-forward"></i> 10</button>
                             <input type="range" id="seekSlider" class="seek-slider" min="0" value="0" step="1">
-                            <span id="timeDisplay" class="time-display">00:00 / 00:00</span>
+                            <span id="timeDisplay" class="time-display" style="color:#ccd6f0;">00:00 / 00:00</span>
                         </div>
                     </div>
-                    <div id="roomMessage" class="conn-message" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 40px; text-align: center; color: #99a5c2;">
+                    <div id="roomMessage" style="color:#99a5c2; background:rgba(0,0,0,0.2); padding:14px; border-radius:50px; text-align:center;">
                         <i class="fas fa-info-circle"></i> Host değilsen kontroller pasiftir.
                     </div>
                 </div>
 
-                <!-- SAĞ SIDEBAR: Sohbet + Ekran Paylaşımı -->
-                <div class="sidebar">
-                    <!-- SOHBET -->
-                    <div style="display: flex; flex-direction: column;">
-                        <h3 style="display: flex; gap: 10px; margin-bottom: 12px;"><i class="fas fa-comment"></i> Sohbet</h3>
-                        <div class="chat-container">
-                            <div id="chatMessages" class="chat-messages">
-                                <!-- Mesajlar buraya eklenecek -->
-                                <div class="message" style="background:transparent; color:#99a5c2; text-align:center; align-self:center;">
-                                    <i class="fas fa-spinner fa-pulse"></i> Bağlantı kuruluyor...
-                                </div>
-                            </div>
-                            <div class="chat-input-area">
-                                <input type="text" id="chatInput" class="chat-input" placeholder="Mesaj yaz..." autocomplete="off">
-                                <button id="sendChatBtn" class="chat-send"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </div>
+                <!-- SAĞ: EKRAN PAYLAŞIMI -->
+                <div class="screen-sidebar">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="display:flex; gap:10px;"><i class="fas fa-desktop"></i> Ekran</h3>
+                        <button id="screenShareBtn" class="btn-small btn-share" style="width:auto;">
+                            <i class="fas fa-share-alt"></i> Paylaş
+                        </button>
                     </div>
-
-                    <!-- EKRAN PAYLAŞIMI -->
-                    <div class="screen-share-area">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3 style="display: flex; gap: 10px;"><i class="fas fa-desktop"></i> Ekran Paylaşımı</h3>
-                            <button id="screenShareBtn" class="btn-small btn-share" style="width: auto; padding: 10px 20px;">
-                                <i class="fas fa-share-alt"></i> Paylaş
-                            </button>
-                        </div>
-                        <div class="screen-share-video">
-                            <video id="screenVideo" autoplay playsinline muted></video>
-                        </div>
-                        <p id="screenShareStatus" style="font-size: 0.8rem; color: #a8b3cf; margin-top: 8px;">
-                            <i class="fas fa-info-circle"></i> Host, ekranı paylaşmak için butona tıklasın.
-                        </p>
+                    <div class="screen-video-box">
+                        <video id="screenVideo" autoplay playsinline muted></video>
                     </div>
+                    <p id="screenShareStatus" style="font-size:0.85rem; color:#aab5cc; margin-top:12px;">
+                        <i class="fas fa-info-circle"></i> Host, butona basıp ekranı seçsin.
+                    </p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- FLOATING CHAT BUTTON + OVERLAY PANEL (HER ZAMAN ERİŞİLEBİLİR) -->
+    <button id="chatToggleBtn" class="chat-toggle-btn">
+        <i class="fas fa-comment"></i>
+    </button>
+    <div id="overlayChat" class="overlay-chat hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="color:white;"><i class="fas fa-comment-dots" style="color:#ff8a5c;"></i> Sohbet</h3>
+            <button id="closeChatBtn" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+            <div class="message" style="background:transparent; color:#99a5c2; text-align:center;">💬 Bağlantı kurulunca mesajlar burada...</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Mesaj yaz..." autocomplete="off">
+            <button id="sendChatBtn" class="chat-send"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -308,14 +490,14 @@
         (function() {
             'use strict';
 
-            // --- URL Parametreleri ---
+            // ---------- URL Parametreleri ----------
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
             const hostParam = urlParams.get('host');
             const isHost = hostParam === 'true';
             const roomCode = roomParam || '';
 
-            // --- DOM Elemanları ---
+            // ---------- DOM ----------
             const homeView = document.getElementById('homeView');
             const roomView = document.getElementById('roomView');
             const roomCodeDisplay = document.getElementById('roomCodeDisplay');
@@ -328,28 +510,47 @@
             const seekForwardBtn = document.getElementById('seekForwardBtn');
             const seekSlider = document.getElementById('seekSlider');
             const timeDisplay = document.getElementById('timeDisplay');
+            const videoWrapper = document.getElementById('videoWrapper');
             // Sohbet
             const chatMessages = document.getElementById('chatMessages');
             const chatInput = document.getElementById('chatInput');
             const sendChatBtn = document.getElementById('sendChatBtn');
-            // Ekran paylaşımı
+            const chatToggleBtn = document.getElementById('chatToggleBtn');
+            const overlayChat = document.getElementById('overlayChat');
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            // Ekran
             const screenShareBtn = document.getElementById('screenShareBtn');
             const screenVideo = document.getElementById('screenVideo');
             const screenShareStatus = document.getElementById('screenShareStatus');
 
-            // --- Global Değişkenler ---
+            // ---------- GLOBALS ----------
             let peer = null;
-            let conn = null;            // DataConnection (senkronizasyon + sohbet)
-            let mediaCall = null;       // MediaConnection (ekran paylaşımı)
+            let conn = null;           // DataConnection
+            let mediaCall = null;      // MediaConnection (ekran)
             let player = null;
             let isPlayerReady = false;
             let isRemoteAction = false;
             let currentVideoId = 'dQw4w9WgXcQ';
-            let isPlayingLocally = false;
             let seekUpdateInterval = null;
-            let localScreenStream = null; // Ekran yakalama stream'i (host)
+            let localScreenStream = null;
 
-            // --- Yardımcı Fonksiyonlar ---
+            // ---------- TURN + STUN CONFIG (Kritik! Farklı ağlarda bağlantı için) [citation:6][citation:7] ----------
+            const iceServersConfig = {
+                config: {
+                    iceServers: [
+                        // Google STUN (herkese açık)
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        // OpenRelay TURN (ücretsiz, relay) - simetrik NAT için hayati
+                        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+                        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+                        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+                    ],
+                    sdpSemantics: 'unified-plan'
+                },
+                debug: 2  // hata ayıklama için, isteğe bağlı
+            };
+
+            // ---------- YARDIMCI FONKSİYONLAR ----------
             function extractVideoId(urlOrId) {
                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 const match = urlOrId.match(regExp);
@@ -365,7 +566,15 @@
                 return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             }
 
-            // UI yetkilendirme (host/izleyici)
+            function setConnectionStatus(text, isConnected = false) {
+                if (connectionStatusEl) {
+                    connectionStatusEl.innerHTML = isConnected 
+                        ? `<i class="fas fa-circle" style="color:#48ca7c;"></i> ${text}`
+                        : `<i class="fas fa-circle" style="color:#ffb347;"></i> ${text}`;
+                }
+            }
+
+            // ---------- YETKİ GÜNCELLEME ----------
             function updateUIByRole() {
                 const isViewer = !isHost;
                 if (isViewer) {
@@ -378,10 +587,9 @@
                     playPauseBtn.classList.add('disabled');
                     seekBackBtn.classList.add('disabled');
                     seekForwardBtn.classList.add('disabled');
-                    // İzleyici ekran paylaşamaz
                     screenShareBtn.disabled = true;
                     screenShareBtn.classList.add('disabled');
-                    screenShareStatus.innerHTML = '<i class="fas fa-eye"></i> İzleyici modu: Host ekran paylaşınca görüntü alırsın.';
+                    screenShareStatus.innerHTML = '<i class="fas fa-eye"></i> İzleyici: Host ekran paylaşınca görürsün.';
                 } else {
                     videoIdInput.disabled = false;
                     loadVideoBtn.disabled = false;
@@ -394,26 +602,18 @@
                     seekForwardBtn.classList.remove('disabled');
                     screenShareBtn.disabled = false;
                     screenShareBtn.classList.remove('disabled');
-                    screenShareStatus.innerHTML = '<i class="fas fa-info-circle"></i> Ekranını paylaşmak için "Paylaş" butonuna bas.';
+                    screenShareStatus.innerHTML = '<i class="fas fa-info-circle"></i> Ekranı paylaşmak için butona bas.';
                 }
             }
 
-            function setConnectionStatus(text, isConnected = false) {
-                if (connectionStatusEl) {
-                    connectionStatusEl.innerHTML = isConnected 
-                        ? '<i class="fas fa-circle" style="color:#48ca7c;"></i> ' + text
-                        : '<i class="fas fa-circle" style="color:#ffb347;"></i> ' + text;
-                }
-            }
-
-            // --- Veri Gönderme (DataChannel) ---
+            // ---------- VERİ GÖNDER (DataChannel) ----------
             function sendMessage(obj) {
                 if (conn && conn.open) {
                     conn.send(obj);
                 }
             }
 
-            // --- YouTube Player ---
+            // ---------- YOUTUBE PLAYER ----------
             function initPlayer(videoId) {
                 if (!window.YT) { setTimeout(() => initPlayer(videoId), 200); return; }
                 if (player && player.destroy) player.destroy();
@@ -477,7 +677,7 @@
                 });
             }
 
-            // --- EKRAN PAYLAŞIMI ---
+            // ---------- EKRAN PAYLAŞIMI (TURN destekli) ----------
             async function startScreenShare() {
                 if (!isHost) return;
                 try {
@@ -485,14 +685,13 @@
                         video: true, 
                         audio: false 
                     });
-                    // Host kendi ekranını görmek isteyebilir (isteğe bağlı)
                     screenVideo.srcObject = localScreenStream;
-                    screenVideo.muted = true; // yankıyı önle
+                    screenVideo.muted = true;
                     screenShareBtn.innerHTML = '<i class="fas fa-stop-circle"></i> Paylaşımı Durdur';
                     screenShareBtn.classList.add('active');
                     screenShareStatus.innerHTML = '<i class="fas fa-share"></i> Ekran paylaşılıyor...';
 
-                    // İzleyiciye çağrı yap (media connection)
+                    // İzleyiciye çağrı yap (TURN konfigürasyonu peer objesinde zaten var)
                     if (conn && conn.peer) {
                         mediaCall = peer.call(conn.peer, localScreenStream);
                         mediaCall.on('close', () => {
@@ -500,7 +699,6 @@
                         });
                     }
 
-                    // Paylaşım durduğunda (kullanıcı Chrome'dan durdurdu)
                     localScreenStream.getVideoTracks()[0].onended = () => {
                         stopScreenShare();
                     };
@@ -522,12 +720,11 @@
                 screenVideo.srcObject = null;
                 screenShareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Paylaş';
                 screenShareBtn.classList.remove('active');
-                screenShareStatus.innerHTML = '<i class="fas fa-info-circle"></i> Host, ekranı paylaşmak için butona tıklasın.';
-                // izleyiciye paylaşım durdu bilgisi gönder
+                screenShareStatus.innerHTML = '<i class="fas fa-info-circle"></i> Host, ekranı paylaşmak için butona bas.';
                 sendMessage({ type: 'screen-stop' });
             }
 
-            // --- SOHBET ---
+            // ---------- SOHBET ----------
             function addChatMessage(text, isOwn = false, sender = 'Arkadaş') {
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('message');
@@ -546,25 +743,35 @@
                 chatInput.value = '';
             }
 
-            // --- PeerJS Başlatma (Oda) ---
+            // ---------- TAM EKRAN ----------
+            function toggleFullScreen() {
+                if (!document.fullscreenElement) {
+                    videoWrapper.requestFullscreen().catch(err => {
+                        console.warn('Tam ekran hatası:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            // ---------- PEERJS BAŞLAT (TURN+STUN AKTİF) [citation:1][citation:7] ----------
             function initPeerForRoom() {
                 if (!roomCode) return;
 
                 if (isHost) {
-                    peer = new Peer(roomCode);
+                    // HOST: belirli ID ile, TURN+STUN konfigüre edilmiş
+                    peer = new Peer(roomCode, iceServersConfig);
                     peer.on('open', (id) => {
-                        setConnectionStatus('Host olarak hazır', true);
+                        setConnectionStatus('Host hazır, oda aktif', true);
                     });
                     peer.on('connection', (incomingConn) => {
                         conn = incomingConn;
                         conn.on('open', () => {
                             setConnectionStatus('İzleyici bağlandı!', true);
                             if (player && isPlayerReady) sendFullState();
-                            // Sohbet karşılama mesajı
-                            addChatMessage('İzleyici odaya katıldı. Sohbete hoş geldiniz!', false, 'Sistem');
+                            addChatMessage('İzleyici odaya katıldı.', false, 'Sistem');
                         });
                         conn.on('data', (data) => {
-                            // İzleyiciden gelen veri
                             if (data.type === 'requestState') {
                                 sendFullState();
                             } else if (data.type === 'chat') {
@@ -576,32 +783,26 @@
                             conn = null;
                         });
                     });
-                    // Gelen medya çağrılarını cevapla (izleyici çağırırsa? Biz host çağırıyoruz, ama yine de dinle)
                     peer.on('call', (call) => {
-                        // İzleyici tarafından gelen çağrıyı kabul et (opsiyonel)
-                        // Fakat biz sadece host'un çağırmasını kullanıyoruz, izleyici çağırmaz.
-                        call.answer(); // stream yok
-                        call.on('stream', (remoteStream) => {
-                            // İzleyiciden stream gelmez, boş
-                        });
+                        // İzleyici tarafından çağrı gelmez (biz çağırıyoruz), yine de answer boş
+                        call.answer();
                     });
                     peer.on('error', (err) => {
                         console.error('Peer hatası:', err);
                         setConnectionStatus('Oda alınamadı (kod dolu?)', false);
                     });
                 } else {
-                    // İZLEYİCİ
-                    peer = new Peer();
+                    // İZLEYİCİ: rastgele ID, TURN+STUN ile
+                    peer = new Peer(iceServersConfig);
                     peer.on('open', (id) => {
                         setConnectionStatus('Bağlanıyor...', false);
                         conn = peer.connect(roomCode);
                         conn.on('open', () => {
-                            setConnectionStatus('Host ile bağlantı kuruldu', true);
+                            setConnectionStatus('Host ile bağlantı kuruldu!', true);
                             conn.send({ type: 'requestState' });
                             addChatMessage('Host ile bağlantı kuruldu!', false, 'Sistem');
                         });
                         conn.on('data', (data) => {
-                            // Hosttan gelen veri
                             if (data.type === 'sync' || data.type === 'init') {
                                 if (data.videoId && data.videoId !== currentVideoId) {
                                     currentVideoId = data.videoId;
@@ -614,29 +815,23 @@
                                     }
                                 } else {
                                     if (data.time !== undefined && player && player.seekTo) {
-                                        isRemoteAction = true;
-                                        player.seekTo(data.time, true);
+                                        isRemoteAction = true; player.seekTo(data.time, true);
                                     }
                                     if (data.playing === true && player && player.playVideo) {
-                                        isRemoteAction = true;
-                                        player.playVideo();
+                                        isRemoteAction = true; player.playVideo();
                                     } else if (data.playing === false && player && player.pauseVideo) {
-                                        isRemoteAction = true;
-                                        player.pauseVideo();
+                                        isRemoteAction = true; player.pauseVideo();
                                     }
                                 }
                             } else if (data.type === 'play') {
-                                isRemoteAction = true; player.playVideo(); 
-                                if (data.time) player.seekTo(data.time, true);
+                                isRemoteAction = true; player.playVideo(); if(data.time) player.seekTo(data.time, true);
                             } else if (data.type === 'pause') {
-                                isRemoteAction = true; player.pauseVideo();
-                                if (data.time) player.seekTo(data.time, true);
+                                isRemoteAction = true; player.pauseVideo(); if(data.time) player.seekTo(data.time, true);
                             } else if (data.type === 'seek') {
                                 isRemoteAction = true; player.seekTo(data.time, true);
                             } else if (data.type === 'chat') {
                                 addChatMessage(data.message, false, 'Host');
                             } else if (data.type === 'screen-stop') {
-                                // Host ekran paylaşımını durdurdu
                                 screenVideo.srcObject = null;
                                 screenShareStatus.innerHTML = '<i class="fas fa-info-circle"></i> Host ekran paylaşımını durdurdu.';
                             }
@@ -647,7 +842,7 @@
                         });
                     });
 
-                    // Gelen medya çağrısını bekle (host ekran paylaşınca)
+                    // Gelen medya çağrısını kabul et (host ekran paylaşınca)
                     peer.on('call', (call) => {
                         call.answer(); // stream göndermiyoruz, sadece alıyoruz
                         call.on('stream', (remoteStream) => {
@@ -663,9 +858,25 @@
                 }
             }
 
-            // --- Event Listeners ---
-            function bindControls() {
-                // Video yükle (host)
+            // ---------- EVENT LISTENERS ----------
+            function bindEvents() {
+                // Oda oluştur / katıl
+                document.getElementById('createRoomBtn').addEventListener('click', function() {
+                    const tempPeer = new Peer(iceServersConfig);
+                    tempPeer.on('open', (id) => {
+                        tempPeer.destroy();
+                        window.location.search = `?room=${id}&host=true`;
+                    });
+                });
+
+                document.getElementById('joinRoomBtn').addEventListener('click', function() {
+                    const code = prompt('Oluşturulan oda kodunu gir:');
+                    if (code && code.trim()) {
+                        window.location.search = `?room=${code.trim()}&host=false`;
+                    }
+                });
+
+                // Video kontrolleri
                 loadVideoBtn.addEventListener('click', () => {
                     if (!isHost) return;
                     const raw = videoIdInput.value.trim();
@@ -707,47 +918,39 @@
                     if (conn) sendMessage({ type: 'seek', time: val });
                 });
 
-                // --- Sohbet ---
+                // Tam ekran
+                videoWrapper.addEventListener('dblclick', toggleFullScreen);
+
+                // Sohbet
                 sendChatBtn.addEventListener('click', sendChatMessage);
                 chatInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') sendChatMessage();
                 });
 
-                // --- Ekran Paylaşımı ---
+                // Floating chat
+                chatToggleBtn.addEventListener('click', () => {
+                    overlayChat.classList.toggle('hidden');
+                });
+                closeChatBtn.addEventListener('click', () => {
+                    overlayChat.classList.add('hidden');
+                });
+
+                // Ekran paylaşımı
                 screenShareBtn.addEventListener('click', function() {
                     if (!isHost) return;
-                    if (localScreenStream) {
-                        stopScreenShare();
-                    } else {
-                        startScreenShare();
-                    }
+                    if (localScreenStream) stopScreenShare();
+                    else startScreenShare();
                 });
             }
 
-            // --- Oda oluştur / katıl butonları ---
-            document.getElementById('createRoomBtn').addEventListener('click', function() {
-                const tempPeer = new Peer();
-                tempPeer.on('open', (id) => {
-                    tempPeer.destroy();
-                    window.location.search = `?room=${id}&host=true`;
-                });
-            });
-
-            document.getElementById('joinRoomBtn').addEventListener('click', function() {
-                const code = prompt('Oluşturulan oda kodunu gir:');
-                if (code && code.trim()) {
-                    window.location.search = `?room=${code.trim()}&host=false`;
-                }
-            });
-
-            // --- URL'e göre view'i göster ---
+            // ---------- URL'E GÖRE BAŞLAT ----------
             if (roomCode) {
                 homeView.classList.add('hidden');
                 roomView.classList.remove('hidden');
                 roomCodeDisplay.innerText = roomCode;
                 updateUIByRole();
 
-                // YouTube API yükle
+                // YouTube API
                 if (!window.YT) {
                     const tag = document.createElement('script');
                     tag.src = 'https://www.youtube.com/iframe_api';
@@ -759,7 +962,7 @@
                 if (window.YT && window.YT.Player) initPlayer(currentVideoId);
 
                 initPeerForRoom();
-                bindControls();
+                bindEvents();
             } else {
                 homeView.classList.remove('hidden');
                 roomView.classList.add('hidden');
