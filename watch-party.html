@@ -9,13 +9,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* --- ÜMUMİ DİZAYN (CineParty Style) --- */
     :root {
       --bg: #0a0a0f;
       --surface: #1a1a24;
       --surface-light: #252534;
-      --primary: #6366f1; /* Bənövşəyi əsas rəng */
-      --accent: #f59e0b;  /* Qızılı rəng */
+      --primary: #6366f1;
+      --accent: #f59e0b;
       --success: #10b981;
       --error: #ef4444;
       --text: #ffffff;
@@ -58,7 +57,7 @@
     }
     @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* --- LOBBY (GİRİŞ) EKRANI --- */
+    /* --- LOBBY --- */
     #lobby-screen {
       position: absolute;
       inset: 0;
@@ -139,7 +138,6 @@
     }
     input.code-input:focus { border-color: var(--primary); }
 
-    /* Kod Göstərmə Sahəsi */
     .room-code-display {
       background: #111;
       border: 1px dashed var(--accent);
@@ -154,15 +152,14 @@
     }
     .copy-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
 
-    /* --- OTAQ EKRANI (MAIN) --- */
+    /* --- ROOM SCREEN --- */
     #room-screen {
-      display: none; /* Başlanğıcda gizli */
+      display: none; 
       width: 100%;
       height: 100%;
       flex-direction: row;
     }
 
-    /* Sol tərəf: Video */
     .video-container {
       flex: 1;
       background: #000;
@@ -175,10 +172,9 @@
     video {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Videonun kəsilməməsi üçün */
+      object-fit: contain;
     }
 
-    /* Kontrol Paneli (Üzən) */
     .controls-bar {
       position: absolute;
       bottom: 30px;
@@ -190,9 +186,8 @@
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       transition: opacity 0.3s;
+      z-index: 50;
     }
-    
-    /* Mouse tərpənməyəndə gizlətmək olar, hələlik sabit qalsın */
     
     .ctrl-btn {
       width: 50px;
@@ -213,7 +208,7 @@
     .ctrl-btn.share-active { background: var(--success); box-shadow: 0 0 15px var(--success); }
     .ctrl-btn.leave { background: var(--error); }
 
-    /* Sağ tərəf: Çat */
+    /* Çat */
     .chat-sidebar {
       width: 350px;
       background: var(--surface);
@@ -302,7 +297,6 @@
       justify-content: center;
     }
     
-    /* Mobil Uyğunluq */
     @media (max-width: 768px) {
       #room-screen { flex-direction: column; }
       .chat-sidebar { width: 100%; height: 40%; }
@@ -320,7 +314,7 @@
   <div id="lobby-screen">
     <div class="lobby-card" id="main-menu">
       <div class="lobby-title">Xoş Gəlmisiniz!</div>
-      <div class="lobby-desc">Sevgilinizlə film izləmək üçün otaq yaradın və ya mövcud otağa qoşulun.</div>
+      <div class="lobby-desc">Birlikdə film izləmək üçün otaq yaradın.</div>
       
       <button class="btn btn-primary" onclick="showCreateUI()">
         <i class="fas fa-plus-circle"></i> Otaq Yarat
@@ -334,25 +328,22 @@
       <div class="lobby-title">Otaq Yaradılır...</div>
       <div class="lobby-desc">Bu kodu sevgilinə göndər:</div>
       
-      <div id="my-code-display" class="room-code-display" onclick="copyCode()">
-        Yüklənir...
-      </div>
+      <div id="my-code-display" class="room-code-display" onclick="copyCode()">Yüklənir...</div>
       <div class="copy-hint" id="copy-status">Kopyalamaq üçün üzərinə kliklə</div>
       
       <div style="margin-top: 20px; color: var(--success); font-weight: bold; font-size: 14px;">
         <i class="fas fa-spinner fa-spin"></i> Qoşulma gözlənilir...
       </div>
-      
       <button class="btn btn-secondary" onclick="backToMain()" style="margin-top: 20px;">Geri</button>
     </div>
 
     <div class="lobby-card" id="join-ui" style="display: none;">
       <div class="lobby-title">Otağa Qoşul</div>
-      <div class="lobby-desc">Sevgilinin verdiyi kodu daxil et.</div>
+      <div class="lobby-desc">Kodu aşağıya yaz:</div>
       
       <input type="text" id="join-input" class="code-input" placeholder="Otaq Kodu">
       
-      <button class="btn btn-primary" onclick="joinRoom()">Daxil Ol</button>
+      <button class="btn btn-primary" id="join-btn-confirm" onclick="joinRoom()">Daxil Ol</button>
       <button class="btn btn-secondary" onclick="backToMain()">Geri</button>
     </div>
   </div>
@@ -360,7 +351,6 @@
   <div id="room-screen">
     <div class="video-container">
       <video id="remote-video" autoplay playsinline></video>
-      
       <div class="controls-bar">
         <button class="ctrl-btn" id="share-btn" onclick="startScreenShare()" title="Ekran Paylaş">
           <i class="fas fa-desktop"></i>
@@ -382,7 +372,7 @@
         <i class="fas fa-heart" style="color: var(--accent);"></i> Canlı Çat
       </div>
       <div class="chat-messages" id="messages">
-        <div class="sys-msg">Otağa xoş gəldiniz! 🍿</div>
+        <div class="sys-msg">Otaq hazırdır! 🍿</div>
       </div>
       <div class="chat-input-area">
         <input type="text" id="msg-input" placeholder="Mesaj yaz..." onkeypress="handleEnter(event)">
@@ -394,30 +384,25 @@
   </div>
 
   <script>
-    // --- INTRO ---
     window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('intro').classList.add('hidden');
-      }, 1500);
+      setTimeout(() => document.getElementById('intro').classList.add('hidden'), 1500);
     });
 
-    // --- MƏNTİQ (PEERJS) ---
     let peer = null;
     let conn = null;
     let myId = null;
     let localStream = null;
+    let isConnected = false;
 
-    // Peeri başlat
     function initPeer() {
       peer = new Peer(null, { debug: 2 });
 
       peer.on('open', (id) => {
         myId = id;
-        console.log("My ID:", myId);
         document.getElementById('my-code-display').innerText = myId;
       });
 
-      // Zəng gələndə (Video axını)
+      // Zəng gələndə (Video)
       peer.on('call', (call) => {
         call.answer();
         call.on('stream', (remoteStream) => {
@@ -425,18 +410,25 @@
         });
       });
 
-      // Qoşulma olanda (Çat əlaqəsi)
+      // HOST: Biri mənə qoşulanda
       peer.on('connection', (c) => {
         conn = c;
         setupConnection();
         enterRoomUI();
         addSystemMessage("Sevgilin qoşuldu! ❤️");
+        
+        // Host olaraq qoşulan şəxsə məcburi "Gəl" əmri göndəririk (1 saniyə sonra)
+        setTimeout(() => {
+            if(conn && conn.open) {
+                conn.send({ type: 'sys-command', val: 'force-enter' });
+            }
+        }, 1000);
       });
     }
 
     initPeer();
 
-    // --- UI NAVIGATION ---
+    // --- UI FUNCTIONS ---
     function showCreateUI() {
       document.getElementById('main-menu').style.display = 'none';
       document.getElementById('create-ui').style.display = 'block';
@@ -456,36 +448,45 @@
     function copyCode() {
       if(myId) {
         navigator.clipboard.writeText(myId);
-        const status = document.getElementById('copy-status');
-        status.innerText = "Kopyalandı! ✅";
-        status.style.color = "var(--success)";
-        setTimeout(() => {
-          status.innerText = "Kopyalamaq üçün üzərinə kliklə";
-          status.style.color = "var(--text-muted)";
-        }, 2000);
+        document.getElementById('copy-status').innerText = "Kopyalandı! ✅";
       }
     }
 
-    // --- OTAQ ƏMƏLİYYATLARI ---
+    // --- JOIN LOGIC ---
     function joinRoom() {
       const code = document.getElementById('join-input').value.trim();
       if (!code) return alert("Kodu daxil et!");
 
+      const btn = document.getElementById('join-btn-confirm');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Qoşulur...';
+      btn.disabled = true;
+
       conn = peer.connect(code);
       
+      // QONAQ: Əlaqə açılan kimi
       conn.on('open', () => {
         setupConnection();
         enterRoomUI();
         addSystemMessage("Otağa uğurla qoşuldun! 🚀");
       });
 
-      conn.on('error', (err) => alert("Xəta: " + err));
+      conn.on('error', (err) => {
+        alert("Xəta: " + err);
+        btn.innerHTML = 'Daxil Ol';
+        btn.disabled = false;
+      });
     }
 
     function setupConnection() {
+      isConnected = true;
       conn.on('data', (data) => {
+        // Adi çat mesajı
         if (data.type === 'chat') {
           addMessage(data.msg, 'theirs');
+        }
+        // Sistem əmrləri (Məcburi otağa salmaq)
+        if (data.type === 'sys-command' && data.val === 'force-enter') {
+            enterRoomUI();
         }
       });
 
@@ -496,6 +497,9 @@
     }
 
     function enterRoomUI() {
+      // Artıq otaqdadırsa təkrar etməsin
+      if(document.getElementById('room-screen').style.display === 'flex') return;
+
       document.getElementById('lobby-screen').style.transform = 'translateY(-100%)';
       setTimeout(() => {
         document.getElementById('lobby-screen').style.display = 'none';
@@ -503,7 +507,7 @@
       }, 500);
     }
 
-    // --- EKRAN PAYLAŞIMI ---
+    // --- SCREEN SHARE & CHAT ---
     async function startScreenShare() {
       try {
         localStream = await navigator.mediaDevices.getDisplayMedia({
@@ -511,21 +515,15 @@
           audio: true 
         });
 
-        // Öz ekranımızı görək (amma səssiz)
         const videoEl = document.getElementById('remote-video');
         videoEl.srcObject = localStream;
         videoEl.muted = true;
 
-        // Qarşı tərəfə göndərək
         if (conn) {
           const call = peer.call(conn.peer, localStream);
         }
 
-        // Paylaşım bitəndə
-        localStream.getVideoTracks()[0].onended = () => {
-          stopScreenShare();
-        };
-
+        localStream.getVideoTracks()[0].onended = () => stopScreenShare();
         document.getElementById('share-btn').classList.add('share-active');
 
       } catch (err) {
@@ -541,7 +539,6 @@
       document.getElementById('share-btn').classList.remove('share-active');
     }
 
-    // --- ÇAT ---
     function sendMessage() {
       const input = document.getElementById('msg-input');
       const msg = input.value.trim();
@@ -570,24 +567,18 @@
       chatBox.appendChild(div);
     }
 
-    function handleEnter(e) {
-      if (e.key === 'Enter') sendMessage();
-    }
+    function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
-    // --- KONTROLLAR ---
     function toggleMute() {
       const video = document.getElementById('remote-video');
       video.muted = !video.muted;
-      const btn = document.getElementById('mute-btn');
-      btn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+      document.getElementById('mute-btn').innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
     function toggleFullscreen() {
       const elem = document.querySelector('.video-container');
       if (!document.fullscreenElement) {
-        elem.requestFullscreen().catch(err => {
-          alert(`Tam ekrana keçmək olmadı: ${err.message}`);
-        });
+        elem.requestFullscreen().catch(err => alert(err.message));
       } else {
         document.exitFullscreen();
       }
