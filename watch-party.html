@@ -3,162 +3,291 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CineParty: Birlikdə İzlə</title>
+  <title>CineParty: Sevgilinlə İzlə</title>
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
 
   <style>
-    :root { --bg: #0f1014; --panel: #1b1d25; --primary: #e50914; --text: #fff; --accent: #46d369; }
-    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-    body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-    /* LOBBY */
-    #lobby { position: fixed; inset: 0; z-index: 999; background: #000 url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; display: flex; align-items: center; justify-content: center; }
-    #lobby::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
+    :root { 
+      --bg: #09090b; 
+      --glass: rgba(255, 255, 255, 0.05);
+      --primary: #e50914; 
+      --text: #fff; 
+      --accent: #46d369; 
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; font-family: 'Outfit', sans-serif; }
     
-    .card { position: relative; width: 90%; max-width: 400px; background: rgba(27, 29, 37, 0.95); padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-    .logo { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 20px; letter-spacing: 1px; }
-    .btn { width: 100%; padding: 14px; margin-top: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
-    .btn-red { background: var(--primary); color: white; }
-    .btn-red:hover { background: #b2070f; }
-    .btn-gray { background: #333; color: white; }
-    .btn-gray:hover { background: #444; }
-    
-    .room-code-display { background: #000; padding: 15px; border-radius: 10px; border: 1px dashed #555; font-family: monospace; font-size: 24px; letter-spacing: 2px; color: var(--accent); margin: 15px 0; cursor: pointer; user-select: all; }
-    .copy-hint { font-size: 12px; color: #aaa; margin-bottom: 15px; }
-    input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; border-radius: 10px; color: white; text-align: center; font-size: 18px; margin-bottom: 10px; }
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      height: 100vh; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+    }
 
-    /* ROOM UI */
-    #room-ui { display: none; flex-direction: column; height: 100%; width: 100%; }
-    
-    /* VIDEO AREA */
-    .cinema-mode { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    video { width: 100%; height: 100%; object-fit: contain; max-height: 80vh; }
-    
-    /* Mobile Overlay for Audio */
-    #start-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    #start-overlay button { padding: 15px 30px; font-size: 18px; border-radius: 50px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    /* --- INTRO ANIMATION --- */
+    #intro-layer {
+      position: fixed; inset: 0; background: #000; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 1s ease;
+    }
+    .intro-logo {
+      font-size: 4rem; font-weight: 800; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 5px;
+      animation: zoomIn 2s ease forwards;
+      text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
-    /* CONTROLS */
-    .controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 20; padding: 10px 20px; background: rgba(0,0,0,0.6); border-radius: 30px; backdrop-filter: blur(5px); }
-    .c-btn { width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-    .btn-share { background: #333; }
-    .btn-share.active { background: var(--accent); color: #000; }
-    .btn-leave { background: var(--primary); }
-
-    /* CHAT AREA */
-    .chat-container { height: 35vh; background: var(--panel); display: flex; flex-direction: column; border-top: 1px solid #333; }
-    .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
-    .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
-    .msg.me { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
-    .msg.other { align-self: flex-start; background: #333; color: white; border-bottom-left-radius: 2px; }
-    .msg.sys { align-self: center; background: transparent; color: #888; font-size: 12px; text-align: center; padding: 5px; }
+    /* --- LOBBY STYLES --- */
+    #lobby { 
+      position: fixed; inset: 0; z-index: 100; 
+      background: radial-gradient(circle at center, #1a1c29 0%, #000 100%);
+      display: flex; align-items: center; justify-content: center; 
+    }
     
-    .chat-input { padding: 10px; background: #111; display: flex; gap: 10px; align-items: center; }
-    .chat-input input { margin: 0; text-align: left; padding: 12px; font-size: 14px; }
-    .chat-input button { width: 50px; height: 50px; border-radius: 10px; background: var(--primary); color: white; border: none; cursor: pointer; }
+    .card { 
+      width: 90%; max-width: 420px; 
+      background: rgba(20, 20, 20, 0.8); 
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      padding: 2.5rem; border-radius: 24px; text-align: center; 
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 50px rgba(229, 9, 20, 0.15);
+      animation: fadeInUp 0.8s ease;
+    }
+    @keyframes fadeInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    /* Responsive for PC vs Mobile */
-    @media (min-width: 768px) {
-      #room-ui { flex-direction: row; }
-      .cinema-mode { flex: 3; height: 100vh; }
-      video { max-height: 100vh; }
-      .chat-container { width: 350px; height: 100vh; border-top: none; border-left: 1px solid #333; }
+    .logo-text { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+    .sub-text { color: #888; margin-bottom: 30px; font-size: 14px; }
+
+    input { 
+      width: 100%; padding: 16px; background: rgba(255,255,255,0.05); 
+      border: 1px solid #333; border-radius: 12px; color: white; 
+      text-align: center; font-size: 16px; margin-bottom: 15px; 
+      transition: 0.3s;
+    }
+    input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); }
+
+    .btn { 
+      width: 100%; padding: 16px; border-radius: 12px; border: none; 
+      font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; 
+      display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;
+    }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
+    .btn-primary:hover { background: #ff0f1f; transform: translateY(-2px); }
+    .btn-secondary { background: #333; color: white; }
+    .btn-secondary:hover { background: #444; }
+
+    .room-code { 
+      font-family: monospace; font-size: 32px; letter-spacing: 5px; 
+      color: var(--accent); margin: 20px 0; font-weight: bold; cursor: pointer;
+    }
+
+    /* --- PLAYER UI --- */
+    #room-ui { display: none; height: 100%; width: 100%; position: relative; overflow: hidden; }
+
+    /* Video Wrapper - handles fullscreen */
+    .video-wrapper {
+      flex: 1; position: relative; background: #000; 
+      display: flex; align-items: center; justify-content: center;
+    }
+    video { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Floating Chat Overlay */
+    .chat-overlay {
+      position: absolute; right: 20px; top: 20px; bottom: 100px; width: 300px;
+      pointer-events: none; /* Klikləri videoya buraxır, amma mesajlara yox */
+      display: flex; flex-direction: column; justify-content: flex-end;
+      z-index: 50;
+      transition: 0.3s;
+    }
+    .chat-overlay.hidden { opacity: 0; }
+
+    /* Messages in Overlay */
+    .messages-container {
+      overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+      padding: 10px; mask-image: linear-gradient(to top, black 80%, transparent 100%);
+      pointer-events: auto; /* Mesajları sürüşdürmək olsun */
+    }
+    .msg { 
+      background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+      padding: 8px 12px; border-radius: 8px; font-size: 14px; 
+      color: #ddd; width: fit-content; max-width: 100%;
+      animation: slideIn 0.3s ease; text-shadow: 0 1px 2px black;
+    }
+    .msg b { color: var(--primary); }
+    .msg.sys { background: transparent; color: var(--accent); font-size: 12px; align-self: center; }
+
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Input Bar (Floating) */
+    .chat-bar {
+      position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 600px; display: flex; gap: 10px; z-index: 60;
+      opacity: 0; transition: 0.3s; pointer-events: none;
+    }
+    .video-wrapper:hover .chat-bar, .chat-bar:focus-within { opacity: 1; pointer-events: auto; }
+
+    .chat-input {
+      flex: 1; padding: 12px 20px; border-radius: 30px; border: none;
+      background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px);
+      color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .chat-send {
+      width: 45px; height: 45px; border-radius: 50%; border: none;
+      background: var(--primary); color: white; cursor: pointer;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 15px; padding: 10px 25px; border-radius: 50px;
+      background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px);
+      z-index: 70; opacity: 0; transition: 0.3s;
+    }
+    .video-wrapper:hover .controls-bar { opacity: 1; }
+    
+    .c-btn {
+      background: transparent; border: none; color: white; font-size: 20px;
+      cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: 0.2s;
+    }
+    .c-btn:hover { background: rgba(255,255,255,0.2); }
+    .c-btn.active { color: var(--accent); }
+
+    /* Mobile Adjustments */
+    @media (max-width: 768px) {
+      .chat-overlay { right: 10px; left: 10px; width: auto; bottom: 160px; }
+      .chat-bar { bottom: 100px; width: 95%; }
+      .controls-bar { opacity: 1; bottom: 30px; }
     }
   </style>
 </head>
 <body>
 
+  <div id="intro-layer">
+    <div class="intro-logo">CINEPARTY</div>
+  </div>
+
   <div id="lobby">
     <div class="card" id="menu-main">
-      <div class="logo"><i class="fas fa-film"></i> CineParty</div>
-      <p style="color:#ccc; margin-bottom:20px;">Sevgilinlə və dostlarınla eyni anda film izlə.</p>
-      <button class="btn btn-red" onclick="createRoom()">🎬 Otaq Yarat</button>
-      <button class="btn btn-gray" onclick="showJoin()">👋 Otağa Qoşul</button>
+      <div class="logo-text"><i class="fas fa-film"></i> CINEPARTY</div>
+      <p class="sub-text">Sevgilinlə eyni anda film izlə, eyni hissləri yaşa.</p>
+      
+      <input type="text" id="username" placeholder="Adın nədir?" maxlength="12">
+
+      <button class="btn btn-primary" onclick="createRoom()">
+        <i class="fas fa-plus-circle"></i> Otaq Yarat
+      </button>
+      <button class="btn btn-secondary" onclick="showJoin()">
+        <i class="fas fa-sign-in-alt"></i> Otağa Qoşul
+      </button>
     </div>
 
     <div class="card" id="menu-create" style="display:none;">
-      <div class="logo">Otaq Hazırdır!</div>
-      <p style="font-size:14px; color:#ccc;">Bu linki və ya kodu dostlarına göndər:</p>
-      
-      <div class="room-code-display" id="my-id" onclick="copyLink()">...</div>
-      <p class="copy-hint" id="copy-text">Kodu kopyalamaq üçün üzərinə toxun</p>
-      
-      <button class="btn btn-accent" style="background:var(--accent); color:black" onclick="copyLink()">🔗 Linki Kopyala</button>
-      <button class="btn btn-red" onclick="enterRoomAsHost()">Otağa Daxil Ol</button>
-      <button class="btn btn-gray" onclick="location.reload()">Geri</button>
+      <div class="logo-text">Hazırdır!</div>
+      <p class="sub-text">Bu kodu sevgilinə göndər:</p>
+      <div class="room-code" id="display-code" onclick="copyCode()">...</div>
+      <button class="btn btn-primary" onclick="enterRoom()">
+        <i class="fas fa-play"></i> Otağa Gir
+      </button>
+      <button class="btn btn-secondary" onclick="location.reload()">Geri</button>
     </div>
 
     <div class="card" id="menu-join" style="display:none;">
-      <div class="logo">Qoşul</div>
-      <input type="text" id="join-input" placeholder="Otaq Kodu">
-      <button class="btn btn-red" id="btn-connect" onclick="joinRoom()">Qoşul</button>
-      <button class="btn btn-gray" onclick="location.reload()">Geri</button>
+      <div class="logo-text">Qoşul</div>
+      <input type="number" id="room-input" placeholder="Otaq Kodu (6 rəqəm)">
+      <button class="btn btn-primary" onclick="joinRoom()">
+        <i class="fas fa-link"></i> Qoşul
+      </button>
+      <button class="btn btn-secondary" onclick="location.reload()">Geri</button>
     </div>
   </div>
 
   <div id="room-ui">
-    <div class="cinema-mode">
+    <div class="video-wrapper" id="cinema-container">
       <video id="remote-video" playsinline autoplay></video>
-
-      <div id="start-overlay" style="display:none">
-        <button onclick="enableAudio()"><i class="fas fa-play"></i> SƏSİ AÇ & BAŞLA</button>
-        <p style="margin-top:10px; font-size:12px; color:#ccc;">(Telefonda səs üçün vacibdir)</p>
+      
+      <div class="chat-overlay" id="chat-overlay">
+        <div class="messages-container" id="chat-box">
+          <div class="msg sys">Xoş gəldiniz! ❤️<br>Full ekranda da yaza bilərsiniz.</div>
+        </div>
       </div>
 
-      <div class="controls">
-        <button class="c-btn btn-share" id="share-btn" onclick="toggleScreenShare()" title="Ekran Paylaş">
+      <div class="chat-bar">
+        <input type="text" class="chat-input" id="msg-in" placeholder="Bir şeylər yaz..." onkeypress="handleEnter(event)">
+        <button class="chat-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+
+      <div class="controls-bar">
+        <button class="c-btn" onclick="toggleScreenShare()" id="share-btn" title="Ekran Paylaş (Host)">
           <i class="fas fa-desktop"></i>
         </button>
-        <button class="c-btn" onclick="toggleMute()" title="Səsi Bağla/Aç">
-          <i class="fas fa-volume-up" id="vol-icon"></i>
+        <button class="c-btn" onclick="toggleAudio()" id="audio-btn" title="Səsi Aç/Bağla">
+          <i class="fas fa-volume-mute"></i>
         </button>
-        <button class="c-btn btn-leave" onclick="location.href=location.pathname" title="Çıxış">
-          <i class="fas fa-times"></i>
+        <button class="c-btn" onclick="toggleChatVis()" title="Çatı Gizlət/Göstər">
+          <i class="fas fa-comment-alt"></i>
         </button>
-      </div>
-    </div>
-
-    <div class="chat-container">
-      <div class="messages" id="chat-box">
-        <div class="msg sys">Xoş gəldiniz! ❤️<br>Ekranı PC-dən paylaşmaq məsləhətdir.</div>
-      </div>
-      <div class="chat-input">
-        <input type="text" id="msg-in" placeholder="Mesaj yaz..." onkeypress="handleEnter(event)">
-        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        <button class="c-btn" onclick="toggleFullScreen()" title="Tam Ekran">
+          <i class="fas fa-expand"></i>
+        </button>
+        <button class="c-btn" style="color: #ff4444;" onclick="location.reload()" title="Çıxış">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // --- CONFIGURATION ---
-    const generateID = () => Math.floor(100000 + Math.random() * 900000).toString(); // 6 rəqəmli sadə kod
+    // --- VARIABLES ---
+    let myName = "Anonim";
     let myPeerId = null;
     let peer = null;
     let myStream = null;
-    let connections = []; // Bütün qoşulanların siyahısı (Chat üçün)
+    let connections = [];
     let isHost = false;
 
-    // URL Parametrindən otaq kodunu yoxla (Linklə giriş üçün)
+    // --- INTRO HANDLING ---
     window.onload = () => {
+      setTimeout(() => {
+        document.getElementById('intro-layer').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('intro-layer').style.display = 'none';
+        }, 1000);
+      }, 2500); // 2.5s intro
+
+      // Check URL for room code
       const urlParams = new URLSearchParams(window.location.search);
-      const roomCode = urlParams.get('room');
-      if (roomCode) {
+      if (urlParams.get('room')) {
         showJoin();
-        document.getElementById('join-input').value = roomCode;
+        document.getElementById('room-input').value = urlParams.get('room');
       }
     };
 
-    // --- LOBBY LOGIC ---
+    // --- UI NAVIGATION ---
+    function checkName() {
+      const name = document.getElementById('username').value.trim();
+      if (!name) { alert("Zəhmət olmasa adını yaz!"); return false; }
+      myName = name;
+      return true;
+    }
+
     function createRoom() {
-      myPeerId = generateID();
+      if(!checkName()) return;
+      myPeerId = Math.floor(100000 + Math.random() * 900000).toString();
       initPeer(myPeerId);
+      isHost = true;
+      
       document.getElementById('menu-main').style.display = 'none';
       document.getElementById('menu-create').style.display = 'block';
-      document.getElementById('my-id').innerText = myPeerId;
-      isHost = true;
+      document.getElementById('display-code').innerText = myPeerId;
     }
 
     function showJoin() {
@@ -167,200 +296,129 @@
     }
 
     function joinRoom() {
-      const roomId = document.getElementById('join-input').value.trim();
-      if (!roomId) return alert("Zəhmət olmasa kodu daxil edin!");
+      if(!checkName()) return;
+      const roomId = document.getElementById('room-input').value.trim();
+      if(!roomId) return alert("Kodu daxil et!");
       
-      document.getElementById('btn-connect').innerText = "Qoşulur...";
-      // Qonaq üçün random ID yaradaq
-      initPeer(null, roomId);
+      initPeer(null, roomId); // Null ID for guest (auto-gen)
     }
 
-    function enterRoomAsHost() {
+    function enterRoom() {
       document.getElementById('lobby').style.display = 'none';
       document.getElementById('room-ui').style.display = 'flex';
-      addSystemMessage("Otaq yaradıldı. 'Ekran Paylaş' düyməsi ilə filmi başlat.");
+      addSystemMsg(`Otaq yaradıldı. Salam, ${myName}!`);
     }
 
-    function copyLink() {
+    function copyCode() {
       const link = `${window.location.origin}${window.location.pathname}?room=${myPeerId}`;
-      navigator.clipboard.writeText(link).then(() => {
-        document.getElementById('copy-text').innerText = "Link kopyalandı! Dostuna göndər.";
-        document.getElementById('copy-text').style.color = "#46d369";
-      });
+      navigator.clipboard.writeText(link);
+      alert("Link kopyalandı! İndi sevgilinə at.");
     }
 
     // --- PEERJS LOGIC ---
-    function initPeer(id, connectToId = null) {
-      peer = new Peer(id, {
-        debug: 1,
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] }
-      });
+    function initPeer(id, destId = null) {
+      peer = new Peer(id);
 
-      peer.on('open', (id) => {
-        console.log('My ID:', id);
-        if (connectToId) {
-          connectToHost(connectToId);
+      peer.on('open', (pid) => {
+        console.log("My ID:", pid);
+        if (destId) {
+          const conn = peer.connect(destId, { metadata: { name: myName } });
+          handleConnection(conn);
         }
       });
 
-      // Biri bizə qoşulanda (Host və ya Qonaq) - DATA (Chat)
       peer.on('connection', (conn) => {
-        connections.push(conn);
-        setupConnection(conn);
-        
-        // Əgər Hostuqsa və ekran paylaşırıqsa, yeni gələnə dərhal videonu ataq
-        if (isHost && myStream) {
-          peer.call(conn.peer, myStream);
-        }
+        handleConnection(conn);
       });
 
-      // Biri bizə zəng edəndə (Video Stream)
       peer.on('call', (call) => {
-        call.answer(); // Cavab veririk
-        
-        call.on('stream', (remoteStream) => {
-          const video = document.getElementById('remote-video');
-          video.srcObject = remoteStream;
-          
-          // Mobile Policy: Video gəldi, amma play etmək üçün düymə göstər
-          document.getElementById('start-overlay').style.display = 'flex';
+        call.answer();
+        call.on('stream', (stream) => {
+          const v = document.getElementById('remote-video');
+          v.srcObject = stream;
+          addSystemMsg("Yayım başladı! Səs gəlmirsə səs düyməsini bas.");
         });
       });
-
-      peer.on('error', (err) => {
-        alert("Xəta baş verdi: " + err.type);
-        location.reload();
-      });
     }
 
-    function connectToHost(hostId) {
-      const conn = peer.connect(hostId);
+    function handleConnection(conn) {
       connections.push(conn);
-      setupConnection(conn);
       
       conn.on('open', () => {
-        document.getElementById('lobby').style.display = 'none';
-        document.getElementById('room-ui').style.display = 'flex';
-        addSystemMessage("Otağa qoşuldunuz! Yayımı gözləyin...");
-      });
-    }
-
-    function setupConnection(conn) {
-      conn.on('data', (data) => {
-        if (data.type === 'msg') {
-          addMessage(data.user, data.text, 'other');
+        if (!isHost) {
+          document.getElementById('lobby').style.display = 'none';
+          document.getElementById('room-ui').style.display = 'flex';
+          addSystemMsg(`Qoşuldun! Salam, ${myName}.`);
         }
+        // Send initial greeting name
+        conn.send({ type: 'sys', text: `${myName} otağa qoşuldu.` });
       });
-      conn.on('close', () => {
-        addSystemMessage("Bir nəfər ayrıldı.");
-        connections = connections.filter(c => c !== conn);
+
+      conn.on('data', (data) => {
+        if (data.type === 'chat') addMsg(data.user, data.text);
+        if (data.type === 'sys') addSystemMsg(data.text);
       });
-      conn.on('open', () => {
-        if(isHost) addSystemMessage("Yeni izləyici qoşuldu!");
-      });
+
+      conn.on('close', () => connections = connections.filter(c => c !== conn));
     }
 
-    // --- SCREEN SHARE (HOST ONLY) ---
+    // --- SCREEN SHARE (HOST) ---
     async function toggleScreenShare() {
-      if (!isHost) {
-        alert("Yalnız otaq sahibi ekran paylaşa bilər!");
-        return;
-      }
-
+      if (!isHost) return alert("Yalnız otağı yaradan (Host) ekran paylaşa bilər.");
+      
       if (myStream) {
-        // Stop sharing
-        myStream.getTracks().forEach(track => track.stop());
+        myStream.getTracks().forEach(t => t.stop());
         myStream = null;
         document.getElementById('share-btn').classList.remove('active');
-        document.getElementById('remote-video').srcObject = null;
-        addSystemMessage("Yayım dayandırıldı.");
         return;
       }
 
       try {
-        // Səs ilə birlikdə ekran paylaşımı istəyirik
         myStream = await navigator.mediaDevices.getDisplayMedia({ 
           video: { cursor: "always" }, 
-          audio: { 
-            echoCancellation: false, 
-            noiseSuppression: false, 
-            autoGainControl: false 
-          } 
+          audio: true 
         });
-
-        // Host özü də görsün nə paylaşır (Səssiz)
-        const v = document.getElementById('remote-video');
-        v.srcObject = myStream;
-        v.muted = true; 
-        v.play();
-
+        
+        const video = document.getElementById('remote-video');
+        video.srcObject = myStream;
+        video.muted = true; // Local preview muted
+        video.play();
+        
         document.getElementById('share-btn').classList.add('active');
-        addSystemMessage("Yayım başladı! Səs üçün 'Share Audio' seçdiyinə əmin ol.");
 
-        // Bütün qoşulu istifadəçilərə zəng et
-        connections.forEach(conn => {
-          peer.call(conn.peer, myStream);
-        });
+        connections.forEach(conn => peer.call(conn.peer, myStream));
 
-        // Yayım dayananda (browser UI-dan stop edəndə)
+        // Yayım dayananda
         myStream.getVideoTracks()[0].onended = () => {
-            myStream = null;
-            document.getElementById('share-btn').classList.remove('active');
-            addSystemMessage("Yayım dayandırıldı.");
+          myStream = null;
+          document.getElementById('share-btn').classList.remove('active');
         };
-
       } catch (err) {
-        console.error("Screen Share Error:", err);
-        alert("Ekran paylaşımı ləğv edildi və ya dəstəklənmir.");
+        console.error(err);
       }
     }
 
-    // --- VIDEO CONTROLS ---
-    function enableAudio() {
-      const v = document.getElementById('remote-video');
-      v.muted = false;
-      v.play()
-        .then(() => {
-          document.getElementById('start-overlay').style.display = 'none';
-        })
-        .catch(e => alert("Xəta: Ekrana toxun sonra yenidən cəhd et."));
-    }
-
-    function toggleMute() {
-      const v = document.getElementById('remote-video');
-      v.muted = !v.muted;
-      document.getElementById('vol-icon').className = v.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-    }
-
-    // --- CHAT FUNCTIONS ---
+    // --- CHAT & UI ---
     function sendMessage() {
       const input = document.getElementById('msg-in');
       const text = input.value.trim();
       if (!text) return;
-
-      // Özümüzə göstərək
-      addMessage("Mən", text, 'me');
-
-      // Hamıya göndərək
-      connections.forEach(conn => {
-        if(conn.open) {
-          conn.send({ type: 'msg', user: isHost ? 'Host' : 'Qonaq', text: text });
-        }
-      });
-
+      
+      addMsg(myName, text); // Show locally
+      connections.forEach(c => c.send({ type: 'chat', user: myName, text: text }));
       input.value = '';
     }
 
-    function addMessage(user, text, type) {
+    function addMsg(user, text) {
       const box = document.getElementById('chat-box');
       const div = document.createElement('div');
-      div.className = `msg ${type}`;
-      div.innerHTML = `<strong>${user}:</strong> ${text}`;
+      div.className = 'msg';
+      div.innerHTML = `<b>${user}:</b> ${text}`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
 
-    function addSystemMessage(text) {
+    function addSystemMsg(text) {
       const box = document.getElementById('chat-box');
       const div = document.createElement('div');
       div.className = 'msg sys';
@@ -369,8 +427,29 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    function handleEnter(e) {
-      if (e.key === 'Enter') sendMessage();
+    function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
+
+    // --- CONTROLS ---
+    function toggleAudio() {
+      const v = document.getElementById('remote-video');
+      v.muted = !v.muted;
+      const btn = document.getElementById('audio-btn');
+      btn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function toggleChatVis() {
+      document.getElementById('chat-overlay').classList.toggle('hidden');
+    }
+
+    function toggleFullScreen() {
+      const elem = document.getElementById('cinema-container');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Error: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     }
   </script>
 </body>
