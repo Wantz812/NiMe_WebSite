@@ -1,768 +1,1358 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!doctype html>
+<html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>🎬 Uzaktan Film · Sorunsuz Ekran Paylaşımı</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- PeerJS 1.5.5 - En kararlı sürüm -->
-    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body {
-            background: #0a0c10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 16px;
-        }
-        .container { width: 100%; max-width: 1300px; }
-
-        /* Giriş Kartı */
-        .home-card {
-            background: #14181c;
-            border-radius: 40px;
-            padding: 40px 28px;
-            max-width: 500px;
-            margin: 0 auto;
-            color: white;
-            border: 1px solid #ff8a5c;
-            box-shadow: 0 20px 40px black;
-        }
-        .home-header { text-align: center; }
-        .home-header i { font-size: 60px; color: #ff8a5c; }
-        h1 { font-size: 2rem; margin: 16px 0 8px; }
-        .subtitle { color: #a0a8b8; }
-
-        .btn-group { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
-        .btn {
-            border: none; padding: 18px; border-radius: 60px; font-size: 1.2rem;
-            font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-primary { background: #ff8a5c; color: black; }
-        .btn-outline { background: transparent; border: 2px solid #ff8a5c; color: #ff8a5c; }
-        .btn:hover { transform: scale(0.97); }
-
-        /* Oda Kartı */
-        .room-card {
-            background: #14181c;
-            border-radius: 40px;
-            padding: 28px 24px;
-            border: 1px solid #ff8a5c;
-            color: white;
-        }
-        .room-header {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; margin-bottom: 20px;
-        }
-        .room-code-badge {
-            background: #1e1e2a; padding: 12px 24px; border-radius: 50px;
-            border: 1px solid #ff8a5c; color: #ff8a5c; font-weight: 600;
-            display: flex; align-items: center; gap: 12px;
-        }
-        .status {
-            background: #1a1e26; padding: 12px 24px; border-radius: 50px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        /* Video Alanı */
-        .video-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: black;
-            border-radius: 28px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 15px 30px black;
-        }
-        #player, #screenVideo {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain;
-            background: black;
-        }
-        #screenVideo { display: none; }
-        .video-source-badge {
-            position: absolute; bottom: 20px; right: 20px;
-            background: rgba(0,0,0,0.7); padding: 10px 20px;
-            border-radius: 50px; backdrop-filter: blur(5px);
-            border: 1px solid #ff8a5c; color: white;
-            display: flex; align-items: center; gap: 10px;
-            z-index: 10;
-        }
-
-        /* Kontroller */
-        .controls-panel {
-            background: rgba(0,0,0,0.3);
-            border-radius: 24px; padding: 20px;
-            backdrop-filter: blur(10px);
-        }
-        .video-id-area {
-            display: flex; gap: 12px; margin-bottom: 18px;
-        }
-        .video-id-input {
-            flex: 1; background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 60px; padding: 14px 22px;
-            color: white; outline: none;
-        }
-        .btn-small {
-            background: #ff8a5c; border: none; border-radius: 60px;
-            padding: 14px 26px; color: black; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; cursor: pointer;
-        }
-        .control-buttons {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
-        }
-        .control-btn {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50px; padding: 14px 20px;
-            color: white; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 8px; cursor: pointer;
-        }
-        .seek-slider { flex: 2; min-width: 180px; accent-color: #ff8a5c; }
-
-        /* Sohbet Butonu */
-        .chat-toggle-btn {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 65px; height: 65px; border-radius: 50%;
-            background: #ff8a5c; color: black; border: none;
-            font-size: 28px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 1000; box-shadow: 0 10px 25px #ff8a5c;
-        }
-        .overlay-chat {
-            position: fixed; bottom: 110px; right: 30px;
-            width: 320px; height: 450px;
-            background: #1a1e26; border-radius: 28px;
-            border: 1px solid #ff8a5c;
-            display: flex; flex-direction: column; padding: 20px;
-            z-index: 999;
-        }
-        .overlay-chat.hidden { display: none; }
-        .chat-messages {
-            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-        }
-        .message {
-            background: rgba(255,255,255,0.08); padding: 12px 16px;
-            border-radius: 22px; max-width: 85%; word-break: break-word;
-            align-self: flex-start; color: white;
-        }
-        .message.own { background: #ff8a5c; color: black; align-self: flex-end; }
-        .message small { display: block; font-size: 0.7rem; opacity: 0.8; margin-top: 5px; }
-        .chat-input-area { display: flex; gap: 12px; margin-top: 16px; }
-        .chat-input {
-            flex: 1; background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50px; padding: 14px 20px; color: white;
-        }
-        .chat-send { background: #ff8a5c; border: none; border-radius: 50px; padding: 14px 20px; color: black; cursor: pointer; }
-
-        .hidden { display: none; }
-        .disabled { opacity: 0.4; pointer-events: none; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>🎬 CineParty Ultimate - Birlikdə İzlə</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <style>
+    /* (CSS kodu əvvəlki ilə eynidir, yer qənaəti üçün buraya təkrar yazmıram. Əvvəlki CSS-i olduğu kimi qoyun.) */
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #1a1a24;
+      --surface-light: #252534;
+      --surface-hover: #2f2f3f;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --error: #ef4444;
+      --text: #ffffff;
+      --text-muted: #9ca3af;
+      --border: rgba(255,255,255,0.1);
+      --gold: #ffd700;
+    }
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-light: #f9fafb;
+      --surface-hover: #e5e7eb;
+      --text: #1a1a24;
+      --text-muted: #6b7280;
+      --border: rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+    /* ========== CINEMA INTRO ========== */
+    .cinemaIntro {
+      position: fixed; inset:0; background:#000; z-index:99999;
+      display:flex; align-items:center; justify-content:center;
+      opacity:1; transition:opacity 1s;
+    }
+    .cinemaIntro.hidden { opacity:0; pointer-events:none; }
+    .curtains {
+      position:absolute; inset:0; display:flex;
+    }
+    .curtain {
+      flex:1; background:linear-gradient(90deg, #8b0000 0%, #a00 50%, #8b0000 100%);
+      position:relative; transition:transform 2s cubic-bezier(0.645,0.045,0.355,1);
+      box-shadow:inset 0 0 50px rgba(0,0,0,0.5);
+    }
+    .curtain::before {
+      content:''; position:absolute; inset:0;
+      background:repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.1) 40px, rgba(0,0,0,0.1) 80px);
+    }
+    .curtain.left { border-right:3px solid var(--gold); }
+    .curtain.right { border-left:3px solid var(--gold); }
+    .curtains.open .curtain.left { transform:translateX(-100%); }
+    .curtains.open .curtain.right { transform:translateX(100%); }
+    .introContent {
+      position:relative; z-index:1; text-align:center;
+      animation:fadeInScale 1.5s ease;
+    }
+    @keyframes fadeInScale {
+      0%{opacity:0; transform:scale(0.8);}
+      100%{opacity:1; transform:scale(1);}
+    }
+    .introLogo { font-size:120px; margin-bottom:20px; animation:bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+    .introTitle {
+      font-size:64px; font-weight:900;
+      background:linear-gradient(135deg, var(--gold), #fff, var(--gold));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      margin-bottom:16px; letter-spacing:4px;
+    }
+    .introSubtitle { font-size:20px; color:#fff; opacity:0.9; letter-spacing:8px; text-transform:uppercase; }
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      position:fixed; left:-320px; top:0; bottom:0; width:320px;
+      background:var(--surface); border-right:1px solid var(--border);
+      z-index:9000; transition:left 0.3s cubic-bezier(0.4,0,0.2,1);
+      overflow-y:auto; box-shadow:4px 0 20px rgba(0,0,0,0.3);
+    }
+    .sidebar.open { left:0; }
+    .sidebarHeader {
+      padding:24px 20px; background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color:white; border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .sidebarTitle { font-size:26px; font-weight:900; margin-bottom:4px; display:flex; align-items:center; gap:12px; }
+    .sidebarSubtitle { font-size:13px; font-weight:600; opacity:0.9; }
+    .sidebarCloseBtn {
+      width:40px; height:40px; background:rgba(255,255,255,0.2); border:none; border-radius:50%;
+      color:white; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:all 0.3s;
+    }
+    .sidebarCloseBtn:hover { background:rgba(255,255,255,0.3); transform:rotate(90deg); }
+    .sidebarSection { padding:20px; border-bottom:1px solid var(--border); }
+    .sectionTitle {
+      font-size:13px; font-weight:800; color:var(--text-muted);
+      margin-bottom:12px; text-transform:uppercase; letter-spacing:1.5px;
+    }
+    .themeToggle {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px; background:var(--surface-light); border-radius:12px; margin-bottom:8px; font-weight:700;
+    }
+    .themeSwitch {
+      width:56px; height:28px; background:var(--surface-hover); border-radius:14px; position:relative; cursor:pointer;
+      transition:background 0.3s;
+    }
+    .themeSwitch.active { background:var(--primary); }
+    .themeSwitch::after {
+      content:'☾'; position:absolute; left:2px; top:2px; width:24px; height:24px; background:white; border-radius:50%;
+      transition:all 0.3s; display:flex; align-items:center; justify-content:center; font-size:14px;
+    }
+    .themeSwitch.active::after { left:30px; content:'☀'; }
+    .roomList { max-height:300px; overflow-y:auto; }
+    .roomItem {
+      padding:14px 16px; background:var(--surface-light); border-radius:12px; margin-bottom:10px;
+      cursor:pointer; transition:all 0.3s; border:2px solid var(--border);
+    }
+    .roomItem:hover { background:var(--surface-hover); border-color:var(--primary); transform:translateY(-2px); }
+    .roomName { font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+    .roomMeta { display:flex; gap:12px; font-size:12px; color:var(--text-muted); }
+    .roomBadge { padding:2px 8px; background:var(--primary); border-radius:8px; font-size:10px; font-weight:600; }
+    .passwordBadge { background:var(--error); }
+    /* ========== OVERLAY ========== */
+    .overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:8000;
+      opacity:0; pointer-events:none; transition:opacity 0.3s; backdrop-filter:blur(4px);
+    }
+    .overlay.active { opacity:1; pointer-events:all; }
+    /* ========== TOP BAR ========== */
+    .topBar {
+      position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--border);
+      padding:16px 24px; display:flex; justify-content:space-between; align-items:center; z-index:100;
+      box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    }
+    .menuBtn {
+      width:48px; height:48px; background:var(--primary); border:none; border-radius:12px;
+      color:white; font-size:24px; cursor:pointer; transition:all 0.3s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .menuBtn:hover { background:var(--primary-dark); transform:scale(1.05); }
+    .logo { display:flex; align-items:center; gap:12px; }
+    .logoIcon { font-size:32px; }
+    .logoText {
+      font-size:24px; font-weight:900; background:linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .userInfo {
+      display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface-light);
+      border-radius:24px;
+    }
+    .userAvatar { width:36px; height:36px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+    .userName { font-weight:700; font-size:16px; }
+    /* ========== HOME SCREEN ========== */
+    .homeScreen { padding:40px 24px; max-width:1400px; margin:0 auto; }
+    .homeScreen.hidden { display:none; }
+    .hero {
+      text-align:center; margin-bottom:48px; padding:60px 24px;
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius:24px; position:relative; overflow:hidden;
+    }
+    .hero::before {
+      content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+      background:radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation:pulse 4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1); opacity:0.5;} 50%{transform:scale(1.1); opacity:0.8;} }
+    .heroContent { position:relative; z-index:1; }
+    .heroTitle { font-size:56px; font-weight:900; margin-bottom:16px; color:white; text-shadow:0 4px 20px rgba(0,0,0,0.3); }
+    .heroSubtitle { font-size:20px; color:rgba(255,255,255,0.9); margin-bottom:32px; }
+    .ctaButtons { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+    .ctaBtn {
+      padding:16px 32px; border:none; border-radius:12px; font-size:18px; font-weight:700;
+      cursor:pointer; transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px;
+    }
+    .ctaBtn.primary { background:white; color:var(--primary); }
+    .ctaBtn.primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,255,255,0.3); }
+    .ctaBtn.secondary { background:transparent; color:white; border:2px solid white; }
+    .ctaBtn.secondary:hover { background:rgba(255,255,255,0.1); }
+    /* ========== MODALS ========== */
+    .modal {
+      position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:24px;
+    }
+    .modal.active { display:flex; }
+    .modalOverlay { position:absolute; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); }
+    .modalContent {
+      background:var(--surface); border-radius:24px; padding:40px; max-width:500px; width:100%;
+      position:relative; z-index:1; box-shadow:0 20px 60px rgba(0,0,0,0.5);
+      animation:modalSlideIn 0.3s ease;
+    }
+    @keyframes modalSlideIn { from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
+    .modalHeader {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;
+    }
+    .modalTitle { font-size:28px; font-weight:900; display:flex; align-items:center; gap:12px; }
+    .modalClose {
+      width:40px; height:40px; background:var(--surface-light); border:none; border-radius:50%;
+      color:var(--text); font-size:24px; cursor:pointer; transition:all 0.3s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .modalClose:hover { background:var(--error); color:white; transform:rotate(90deg); }
+    .formGroup { margin-bottom:24px; }
+    .formLabel {
+      display:block; font-size:14px; font-weight:700; color:var(--text-muted);
+      margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .formInput, .formSelect {
+      width:100%; padding:14px 18px; background:var(--surface-light); border:2px solid var(--border);
+      border-radius:12px; color:var(--text); font-size:16px; font-family:'Poppins',sans-serif;
+      transition:all 0.3s;
+    }
+    .formInput:focus, .formSelect:focus { outline:none; border-color:var(--primary); background:var(--surface-hover); }
+    .checkbox {
+      display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px;
+      background:var(--surface-light); border-radius:12px; transition:all 0.3s;
+    }
+    .checkbox:hover { background:var(--surface-hover); }
+    .checkboxInput { width:20px; height:20px; cursor:pointer; }
+    .checkboxLabel { font-size:15px; font-weight:600; }
+    .btn {
+      width:100%; padding:16px; background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border:none; border-radius:12px; color:white; font-size:18px; font-weight:700; cursor:pointer;
+      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(99,102,241,0.4); }
+    .btn.secondary { background:var(--surface-light); color:var(--text); }
+    .btn.secondary:hover { background:var(--surface-hover); box-shadow:none; }
+    /* ========== WATCH ROOM ========== */
+    .watchRoom { display:none; min-height:100vh; padding:24px; }
+    .watchRoom.active { display:block; }
+    .watchContainer { max-width:1600px; margin:0 auto; }
+    .watchHeader {
+      background:var(--surface); border-radius:16px; padding:24px; margin-bottom:24px;
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+      border:1px solid var(--border);
+    }
+    .watchRoomTitle { font-size:28px; font-weight:900; display:flex; align-items:center; gap:12px; }
+    .watchActions { display:flex; gap:12px; flex-wrap:wrap; }
+    .actionBtn {
+      padding:12px 24px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;
+      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px;
+    }
+    .actionBtn.share { background:var(--success); color:white; }
+    .actionBtn.leave { background:var(--error); color:white; }
+    .actionBtn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.3); }
+    .watchGrid {
+      display:grid; grid-template-columns:1fr 400px; gap:24px; margin-bottom:24px;
+    }
+    @media (max-width:1024px) { .watchGrid { grid-template-columns:1fr; } }
+    .videoSection {
+      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+    }
+    .cardTitle { font-size:18px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .videoWrapper {
+      background:#000; border-radius:12px; overflow:hidden; aspect-ratio:16/9;
+      margin-bottom:20px; position:relative;
+    }
+    .videoWrapper iframe, .videoWrapper video { width:100%; height:100%; border:none; }
+    .videoPlaceholder {
+      width:100%; height:100%; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; color:var(--text-muted);
+    }
+    .placeholderIcon { font-size:80px; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+    .placeholderText { font-size:18px; font-weight:600; }
+    .sourceSelection {
+      display:flex; gap:12px; margin-bottom:20px;
+    }
+    .sourceBtn {
+      flex:1; padding:14px; background:var(--surface-light); border:2px solid var(--border);
+      border-radius:12px; color:var(--text); font-size:15px; font-weight:700; cursor:pointer;
+      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .sourceBtn.active { background:var(--primary); border-color:var(--primary); color:white; }
+    .sourceBtn:hover:not(.active) { background:var(--surface-hover); border-color:var(--primary); }
+    .videoControls { display:flex; gap:12px; margin-top:12px; }
+    .videoInput { flex:1; padding:14px 18px; background:var(--surface-light); border:2px solid var(--border); border-radius:12px; color:var(--text); font-size:15px; font-family:'Poppins',sans-serif; transition:all 0.3s; }
+    .videoInput:focus { outline:none; border-color:var(--primary); }
+    .videoBtn { padding:14px 24px; background:var(--success); border:none; border-radius:12px; color:white; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s; font-family:'Poppins',sans-serif; white-space:nowrap; }
+    .videoBtn:hover { background:#059669; transform:translateY(-2px); }
+    .chatSection { display:flex; flex-direction:column; gap:24px; }
+    .viewersCard {
+      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+    }
+    .viewersList { display:flex; flex-wrap:wrap; gap:8px; }
+    .viewerTag { padding:8px 16px; background:var(--surface-light); border-radius:20px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; }
+    .chatCard {
+      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+      display:flex; flex-direction:column; height:500px;
+    }
+    .chatMessages { flex:1; overflow-y:auto; margin-bottom:16px; display:flex; flex-direction:column; gap:12px; }
+    .chatMessage { display:flex; gap:12px; }
+    .chatMessage.own { flex-direction:row-reverse; }
+    .messageAvatar { width:36px; height:36px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+    .chatMessage.own .messageAvatar { background:var(--accent); }
+    .messageBubble { flex:1; max-width:70%; }
+    .messageAuthor { font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px; }
+    .messageText { padding:12px 16px; background:var(--surface-light); border-radius:12px; font-size:14px; word-wrap:break-word; }
+    .chatMessage.own .messageText { background:var(--primary); color:white; }
+    .messageTime { font-size:11px; color:var(--text-muted); margin-top:4px; }
+    .chatInput { display:flex; gap:12px; }
+    .chatInputField {
+      flex:1; padding:12px 18px; background:var(--surface-light); border:2px solid var(--border);
+      border-radius:12px; color:var(--text); font-size:14px; font-family:'Poppins',sans-serif;
+      resize:none; transition:all 0.3s;
+    }
+    .chatInputField:focus { outline:none; border-color:var(--primary); }
+    .chatSendBtn { padding:12px 20px; background:var(--primary); border:none; border-radius:12px; color:white; font-size:20px; cursor:pointer; transition:all 0.3s; }
+    .chatSendBtn:hover { background:var(--primary-dark); transform:scale(1.05); }
+    /* ========== MOVIE LIST ========== */
+    .movieListSection {
+      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+      margin-top:24px;
+    }
+    .movieTabs {
+      display:flex; gap:12px; margin-bottom:20px;
+    }
+    .movieTab {
+      flex:1; padding:12px; background:var(--surface-light); border-radius:12px;
+      text-align:center; font-weight:700; cursor:pointer; transition:all 0.3s;
+    }
+    .movieTab.active { background:var(--primary); color:white; }
+    .movieList {
+      display:flex; flex-direction:column; gap:12px; max-height:300px; overflow-y:auto;
+    }
+    .movieItem {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:var(--surface-light); border-radius:12px;
+      border:2px solid var(--border); transition:all 0.3s;
+    }
+    .movieItem:hover { border-color:var(--primary); }
+    .movieInfo { flex:1; }
+    .movieName { font-weight:700; font-size:16px; }
+    .movieMeta { font-size:12px; color:var(--text-muted); }
+    .movieActions { display:flex; gap:8px; }
+    .movieBtn {
+      width:36px; height:36px; border:none; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.3s; font-size:18px;
+    }
+    .movieBtn.watch { background:var(--success); color:white; }
+    .movieBtn.delete { background:var(--error); color:white; }
+    .movieBtn:hover { transform:scale(1.1); }
+    .addMovieForm {
+      display:flex; gap:12px; margin-top:16px;
+    }
+    .addMovieInput {
+      flex:1; padding:12px 16px; background:var(--surface-light); border:2px solid var(--border);
+      border-radius:12px; color:var(--text); font-size:14px;
+    }
+    .addMovieBtn {
+      padding:12px 24px; background:var(--primary); border:none; border-radius:12px;
+      color:white; font-weight:700; cursor:pointer; transition:all 0.3s;
+    }
+    .addMovieBtn:hover { background:var(--primary-dark); transform:translateY(-2px); }
+    /* ========== NOTIFICATION ========== */
+    .notification {
+      position:fixed; top:24px; right:24px; background:var(--surface); padding:16px 24px;
+      border-radius:12px; border:2px solid var(--border); box-shadow:0 10px 40px rgba(0,0,0,0.3);
+      display:flex; align-items:center; gap:12px; z-index:99999;
+      transform:translateX(400px); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .notification.show { transform:translateX(0); }
+    .notificationIcon { font-size:24px; }
+    .notificationText { font-weight:600; font-size:15px; }
+    /* ========== SCROLLBAR ========== */
+    ::-webkit-scrollbar { width:10px; height:10px; }
+    ::-webkit-scrollbar-track { background:var(--surface-light); border-radius:5px; }
+    ::-webkit-scrollbar-thumb { background:var(--surface-hover); border-radius:5px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
+    @media (max-width:768px) {
+      .heroTitle { font-size:36px; }
+      .heroSubtitle { font-size:16px; }
+      .ctaButtons { flex-direction:column; }
+      .ctaBtn { width:100%; }
+      .watchGrid { grid-template-columns:1fr; }
+      .chatCard { height:400px; }
+      .modalContent { padding:24px; }
+      .addMovieForm { flex-direction:column; }
+    }
+  </style>
 </head>
 <body>
-    <!-- GİRİŞ EKRANI -->
-    <div id="homeView" class="home-card">
-        <div class="home-header">
-            <i class="fas fa-couch"></i>
-            <h1>Film Gecesi</h1>
-            <div class="subtitle">Sevgilinle senkronize izle, ekranını paylaş ❤️</div>
+
+<!-- Cinema Intro -->
+<div class="cinemaIntro" id="cinemaIntro">
+  <div class="curtains" id="curtains">
+    <div class="curtain left"></div>
+    <div class="curtain right"></div>
+  </div>
+  <div class="introContent">
+    <div class="introLogo">🎬</div>
+    <div class="introTitle">CineParty</div>
+    <div class="introSubtitle">Birlikdə İzləyin</div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebarHeader">
+    <div class="sidebarTitleWrapper">
+      <div class="sidebarTitle"><span>🎬</span><span>CineParty</span></div>
+      <div class="sidebarSubtitle">Birlikdə Film İzləyin</div>
+    </div>
+    <button class="sidebarCloseBtn" onclick="closeSidebar()">✕</button>
+  </div>
+  <div class="sidebarSection">
+    <div class="sectionTitle">MÖVZU</div>
+    <div class="themeToggle">
+      <span>🌙 Qaranlıq Mövzu</span>
+      <div class="themeSwitch" id="themeSwitch" onclick="toggleTheme()"></div>
+    </div>
+  </div>
+  <div class="sidebarSection">
+    <div class="sectionTitle">OTAQLAR (<span id="sidebarRoomCount">0</span>)</div>
+    <div class="roomList" id="sidebarRoomList"></div>
+  </div>
+  <div class="sidebarSection">
+    <div class="sectionTitle">HAQQINDA</div>
+    <div class="menuItem" onclick="showAbout()"><span class="menuIcon">ℹ️</span><span>Haqqında</span></div>
+  </div>
+</div>
+
+<!-- Top Bar -->
+<div class="topBar">
+  <button class="menuBtn" onclick="openSidebar()">☰</button>
+  <div class="logo">
+    <div class="logoIcon">🎬</div>
+    <div class="logoText">CineParty</div>
+  </div>
+  <div class="userInfo" id="userInfo" style="display: none;">
+    <div class="userAvatar" id="userAvatar">U</div>
+    <div class="userName" id="userName">İstifadəçi</div>
+  </div>
+</div>
+
+<!-- Home Screen -->
+<div class="homeScreen" id="homeScreen">
+  <div class="hero">
+    <div class="heroContent">
+      <div class="heroTitle">🎬 CineParty</div>
+      <div class="heroSubtitle">Sevdiyiniz insanlarla birlikdə film izləyin</div>
+      <div class="ctaButtons">
+        <button class="ctaBtn primary" onclick="openCreateRoomModal()"><span>➕</span><span>Yeni Otaq Yarat</span></button>
+        <button class="ctaBtn secondary" onclick="openJoinRoomModal()"><span>🔗</span><span>Otağa Qoşul</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Username Modal (ilk açılışda) -->
+<div class="modal" id="usernameModal">
+  <div class="modalOverlay"></div>
+  <div class="modalContent">
+    <div class="modalHeader"><div class="modalTitle"><span>👤</span><span>Adınızı Daxil Edin</span></div></div>
+    <div class="formGroup">
+      <label class="formLabel">İstifadəçi Adı</label>
+      <input type="text" class="formInput" id="usernameInput" placeholder="Adınızı yazın" maxlength="20">
+    </div>
+    <button class="btn" onclick="setUsername()"><span>🚀</span><span>Başla</span></button>
+  </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal" id="createRoomModal">
+  <div class="modalOverlay" onclick="closeCreateRoomModal()"></div>
+  <div class="modalContent">
+    <div class="modalHeader">
+      <div class="modalTitle"><span>➕</span><span>Yeni Otaq Yarat</span></div>
+      <button class="modalClose" onclick="closeCreateRoomModal()">✕</button>
+    </div>
+    <div class="formGroup">
+      <label class="formLabel">Otaq Adı</label>
+      <input type="text" class="formInput" id="createRoomName" placeholder="Məsələn: Film Gecəsi" maxlength="30">
+    </div>
+    <div class="formGroup">
+      <label class="formLabel">Növ</label>
+      <select class="formSelect" id="createRoomType">
+        <option value="public">🌍 Açıq (Hamı görə bilər)</option>
+        <option value="private">🔒 Şəxsi (Yalnız link ilə)</option>
+      </select>
+    </div>
+    <div class="formGroup">
+      <label class="checkbox">
+        <input type="checkbox" class="checkboxInput" id="createRoomPassword">
+        <span class="checkboxLabel">🔐 Şifrə əlavə et</span>
+      </label>
+    </div>
+    <div class="formGroup" id="passwordGroup" style="display: none;">
+      <label class="formLabel">Şifrə</label>
+      <input type="password" class="formInput" id="createRoomPasswordInput" placeholder="Şifrə daxil edin" maxlength="20">
+    </div>
+    <button class="btn" onclick="createRoom()"><span>🎬</span><span>Otaq Yarat</span></button>
+  </div>
+</div>
+
+<!-- Join Room Modal -->
+<div class="modal" id="joinRoomModal">
+  <div class="modalOverlay" onclick="closeJoinRoomModal()"></div>
+  <div class="modalContent">
+    <div class="modalHeader">
+      <div class="modalTitle"><span>🔗</span><span>Otağa Qoşul</span></div>
+      <button class="modalClose" onclick="closeJoinRoomModal()">✕</button>
+    </div>
+    <div class="formGroup">
+      <label class="formLabel">Otaq Kodu</label>
+      <input type="text" class="formInput" id="joinRoomCode" placeholder="Otaq kodunu daxil edin" maxlength="20">
+    </div>
+    <div class="formGroup" id="joinPasswordGroup" style="display: none;">
+      <label class="formLabel">Şifrə</label>
+      <input type="password" class="formInput" id="joinRoomPassword" placeholder="Şifrə daxil edin" maxlength="20">
+    </div>
+    <button class="btn" onclick="joinRoomByCode()"><span>🚪</span><span>Qoşul</span></button>
+  </div>
+</div>
+
+<!-- Watch Room -->
+<div class="watchRoom" id="watchRoom">
+  <div class="watchContainer">
+    <div class="watchHeader">
+      <div class="watchRoomTitle" id="watchRoomTitle"><span>🎬</span><span>Film Otağı</span></div>
+      <div class="watchActions">
+        <button class="actionBtn share" onclick="shareRoom()"><span>📤</span><span>Paylaş</span></button>
+        <button class="actionBtn leave" onclick="leaveRoom()"><span>🚪</span><span>Çıx</span></button>
+      </div>
+    </div>
+    <div class="watchGrid">
+      <div class="videoSection">
+        <div class="cardTitle"><span>📺</span><span>Video Player</span></div>
+
+        <div class="sourceSelection">
+          <button class="sourceBtn active" onclick="selectSource('youtube')" id="youtubeSourceBtn">
+            <span>📺</span><span>YouTube</span>
+          </button>
+          <button class="sourceBtn" onclick="selectSource('screen')" id="screenSourceBtn">
+            <span>🖥️</span><span>Ekran Paylaş</span>
+          </button>
         </div>
-        <div class="btn-group">
-            <button id="createRoomBtn" class="btn btn-primary">
-                <i class="fas fa-video"></i> Oda Oluştur
-            </button>
-            <button id="joinRoomBtn" class="btn btn-outline">
-                <i class="fas fa-door-open"></i> Odaya Katıl
-            </button>
+
+        <div class="videoWrapper" id="videoWrapper">
+          <div class="videoPlaceholder" id="videoPlaceholder">
+            <div class="placeholderIcon">🎬</div>
+            <div class="placeholderText">Mənbə seçin və video yükləyin</div>
+          </div>
         </div>
+
+        <div class="videoControls" id="youtubeControls">
+          <input type="text" class="videoInput" id="videoUrlInput" placeholder="YouTube video linki">
+          <button class="videoBtn" onclick="loadYouTubeVideo()"><span>▶️</span><span>Yüklə</span></button>
+        </div>
+
+        <div class="videoControls" id="screenControls" style="display: none;">
+          <button class="btn" onclick="startScreenShare()"><span>🖥️</span><span>Ekran Paylaşımını Başlat</span></button>
+        </div>
+
+        <!-- Video playback controls (sinxronizasiya üçün) -->
+        <div style="display:flex; gap:12px; margin-top:12px;" id="playbackControls">
+          <button class="btn secondary" onclick="syncPlay()" style="flex:1;" id="playPauseBtn">▶️ Oynat</button>
+          <button class="btn secondary" onclick="syncPause()" style="flex:1;" id="pauseBtn">⏸️ Dayandır</button>
+        </div>
+      </div>
+
+      <div class="chatSection">
+        <div class="viewersCard">
+          <div class="cardTitle"><span>👥</span><span>İzləyicilər (<span id="viewerCount">1</span>)</span></div>
+          <div class="viewersList" id="viewersList"></div>
+        </div>
+        <div class="chatCard">
+          <div class="cardTitle"><span>💬</span><span>Söhbət</span></div>
+          <div class="chatMessages" id="chatMessages"></div>
+          <div class="chatInput">
+            <textarea class="chatInputField" id="messageInput" placeholder="Mesaj yazın..." rows="1"></textarea>
+            <button class="chatSendBtn" onclick="sendMessage()">📤</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ODA EKRANI -->
-    <div id="roomView" class="room-card hidden">
-        <div class="room-header">
-            <div class="room-code-badge">
-                <i class="fas fa-hashtag"></i> <span id="roomCodeDisplay">...</span>
-            </div>
-            <div id="connectionStatus" class="status">
-                <i class="fas fa-circle"></i> Bağlantı bekleniyor...
-            </div>
-        </div>
+    <!-- Movie List Section -->
+    <div class="movieListSection">
+      <div class="cardTitle"><span>🎬</span><span>Film Siyahısı</span></div>
 
-        <!-- VİDEO ALANI (YouTube + Ekran Paylaşımı) -->
-        <div class="video-container">
-            <div id="player"></div>
-            <video id="screenVideo" autoplay playsinline muted></video>
-            <div id="videoSourceBadge" class="video-source-badge">
-                <i class="fab fa-youtube"></i> YouTube
-            </div>
-        </div>
+      <div class="movieTabs">
+        <div class="movieTab active" onclick="showMovieTab('toWatch')" id="toWatchTab">📋 İzlənəcəklər</div>
+        <div class="movieTab" onclick="showMovieTab('watched')" id="watchedTab">✅ İzlənilənlər</div>
+      </div>
 
-        <!-- KONTROL PANELİ -->
-        <div class="controls-panel">
-            <div class="video-id-area">
-                <input type="text" id="videoIdInput" class="video-id-input" placeholder="YouTube video ID" value="dQw4w9WgXcQ">
-                <button id="loadVideoBtn" class="btn-small"><i class="fas fa-cloud-upload-alt"></i> Yükle</button>
-            </div>
-            <div class="control-buttons">
-                <button id="seekBackBtn" class="control-btn"><i class="fas fa-backward"></i> 10</button>
-                <button id="playPauseBtn" class="control-btn"><i class="fas fa-play"></i></button>
-                <button id="seekForwardBtn" class="control-btn"><i class="fas fa-forward"></i> 10</button>
-                <input type="range" id="seekSlider" class="seek-slider" min="0" value="0" step="1">
-                <span id="timeDisplay" style="color:#ccd6f0;">00:00 / 00:00</span>
-            </div>
-            <div style="display:flex; gap:12px; margin-top:16px;">
-                <button id="screenShareBtn" class="btn-small" style="flex:1; background:#3b3f4a; color:white;">
-                    <i class="fas fa-share-alt"></i> Ekranı Paylaş
-                </button>
-                <button id="stopScreenShareBtn" class="btn-small" style="flex:0.5; background:#ff4d4d; color:white; display:none;">
-                    <i class="fas fa-stop"></i> Durdur
-                </button>
-            </div>
-            <div id="roomMessage" style="margin-top:16px; color:#99a5c2; text-align:center;">
-                <i class="fas fa-info-circle"></i> Host değilsen kontroller pasiftir.
-            </div>
-        </div>
+      <div class="movieList" id="movieListToWatch">
+        <!-- to-watch movies will be rendered here -->
+      </div>
+      <div class="movieList" id="movieListWatched" style="display: none;">
+        <!-- watched movies will be rendered here -->
+      </div>
+
+      <div class="addMovieForm">
+        <input type="text" class="addMovieInput" id="newMovieName" placeholder="Film adı">
+        <input type="text" class="addMovieInput" id="newMovieUrl" placeholder="YouTube linki (istəyə bağlı)">
+        <button class="addMovieBtn" onclick="addMovie()">➕ Əlavə et</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- SOHBET -->
-    <button id="chatToggleBtn" class="chat-toggle-btn"><i class="fas fa-comment"></i></button>
-    <div id="overlayChat" class="overlay-chat hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <h3 style="color:white;"><i class="fas fa-comment-dots" style="color:#ff8a5c;"></i> Sohbet</h3>
-            <button id="closeChatBtn" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer;">&times;</button>
+<!-- Notification -->
+<div class="notification" id="notification">
+  <div class="notificationIcon" id="notificationIcon">✅</div>
+  <div class="notificationText" id="notificationText"></div>
+</div>
+
+<script>
+  // ========== FIREBASE KONFİQ ==========
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBgzimxxvNUWZTq3oFfW2pRIHwdT5eKic",
+    authDomain: "nimewebsite.firebaseapp.com",
+    databaseURL: "https://nimewebsite-default-rtdb.firebaseio.com",
+    projectId: "nimewebsite",
+    storageBucket: "nimewebsite.firebasestorage.app",
+    messagingSenderId: "29668822721",
+    appId: "1:29668822721:web:9b4b7b77a44ee600298e40",
+    measurementId: "G-KCK8M7TLCK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // ========== GLOBAL DƏYİŞƏNLƏR ==========
+  let username = localStorage.getItem('cineparty_username') || '';
+  let currentRoomId = null;
+  let currentRoomRef = null;
+  let userRef = null;
+  let chatRef = null;
+  let viewersRef = null;
+  let moviesRef = null;
+  let currentSource = 'youtube';
+  let localStream = null;
+  let peerConnections = {};  // WebRTC peer connections, key: target username
+  let ytPlayer = null;       // YouTube player instance
+  let isSyncing = false;     // Sinxronizasiya zamanı hadisələri göndərməmək üçün
+
+  // ========== İLKİN ==========
+  window.addEventListener('DOMContentLoaded', () => {
+    // Cinema intro animasiyası
+    setTimeout(() => document.getElementById('curtains').classList.add('open'), 1000);
+    setTimeout(() => document.getElementById('cinemaIntro').classList.add('hidden'), 3000);
+
+    // Yaddaşdan mövzu yüklə
+    const savedTheme = localStorage.getItem('cineparty_theme');
+    if (savedTheme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('themeSwitch').classList.add('active');
+    }
+
+    // İstifadəçi adı yoxla
+    if (!username) {
+      document.getElementById('usernameModal').classList.add('active');
+    } else {
+      document.getElementById('usernameModal').classList.remove('active');
+      document.getElementById('userAvatar').textContent = username[0].toUpperCase();
+      document.getElementById('userName').textContent = username;
+      document.getElementById('userInfo').style.display = 'flex';
+    }
+
+    // URL-də otaq varsa
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      setTimeout(() => joinRoom(hash), 500);
+    }
+
+    // Event listeners
+    document.getElementById('createRoomPassword').addEventListener('change', (e) => {
+      document.getElementById('passwordGroup').style.display = e.target.checked ? 'block' : 'none';
+    });
+    document.getElementById('usernameInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') setUsername(); });
+    document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    document.getElementById('videoUrlInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') loadYouTubeVideo(); });
+    document.getElementById('joinRoomCode').addEventListener('keypress', (e) => { if (e.key === 'Enter') joinRoomByCode(); });
+    document.getElementById('createRoomName').addEventListener('keypress', (e) => { if (e.key === 'Enter') createRoom(); });
+
+    // Açıq otaqları dinlə
+    database.ref('rooms').on('value', (snapshot) => {
+      const roomsData = snapshot.val();
+      if (roomsData) {
+        const rooms = Object.keys(roomsData).map(key => ({ id: key, ...roomsData[key] }));
+        updateSidebarRooms(rooms);
+      } else {
+        updateSidebarRooms([]);
+      }
+    });
+  });
+
+  // ========== İSTİFADƏÇİ ADI ==========
+  function setUsername() {
+    const input = document.getElementById('usernameInput');
+    const name = input.value.trim();
+    if (!name || name.length < 2) {
+      showNotification('⚠️ Adınızı daxil edin (ən az 2 hərf)!', '❌');
+      return;
+    }
+    username = name;
+    localStorage.setItem('cineparty_username', username);
+    document.getElementById('usernameModal').classList.remove('active');
+    document.getElementById('userAvatar').textContent = username[0].toUpperCase();
+    document.getElementById('userName').textContent = username;
+    document.getElementById('userInfo').style.display = 'flex';
+    showNotification(`Xoş gəlmisiniz, ${username}! 🎉`, '👋');
+  }
+
+  // ========== SIDEBAR ==========
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('active');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+  }
+  function toggleTheme() {
+    const html = document.documentElement;
+    const themeSwitch = document.getElementById('themeSwitch');
+    if (html.getAttribute('data-theme') === 'light') {
+      html.removeAttribute('data-theme');
+      themeSwitch.classList.remove('active');
+      localStorage.setItem('cineparty_theme', 'dark');
+    } else {
+      html.setAttribute('data-theme', 'light');
+      themeSwitch.classList.add('active');
+      localStorage.setItem('cineparty_theme', 'light');
+    }
+  }
+
+  function updateSidebarRooms(rooms) {
+    const list = document.getElementById('sidebarRoomList');
+    const count = document.getElementById('sidebarRoomCount');
+    count.textContent = rooms.length;
+    if (rooms.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Hələ otaq yoxdur</div>';
+      return;
+    }
+    list.innerHTML = rooms.map(room => `
+      <div class="roomItem" onclick="joinRoom('${room.id}')">
+        <div class="roomName">
+          <span>${room.type === 'private' ? '🔒' : '🌍'}</span>
+          <span>${room.name}</span>
+          ${room.password ? '<span class="roomBadge passwordBadge">🔐</span>' : ''}
         </div>
-        <div id="chatMessages" class="chat-messages">
-            <div style="color:#99a5c2; text-align:center;">💬 Bağlantı kurulunca mesajlar gelecek...</div>
+        <div class="roomMeta">
+          <span>👤 ${room.host}</span>
+          <span>👥 ${room.viewers ? Object.keys(room.viewers).length : 0}</span>
         </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Mesaj yaz...">
-            <button id="sendChatBtn" class="chat-send"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    `).join('');
+  }
+
+  // ========== OTAQ YARATMA ==========
+  function openCreateRoomModal() {
+    if (!username) { setUsername(); return; }
+    document.getElementById('createRoomModal').classList.add('active');
+  }
+  function closeCreateRoomModal() {
+    document.getElementById('createRoomModal').classList.remove('active');
+  }
+  function createRoom() {
+    const name = document.getElementById('createRoomName').value.trim();
+    const type = document.getElementById('createRoomType').value;
+    const hasPassword = document.getElementById('createRoomPassword').checked;
+    const password = hasPassword ? document.getElementById('createRoomPasswordInput').value.trim() : '';
+
+    if (!name) { showNotification('⚠️ Otaq adı daxil edin!', '❌'); return; }
+    if (hasPassword && !password) { showNotification('⚠️ Şifrə daxil edin!', '❌'); return; }
+
+    const roomRef = database.ref('rooms').push();
+    const roomId = roomRef.key;
+    const roomData = {
+      name, type,
+      host: username,
+      password: password || '',
+      viewers: { [username]: true },
+      videoUrl: '',
+      videoState: { playing: false, currentTime: 0, timestamp: Date.now() },
+      createdAt: firebase.database.ServerValue.TIMESTAMP
+    };
+    roomRef.set(roomData).then(() => {
+      closeCreateRoomModal();
+      joinRoom(roomId);
+    });
+  }
+
+  // ========== OTAĞA QOŞULMA ==========
+  function openJoinRoomModal() {
+    if (!username) { setUsername(); return; }
+    document.getElementById('joinRoomModal').classList.add('active');
+  }
+  function closeJoinRoomModal() {
+    document.getElementById('joinRoomModal').classList.remove('active');
+    document.getElementById('joinPasswordGroup').style.display = 'none';
+  }
+  function joinRoomByCode() {
+    const code = document.getElementById('joinRoomCode').value.trim();
+    const password = document.getElementById('joinRoomPassword').value.trim();
+    if (!code) { showNotification('⚠️ Otaq kodunu daxil edin!', '❌'); return; }
+    joinRoom(code, password);
+  }
+
+  function joinRoom(roomId, password = '') {
+    if (!username) { setUsername(); return; }
+
+    const roomRef = database.ref('rooms/' + roomId);
+    roomRef.get().then((snap) => {
+      if (!snap.exists()) {
+        showNotification('❌ Otaq tapılmadı!', '⚠️');
+        return;
+      }
+      const room = snap.val();
+      if (room.password && room.password !== password) {
+        document.getElementById('joinRoomCode').value = roomId;
+        document.getElementById('joinPasswordGroup').style.display = 'block';
+        openJoinRoomModal();
+        showNotification('🔐 Bu otaq şifrəlidir!', '🔒');
+        return;
+      }
+
+      // Otağa qoşul
+      currentRoomId = roomId;
+      currentRoomRef = roomRef;
+      viewersRef = database.ref('rooms/' + roomId + '/viewers');
+      chatRef = database.ref('rooms/' + roomId + '/messages');
+      moviesRef = database.ref('rooms/' + roomId + '/movies');
+
+      // İstifadəçini viewer-lərə əlavə et
+      viewersRef.child(username).set(true);
+
+      // UI yenilə
+      document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('watchRoom').classList.add('active');
+      document.getElementById('watchRoomTitle').innerHTML = `<span>🎬</span><span>${room.name}</span>`;
+      window.location.hash = roomId;
+      closeSidebar();
+      closeJoinRoomModal();
+
+      // Video varsa yüklə
+      if (room.videoUrl) {
+        document.getElementById('videoUrlInput').value = room.videoUrl;
+        loadYouTubeVideo();
+      }
+
+      // İzləyiciləri dinlə
+      viewersRef.on('value', (snap) => {
+        if (snap.exists()) {
+          const viewers = Object.keys(snap.val());
+          updateViewers(viewers);
+          // Əgər bu cihaz ekran paylaşırsa, yeni izləyici gələndə ona peer connection yarat
+          if (localStream && viewers.length > 0) {
+            viewers.forEach(v => {
+              if (v !== username && !peerConnections[v]) {
+                createPeerConnection(v);
+                sendOffer(v);
+              }
+            });
+          }
+        } else {
+          updateViewers([]);
+        }
+      });
+
+      // Chat mesajlarını dinlə
+      chatRef.on('child_added', (snap) => {
+        const msg = snap.val();
+        addMessage(msg.text, msg.author, msg.author === username, false);
+      });
+
+      // Video state dəyişikliyini dinlə (sinxronizasiya)
+      roomRef.child('videoState').on('value', (snap) => {
+        const state = snap.val();
+        if (state && ytPlayer && !isSyncing) {
+          isSyncing = true;
+          if (state.playing) {
+            ytPlayer.playVideo();
+            ytPlayer.seekTo(state.currentTime, true);
+          } else {
+            ytPlayer.pauseVideo();
+            ytPlayer.seekTo(state.currentTime, true);
+          }
+          setTimeout(() => { isSyncing = false; }, 500);
+        }
+      });
+
+      // Movie list dəyişikliyini dinlə
+      moviesRef.on('value', (snap) => {
+        const movies = snap.val();
+        renderMovieLists(movies);
+      });
+
+      // WebRTC signaling dinləyicilərini qur
+      setupAnswerListener();
+      setupCandidatesListener();
+
+      // Sistem mesajı
+      addMessage(`${username} otağa qoşuldu.`, 'Sistem', false, true);
+    });
+  }
+
+  function leaveRoom() {
+    if (!currentRoomId || !username) return;
+    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
+      // WebRTC bağlantılarını dayandır
+      stopScreenShare();
+
+      // İstifadəçini viewer-lərdən sil
+      database.ref('rooms/' + currentRoomId + '/viewers/' + username).remove().then(() => {
+        // Otaq boşdursa, otağı sil
+        database.ref('rooms/' + currentRoomId + '/viewers').once('value', (snap) => {
+          if (!snap.exists() || snap.numChildren() === 0) {
+            database.ref('rooms/' + currentRoomId).remove();
+          }
+        });
+      });
+
+      // Dinləyiciləri dayandır
+      if (currentRoomRef) currentRoomRef.off();
+      if (viewersRef) viewersRef.off();
+      if (chatRef) chatRef.off();
+      if (moviesRef) moviesRef.off();
+
+      currentRoomId = null;
+      document.getElementById('watchRoom').classList.remove('active');
+      document.getElementById('homeScreen').classList.remove('hidden');
+      window.location.hash = '';
+      showNotification('👋 Otaqdan çıxdınız', '🚪');
+    }
+  }
+
+  // ========== VİDEO MƏNBƏ SEÇİMİ ==========
+  function selectSource(source) {
+    currentSource = source;
+    document.getElementById('youtubeSourceBtn').classList.toggle('active', source === 'youtube');
+    document.getElementById('screenSourceBtn').classList.toggle('active', source === 'screen');
+    document.getElementById('youtubeControls').style.display = source === 'youtube' ? 'flex' : 'none';
+    document.getElementById('screenControls').style.display = source === 'screen' ? 'flex' : 'none';
+
+    // Video yerini təmizlə
+    const wrapper = document.getElementById('videoWrapper');
+    wrapper.innerHTML = `<div class="videoPlaceholder"><div class="placeholderIcon">${source === 'youtube' ? '📺' : '🖥️'}</div><div class="placeholderText">${source === 'youtube' ? 'YouTube linki daxil edin' : 'Ekran paylaşımını başladın'}</div></div>`;
+  }
+
+  // ========== YOUTUBE VİDEO YÜKLƏ ==========
+  function loadYouTubeVideo() {
+    const url = document.getElementById('videoUrlInput').value.trim();
+    if (!url) { showNotification('⚠️ YouTube linki daxil edin!', '❌'); return; }
+
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('embed/')[1]?.split('?')[0];
+    }
+
+    if (!videoId) { showNotification('⚠️ Düzgün YouTube linki deyil!', '❌'); return; }
+
+    // YouTube player yarat
+    const wrapper = document.getElementById('videoWrapper');
+    wrapper.innerHTML = `<div id="youtube-player"></div>`;
+    if (ytPlayer) ytPlayer.destroy();
+
+    ytPlayer = new YT.Player('youtube-player', {
+      height: '100%',
+      width: '100%',
+      videoId: videoId,
+      playerVars: { 'autoplay': 1, 'controls': 1 },
+      events: {
+        'onStateChange': onPlayerStateChange,
+        'onReady': onPlayerReady
+      }
+    });
+
+    // Firebase-ə yaz
+    if (currentRoomId) {
+      database.ref('rooms/' + currentRoomId + '/videoUrl').set(url);
+    }
+    showNotification('✅ Video yükləndi!', '🎬');
+  }
+
+  function onPlayerReady(event) {
+    // Firebase-də saxlanılmış vəziyyəti tətbiq et
+    if (currentRoomId) {
+      database.ref('rooms/' + currentRoomId + '/videoState').once('value', (snap) => {
+        const state = snap.val();
+        if (state) {
+          ytPlayer.seekTo(state.currentTime, true);
+          if (state.playing) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
+        }
+      });
+    }
+  }
+
+  function onPlayerStateChange(event) {
+    if (!currentRoomId || isSyncing) return;
+    const state = ytPlayer.getPlayerState();
+    const currentTime = ytPlayer.getCurrentTime();
+    const playing = (state === YT.PlayerState.PLAYING);
+    // Firebase-ə yaz
+    database.ref('rooms/' + currentRoomId + '/videoState').set({
+      playing: playing,
+      currentTime: currentTime,
+      timestamp: Date.now()
+    });
+  }
+
+  // Oynatma idarəsi (manual düymələr)
+  function syncPlay() {
+    if (ytPlayer) {
+      ytPlayer.playVideo();
+    }
+  }
+  function syncPause() {
+    if (ytPlayer) {
+      ytPlayer.pauseVideo();
+    }
+  }
+
+  // ========== EKRAN PAYLAŞIMI (WebRTC) ==========
+  async function startScreenShare() {
+    if (!currentRoomId) return;
+    try {
+      localStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'always' },
+        audio: true
+      });
+
+      const wrapper = document.getElementById('videoWrapper');
+      wrapper.innerHTML = '';
+      const video = document.createElement('video');
+      video.srcObject = localStream;
+      video.autoplay = true;
+      video.muted = true;
+      video.style.width = '100%';
+      video.style.height = '100%';
+      video.style.objectFit = 'contain';
+      wrapper.appendChild(video);
+
+      showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
+
+      // Otaqdakı bütün izləyicilər üçün peer connection yarat
+      viewersRef.once('value', (snap) => {
+        const viewers = snap.val() ? Object.keys(snap.val()) : [];
+        viewers.forEach(v => {
+          if (v !== username) {
+            createPeerConnection(v);
+            sendOffer(v);
+          }
+        });
+      });
+
+      localStream.getVideoTracks()[0].onended = () => {
+        stopScreenShare();
+      };
+    } catch (err) {
+      showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
+      console.error(err);
+    }
+  }
+
+  function createPeerConnection(targetUser) {
+    if (peerConnections[targetUser]) {
+      console.log('Peer connection already exists for', targetUser);
+      return peerConnections[targetUser];
+    }
+
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    });
+
+    peerConnections[targetUser] = pc;
+
+    // Yerel medya akışını ekle
+    if (localStream) {
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    }
+
+    // ICE candidate oluştuğunda Firebase'e yaz
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        database.ref(`rooms/${currentRoomId}/webrtc/candidates/${targetUser}`).push({
+          candidate: event.candidate.candidate,
+          sdpMid: event.candidate.sdpMid,
+          sdpMLineIndex: event.candidate.sdpMLineIndex
+        });
+      }
+    };
+
+    pc.onconnectionstatechange = () => {
+      console.log('Connection state with', targetUser, ':', pc.connectionState);
+    };
+
+    return pc;
+  }
+
+  async function sendOffer(targetUser) {
+    const pc = peerConnections[targetUser];
+    if (!pc) return;
+
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      database.ref(`rooms/${currentRoomId}/webrtc/offers/${targetUser}`).set({
+        sdp: offer.sdp,
+        type: offer.type
+      });
+    } catch (err) {
+      console.error('Offer creation error:', err);
+    }
+  }
+
+  function setupAnswerListener() {
+    // Kendi adımıza gelen cevapları dinle
+    const answerRef = database.ref(`rooms/${currentRoomId}/webrtc/answers/${username}`);
+    answerRef.on('value', async (snap) => {
+      const answer = snap.val();
+      if (!answer) return;
+      // Hangi kullanıcıdan geldiğini bilmiyoruz, ama tüm peer'lar için geçerli
+      // Aslında answer path'inde hedef kullanıcı olmalı, ama biz basit olsun diye hepsini deniyoruz.
+      // Daha iyisi: answer'ları gönderen kullanıcıya göre ayırmak.
+      // Bu örnekte, tüm peer'lara bu answer'ı set etmeye çalışacağız (doğru olanı bulana kadar).
+      for (let target in peerConnections) {
+        const pc = peerConnections[target];
+        if (pc.signalingState !== 'stable') {
+          try {
+            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+          } catch (e) {
+            // Belki bu peer için değildir
+          }
+        }
+      }
+    });
+  }
+
+  function setupCandidatesListener() {
+    // Kendi adımıza gelen ICE adaylarını dinle
+    const candidatesRef = database.ref(`rooms/${currentRoomId}/webrtc/candidates/${username}`);
+    candidatesRef.on('child_added', (snap) => {
+      const data = snap.val();
+      if (!data) return;
+      // Hangi peer'a ait olduğunu bilmiyoruz, tüm peer'lara eklemeyi dene
+      for (let target in peerConnections) {
+        const pc = peerConnections[target];
+        pc.addIceCandidate(new RTCIceCandidate(data)).catch(e => {});
+      }
+    });
+  }
+
+  // Karşı taraftan gelen offer'ları dinle (bu cihaz izleyici ise)
+  function setupOfferListener() {
+    const offerRef = database.ref(`rooms/${currentRoomId}/webrtc/offers/${username}`);
+    offerRef.on('value', async (snap) => {
+      const offer = snap.val();
+      if (!offer) return;
+      // Offer geldi, demek ki bu cihaz izleyici, host bize offer gönderdi.
+      const host = currentRoomRef ? currentRoomRef.host : null; // host adını bilmiyoruz, ama viewers'tan bulabiliriz
+      // Aslında host'u room'dan alabiliriz.
+      database.ref(`rooms/${currentRoomId}`).once('value', (snap) => {
+        const room = snap.val();
+        if (room && room.host) {
+          const hostUser = room.host;
+          const pc = createPeerConnection(hostUser);
+          pc.setRemoteDescription(new RTCSessionDescription(offer)).then(async () => {
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            database.ref(`rooms/${currentRoomId}/webrtc/answers/${hostUser}`).set({
+              sdp: answer.sdp,
+              type: answer.type
+            });
+          });
+        }
+      });
+    });
+  }
+
+  function stopScreenShare() {
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+    }
+    // Peer connections təmizlə
+    for (let id in peerConnections) {
+      peerConnections[id].close();
+    }
+    peerConnections = {};
+    // Firebase'deki signaling verilerini temizle (opsiyonel)
+    if (currentRoomId) {
+      database.ref(`rooms/${currentRoomId}/webrtc`).remove();
+    }
+    showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
+  }
+
+  // ========== İZLƏYİCİLƏR ==========
+  function updateViewers(viewers) {
+    const list = document.getElementById('viewersList');
+    const count = document.getElementById('viewerCount');
+    count.textContent = viewers.length;
+    list.innerHTML = viewers.map(v => `
+      <div class="viewerTag"><span>${v[0].toUpperCase()}</span><span>${v}</span></div>
+    `).join('');
+  }
+
+  // ========== CHAT ==========
+  function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text || !currentRoomId || !username) return;
+    const msg = { author: username, text: text, timestamp: firebase.database.ServerValue.TIMESTAMP };
+    database.ref('rooms/' + currentRoomId + '/messages').push(msg);
+    input.value = '';
+  }
+
+  function addMessage(text, author, isOwn, isSystem = false) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageEl = document.createElement('div');
+    messageEl.className = 'chatMessage' + (isOwn ? ' own' : '');
+    if (isSystem) {
+      messageEl.innerHTML = `<div style="width:100%; text-align:center; padding:8px; background:var(--surface-light); border-radius:12px; font-size:13px; color:var(--text-muted);">${text}</div>`;
+    } else {
+      const avatar = author[0].toUpperCase();
+      const time = new Date().toLocaleTimeString('az', { hour:'2-digit', minute:'2-digit' });
+      messageEl.innerHTML = `
+        <div class="messageAvatar">${avatar}</div>
+        <div class="messageBubble">
+          <div class="messageAuthor">${author}</div>
+          <div class="messageText">${text}</div>
+          <div class="messageTime">${time}</div>
         </div>
-    </div>
+      `;
+    }
+    messagesDiv.appendChild(messageEl);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 
-    <script>
-        (function() {
-            'use strict';
+  // ========== FİLM SİYAHISI ==========
+  let currentMovieTab = 'toWatch';
 
-            // -------------------- HATA YAKALAMA --------------------
-            try {
-                // ---------- URL Parametreleri ----------
-                const urlParams = new URLSearchParams(window.location.search);
-                const roomParam = urlParams.get('room');
-                const hostParam = urlParams.get('host');
-                const isHost = hostParam === 'true';
-                const roomCode = roomParam || '';
+  function showMovieTab(tab) {
+    currentMovieTab = tab;
+    document.getElementById('toWatchTab').classList.toggle('active', tab === 'toWatch');
+    document.getElementById('watchedTab').classList.toggle('active', tab === 'watched');
+    document.getElementById('movieListToWatch').style.display = tab === 'toWatch' ? 'flex' : 'none';
+    document.getElementById('movieListWatched').style.display = tab === 'watched' ? 'flex' : 'none';
+  }
 
-                // ---------- DOM Elementleri ----------
-                const homeView = document.getElementById('homeView');
-                const roomView = document.getElementById('roomView');
-                const roomCodeDisplay = document.getElementById('roomCodeDisplay');
-                const connectionStatusEl = document.getElementById('connectionStatus');
-                const roomMessage = document.getElementById('roomMessage');
-                const videoIdInput = document.getElementById('videoIdInput');
-                const loadVideoBtn = document.getElementById('loadVideoBtn');
-                const playPauseBtn = document.getElementById('playPauseBtn');
-                const seekBackBtn = document.getElementById('seekBackBtn');
-                const seekForwardBtn = document.getElementById('seekForwardBtn');
-                const seekSlider = document.getElementById('seekSlider');
-                const timeDisplay = document.getElementById('timeDisplay');
-                const screenShareBtn = document.getElementById('screenShareBtn');
-                const stopScreenShareBtn = document.getElementById('stopScreenShareBtn');
-                const screenVideo = document.getElementById('screenVideo');
-                const playerDiv = document.getElementById('player');
-                const videoSourceBadge = document.getElementById('videoSourceBadge');
-                const chatMessages = document.getElementById('chatMessages');
-                const chatInput = document.getElementById('chatInput');
-                const sendChatBtn = document.getElementById('sendChatBtn');
+  function renderMovieLists(moviesObj) {
+    if (!moviesObj) {
+      document.getElementById('movieListToWatch').innerHTML = '';
+      document.getElementById('movieListWatched').innerHTML = '';
+      return;
+    }
+    const movies = Object.keys(moviesObj).map(key => ({ id: key, ...moviesObj[key] }));
+    const toWatch = movies.filter(m => !m.watched);
+    const watched = movies.filter(m => m.watched);
 
-                // ---------- Global Değişkenler ----------
-                let peer = null;
-                let conn = null;
-                let mediaCall = null;
-                let player = null;
-                let isPlayerReady = false;
-                let isRemoteAction = false;
-                let currentVideoId = 'dQw4w9WgXcQ';
-                let seekUpdateInterval = null;
-                let localScreenStream = null;
+    renderMovieList('movieListToWatch', toWatch, false);
+    renderMovieList('movieListWatched', watched, true);
+  }
 
-                // ---------- PeerJS Konfigürasyonu (Sadece STUN, TURN eklemeden de çalışır) ----------
-                // En basit haliyle, sadece STUN. Her ağda bağlanmak için TURN gerekebilir ama basit NAT'ta STUN yeterlidir.
-                const peerOptions = {
-                    config: {
-                        iceServers: [
-                            { urls: 'stun:stun.l.google.com:19302' },
-                            { urls: 'stun:stun1.l.google.com:19302' }
-                        ]
-                    },
-                    debug: 2
-                };
+  function renderMovieList(containerId, movies, watchedStatus) {
+    const container = document.getElementById(containerId);
+    if (movies.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Film yoxdur</div>';
+      return;
+    }
+    container.innerHTML = movies.map(movie => `
+      <div class="movieItem">
+        <div class="movieInfo">
+          <div class="movieName">${movie.name}</div>
+          <div class="movieMeta">${movie.url ? '🔗 YouTube' : ''} • ${movie.addedBy}</div>
+        </div>
+        <div class="movieActions">
+          ${!watchedStatus ? `<button class="movieBtn watch" onclick="markAsWatched('${movie.id}')">✅</button>` : ''}
+          <button class="movieBtn delete" onclick="deleteMovie('${movie.id}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
 
-                // ---------- Yardımcı Fonksiyonlar ----------
-                function extractVideoId(urlOrId) {
-                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                    const match = urlOrId.match(regExp);
-                    return (match && match[2].length === 11) ? match[2] : urlOrId;
-                }
+  function addMovie() {
+    const name = document.getElementById('newMovieName').value.trim();
+    const url = document.getElementById('newMovieUrl').value.trim();
+    if (!name) { showNotification('⚠️ Film adı daxil edin!', '❌'); return; }
+    if (!currentRoomId) return;
+    const movie = {
+      name: name,
+      url: url,
+      watched: false,
+      addedBy: username,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    };
+    database.ref('rooms/' + currentRoomId + '/movies').push(movie);
+    document.getElementById('newMovieName').value = '';
+    document.getElementById('newMovieUrl').value = '';
+  }
 
-                function formatTime(seconds) {
-                    if (isNaN(seconds)) return '00:00';
-                    const m = Math.floor(seconds / 60);
-                    const s = Math.floor(seconds % 60);
-                    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                }
+  function markAsWatched(movieId) {
+    if (!currentRoomId) return;
+    database.ref('rooms/' + currentRoomId + '/movies/' + movieId + '/watched').set(true);
+  }
 
-                function setConnectionStatus(text, isConnected = false) {
-                    if (connectionStatusEl) {
-                        connectionStatusEl.innerHTML = isConnected 
-                            ? `<i class="fas fa-circle" style="color:#48ca7c;"></i> ${text}`
-                            : `<i class="fas fa-circle" style="color:#ffb347;"></i> ${text}`;
-                    }
-                }
+  function deleteMovie(movieId) {
+    if (!currentRoomId) return;
+    if (confirm('Bu filmi silmək istədiyinizə əminsiniz?')) {
+      database.ref('rooms/' + currentRoomId + '/movies/' + movieId).remove();
+    }
+  }
 
-                // ---------- Yetki Güncelleme ----------
-                function updateUIByRole() {
-                    if (!isHost) {
-                        videoIdInput.disabled = true;
-                        loadVideoBtn.disabled = true;
-                        playPauseBtn.disabled = true;
-                        seekBackBtn.disabled = true;
-                        seekForwardBtn.disabled = true;
-                        seekSlider.disabled = true;
-                        screenShareBtn.disabled = true;
-                        screenShareBtn.style.display = 'none';
-                        stopScreenShareBtn.style.display = 'none';
-                        roomMessage.innerHTML = '<i class="fas fa-eye"></i> İzleyici modu · Host kontrol ediyor.';
-                    } else {
-                        videoIdInput.disabled = false;
-                        loadVideoBtn.disabled = false;
-                        playPauseBtn.disabled = false;
-                        seekBackBtn.disabled = false;
-                        seekForwardBtn.disabled = false;
-                        seekSlider.disabled = false;
-                        screenShareBtn.disabled = false;
-                        screenShareBtn.style.display = 'flex';
-                        roomMessage.innerHTML = '<i class="fas fa-crown"></i> Host sensin · Videoyu sen kontrol ediyorsun.';
-                    }
-                }
+  // ========== PAYLAŞ ==========
+  function shareRoom() {
+    if (!currentRoomId) return;
+    const shareUrl = window.location.origin + window.location.pathname + '#' + currentRoomId;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showNotification('✅ Link kopyalandı! Sevgilinizə göndərin! 💕', '📋');
+    }).catch(() => {
+      prompt('Link kopyalana bilmədi. Manuel kopyalayın:', shareUrl);
+    });
+  }
 
-                // ---------- Veri Gönderme ----------
-                function sendMessage(obj) {
-                    if (conn && conn.open) {
-                        conn.send(obj);
-                    }
-                }
+  // ========== BİLDİRİŞ ==========
+  function showNotification(text, icon = '✅') {
+    const notif = document.getElementById('notification');
+    document.getElementById('notificationText').textContent = text;
+    document.getElementById('notificationIcon').textContent = icon;
+    notif.classList.add('show');
+    setTimeout(() => notif.classList.remove('show'), 3500);
+  }
 
-                // ---------- YouTube Player ----------
-                function initPlayer(videoId) {
-                    if (!window.YT) {
-                        setTimeout(() => initPlayer(videoId), 200);
-                        return;
-                    }
-                    if (player && player.destroy) player.destroy();
-                    player = new YT.Player('player', {
-                        videoId: videoId,
-                        playerVars: {
-                            autoplay: 0,
-                            controls: 0,
-                            disablekb: 1,
-                            fs: 0,
-                            modestbranding: 1,
-                            rel: 0,
-                            showinfo: 0
-                        },
-                        events: {
-                            onReady: onPlayerReady,
-                            onStateChange: onPlayerStateChange
-                        }
-                    });
-                    currentVideoId = videoId;
-                }
-
-                function onPlayerReady() {
-                    isPlayerReady = true;
-                    seekSlider.max = player.getDuration() || 100;
-                    if (isHost && conn) sendFullState();
-                    if (seekUpdateInterval) clearInterval(seekUpdateInterval);
-                    seekUpdateInterval = setInterval(() => {
-                        if (player && player.getCurrentTime) {
-                            const current = player.getCurrentTime();
-                            const duration = player.getDuration();
-                            seekSlider.value = current;
-                            timeDisplay.innerText = `${formatTime(current)} / ${formatTime(duration)}`;
-                            playPauseBtn.innerHTML = (player.getPlayerState() === YT.PlayerState.PLAYING) 
-                                ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-                        }
-                    }, 500);
-                }
-
-                function onPlayerStateChange(e) {
-                    if (!isRemoteAction && isHost && conn) {
-                        if (e.data === YT.PlayerState.PLAYING) {
-                            sendMessage({ type: 'play', time: player.getCurrentTime() });
-                        } else if (e.data === YT.PlayerState.PAUSED) {
-                            sendMessage({ type: 'pause', time: player.getCurrentTime() });
-                        }
-                    }
-                    isRemoteAction = false;
-                }
-
-                function sendFullState() {
-                    if (!player || !isPlayerReady || !conn) return;
-                    sendMessage({
-                        type: 'sync',
-                        videoId: currentVideoId,
-                        time: player.getCurrentTime(),
-                        playing: player.getPlayerState() === YT.PlayerState.PLAYING
-                    });
-                }
-
-                // ---------- Video Kaynağı ----------
-                function showYouTubeSource() {
-                    playerDiv.style.display = 'block';
-                    screenVideo.style.display = 'none';
-                    videoSourceBadge.innerHTML = '<i class="fab fa-youtube"></i> YouTube';
-                }
-
-                function showScreenSource() {
-                    playerDiv.style.display = 'none';
-                    screenVideo.style.display = 'block';
-                    videoSourceBadge.innerHTML = '<i class="fas fa-desktop"></i> Ekran Paylaşımı';
-                }
-
-                // ---------- Ekran Paylaşımı ----------
-                async function startScreenShare() {
-                    if (!isHost) return;
-                    try {
-                        localScreenStream = await navigator.mediaDevices.getDisplayMedia({ 
-                            video: true, 
-                            audio: false 
-                        });
-                        screenVideo.srcObject = localScreenStream;
-                        showScreenSource();
-                        
-                        screenShareBtn.style.display = 'none';
-                        stopScreenShareBtn.style.display = 'flex';
-                        
-                        if (conn && conn.peer) {
-                            mediaCall = peer.call(conn.peer, localScreenStream);
-                            mediaCall.on('close', () => stopScreenShare());
-                        }
-                        
-                        localScreenStream.getVideoTracks()[0].onended = () => stopScreenShare();
-                        sendMessage({ type: 'screen-start' });
-                    } catch (err) {
-                        console.error('Ekran paylaşım hatası:', err);
-                        alert('Ekran paylaşımı başlatılamadı: ' + err.message);
-                    }
-                }
-
-                function stopScreenShare() {
-                    if (localScreenStream) {
-                        localScreenStream.getTracks().forEach(t => t.stop());
-                        localScreenStream = null;
-                    }
-                    if (mediaCall) {
-                        mediaCall.close();
-                        mediaCall = null;
-                    }
-                    screenVideo.srcObject = null;
-                    showYouTubeSource();
-                    
-                    screenShareBtn.style.display = 'flex';
-                    stopScreenShareBtn.style.display = 'none';
-                    
-                    sendMessage({ type: 'screen-stop' });
-                }
-
-                // ---------- Sohbet ----------
-                function addChatMessage(text, isOwn = false, sender = 'Arkadaş') {
-                    const msgDiv = document.createElement('div');
-                    msgDiv.classList.add('message');
-                    if (isOwn) msgDiv.classList.add('own');
-                    const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-                    msgDiv.innerHTML = `${text}<br><small>${isOwn ? 'Sen' : sender} • ${time}</small>`;
-                    chatMessages.appendChild(msgDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-
-                function sendChatMessage() {
-                    const msg = chatInput.value.trim();
-                    if (!msg) return;
-                    addChatMessage(msg, true, 'Sen');
-                    sendMessage({ type: 'chat', message: msg });
-                    chatInput.value = '';
-                }
-
-                // ---------- PeerJS Başlat ----------
-                function initPeerForRoom() {
-                    if (!roomCode) return;
-
-                    if (isHost) {
-                        peer = new Peer(roomCode, peerOptions);
-                        peer.on('open', (id) => {
-                            setConnectionStatus('Host hazır, oda aktif', true);
-                        });
-                        peer.on('connection', (incomingConn) => {
-                            conn = incomingConn;
-                            conn.on('open', () => {
-                                setConnectionStatus('İzleyici bağlandı!', true);
-                                if (player && isPlayerReady) sendFullState();
-                                addChatMessage('İzleyici odaya katıldı.', false, 'Sistem');
-                            });
-                            conn.on('data', (data) => {
-                                if (data.type === 'requestState') sendFullState();
-                                else if (data.type === 'chat') addChatMessage(data.message, false, 'İzleyici');
-                            });
-                        });
-                        peer.on('error', (err) => {
-                            console.error('Peer hatası:', err);
-                            if (err.type === 'unavailable-id') {
-                                alert('Bu oda kodu zaten kullanımda! Lütfen tekrar oda oluşturun.');
-                                window.location.search = '';
-                            }
-                        });
-                    } else {
-                        peer = new Peer(peerOptions);
-                        peer.on('open', () => {
-                            setConnectionStatus('Bağlanıyor...', false);
-                            conn = peer.connect(roomCode);
-                            conn.on('open', () => {
-                                setConnectionStatus('Host ile bağlantı kuruldu!', true);
-                                conn.send({ type: 'requestState' });
-                                addChatMessage('Host ile bağlantı kuruldu!', false, 'Sistem');
-                            });
-                            conn.on('data', (data) => {
-                                if (data.type === 'sync') {
-                                    if (data.videoId && data.videoId !== currentVideoId) {
-                                        currentVideoId = data.videoId;
-                                        videoIdInput.value = currentVideoId;
-                                        if (player) {
-                                            isRemoteAction = true;
-                                            player.loadVideoById(currentVideoId, data.time || 0);
-                                        } else initPlayer(currentVideoId);
-                                    }
-                                    if (data.time !== undefined && player) {
-                                        isRemoteAction = true;
-                                        player.seekTo(data.time, true);
-                                    }
-                                    if (data.playing === true && player) {
-                                        isRemoteAction = true;
-                                        player.playVideo();
-                                    } else if (data.playing === false && player) {
-                                        isRemoteAction = true;
-                                        player.pauseVideo();
-                                    }
-                                } else if (data.type === 'play') {
-                                    isRemoteAction = true; player.playVideo(); if(data.time) player.seekTo(data.time, true);
-                                } else if (data.type === 'pause') {
-                                    isRemoteAction = true; player.pauseVideo(); if(data.time) player.seekTo(data.time, true);
-                                } else if (data.type === 'seek') {
-                                    isRemoteAction = true; player.seekTo(data.time, true);
-                                } else if (data.type === 'chat') {
-                                    addChatMessage(data.message, false, 'Host');
-                                } else if (data.type === 'screen-start') {
-                                    // Ekran paylaşımı başladı, video akışı call ile gelecek
-                                } else if (data.type === 'screen-stop') {
-                                    screenVideo.srcObject = null;
-                                    showYouTubeSource();
-                                }
-                            });
-                            conn.on('close', () => {
-                                setConnectionStatus('Bağlantı koptu', false);
-                                conn = null;
-                            });
-                        });
-                        peer.on('call', (call) => {
-                            call.answer();
-                            call.on('stream', (remoteStream) => {
-                                screenVideo.srcObject = remoteStream;
-                                showScreenSource();
-                            });
-                            call.on('close', () => {
-                                screenVideo.srcObject = null;
-                                showYouTubeSource();
-                            });
-                            mediaCall = call;
-                        });
-                    }
-                }
-
-                // ---------- Buton Olayları ----------
-                function bindEvents() {
-                    // Oda oluştur
-                    const createBtn = document.getElementById('createRoomBtn');
-                    if (createBtn) {
-                        createBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log('Oda oluştur tıklandı');
-                            // Geçici peer oluştur
-                            const tempPeer = new Peer(peerOptions);
-                            tempPeer.on('open', (id) => {
-                                console.log('Geçici peer ID:', id);
-                                window.location.search = `?room=${id}&host=true`;
-                                tempPeer.destroy();
-                            });
-                            tempPeer.on('error', (err) => {
-                                console.error('Geçici peer hatası:', err);
-                                alert('Oda oluşturulamadı. Lütfen tekrar deneyin.');
-                            });
-                        });
-                    }
-
-                    // Odaya katıl
-                    const joinBtn = document.getElementById('joinRoomBtn');
-                    if (joinBtn) {
-                        joinBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log('Odaya katıl tıklandı');
-                            const code = prompt('Oda kodunu girin:');
-                            if (code && code.trim()) {
-                                window.location.search = `?room=${code.trim()}&host=false`;
-                            }
-                        });
-                    }
-
-                    // Video yükle
-                    if (loadVideoBtn) {
-                        loadVideoBtn.addEventListener('click', () => {
-                            if (!isHost || !player) return;
-                            const id = extractVideoId(videoIdInput.value.trim());
-                            if (id.length === 11) {
-                                isRemoteAction = false;
-                                player.loadVideoById(id);
-                                currentVideoId = id;
-                                if (conn) sendFullState();
-                                showYouTubeSource();
-                            }
-                        });
-                    }
-
-                    // Oynat/Durdur
-                    if (playPauseBtn) {
-                        playPauseBtn.addEventListener('click', () => {
-                            if (!isHost || !player) return;
-                            if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-                                player.pauseVideo();
-                            } else {
-                                player.playVideo();
-                            }
-                        });
-                    }
-
-                    // Geri 10sn
-                    if (seekBackBtn) {
-                        seekBackBtn.addEventListener('click', () => {
-                            if (!isHost || !player) return;
-                            const current = player.getCurrentTime();
-                            player.seekTo(Math.max(0, current - 10), true);
-                            if (conn) sendMessage({ type: 'seek', time: player.getCurrentTime() });
-                        });
-                    }
-
-                    // İleri 10sn
-                    if (seekForwardBtn) {
-                        seekForwardBtn.addEventListener('click', () => {
-                            if (!isHost || !player) return;
-                            const current = player.getCurrentTime();
-                            player.seekTo(current + 10, true);
-                            if (conn) sendMessage({ type: 'seek', time: player.getCurrentTime() });
-                        });
-                    }
-
-                    // Slider
-                    if (seekSlider) {
-                        seekSlider.addEventListener('change', function() {
-                            if (!isHost || !player) return;
-                            player.seekTo(parseFloat(seekSlider.value), true);
-                            if (conn) sendMessage({ type: 'seek', time: parseFloat(seekSlider.value) });
-                        });
-                    }
-
-                    // Ekran paylaşımı
-                    if (screenShareBtn) {
-                        screenShareBtn.addEventListener('click', startScreenShare);
-                    }
-                    if (stopScreenShareBtn) {
-                        stopScreenShareBtn.addEventListener('click', stopScreenShare);
-                    }
-
-                    // Sohbet
-                    if (sendChatBtn) {
-                        sendChatBtn.addEventListener('click', sendChatMessage);
-                    }
-                    if (chatInput) {
-                        chatInput.addEventListener('keypress', (e) => {
-                            if (e.key === 'Enter') sendChatMessage();
-                        });
-                    }
-
-                    // Floating chat
-                    const chatToggle = document.getElementById('chatToggleBtn');
-                    const overlayChat = document.getElementById('overlayChat');
-                    const closeChat = document.getElementById('closeChatBtn');
-                    if (chatToggle) {
-                        chatToggle.addEventListener('click', () => {
-                            overlayChat.classList.toggle('hidden');
-                        });
-                    }
-                    if (closeChat) {
-                        closeChat.addEventListener('click', () => {
-                            overlayChat.classList.add('hidden');
-                        });
-                    }
-                }
-
-                // ---------- Başlangıç ----------
-                if (roomCode) {
-                    // Oda görünümünü göster
-                    homeView.classList.add('hidden');
-                    roomView.classList.remove('hidden');
-                    roomCodeDisplay.innerText = roomCode;
-                    updateUIByRole();
-
-                    // YouTube API
-                    if (!window.YT) {
-                        const tag = document.createElement('script');
-                        tag.src = 'https://www.youtube.com/iframe_api';
-                        document.head.appendChild(tag);
-                    }
-                    window.onYouTubeIframeAPIReady = () => initPlayer(currentVideoId);
-                    if (window.YT && window.YT.Player) initPlayer(currentVideoId);
-
-                    // PeerJS başlat
-                    initPeerForRoom();
-
-                    // Varsayılan YouTube
-                    showYouTubeSource();
-                } else {
-                    // Ana sayfa
-                    homeView.classList.remove('hidden');
-                    roomView.classList.add('hidden');
-                }
-
-                // Buton olaylarını bağla (hem ana sayfa hem oda sayfası için)
-                bindEvents();
-
-                // Temizlik
-                window.addEventListener('beforeunload', () => {
-                    if (peer) peer.destroy();
-                    if (seekUpdateInterval) clearInterval(seekUpdateInterval);
-                    if (localScreenStream) localScreenStream.getTracks().forEach(t => t.stop());
-                });
-
-            } catch (error) {
-                console.error('Kritik hata:', error);
-                alert('Bir hata oluştu: ' + error.message);
-            }
-        })();
-    </script>
+  // ========== HAQQINDA ==========
+  function showAbout() {
+    alert('🎬 CineParty Ultimate v6.0 (Firebase + WebRTC)\n\nSevdiyiniz insanlarla birlikdə film izləyin!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma (açıq/şəxsi, şifrəli)\n• Real-time chat\n• YouTube video sinxronizasiya (play/pause/seek)\n• Ekran paylaşımı (WebRTC)\n• Film siyahısı (izlənəcəklər/izlənilənlər)\n• Otaq link paylaşımı\n\n💕 Sevgilinizlə istifadə üçün mükəmməldir!');
+    closeSidebar();
+  }
+</script>
 </body>
 </html>
