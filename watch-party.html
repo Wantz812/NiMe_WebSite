@@ -12,7 +12,7 @@
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
-    /* (CSS kodu əvvəlki ilə eynidir, yer qənaəti üçün buraya təkrar yazmıram. Əvvəlki CSS-i olduğu kimi qoyun.) */
+    /* (Əvvəlki CSS-in eynidir, yer qənaəti üçün qısaldılmışdır) */
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     :root {
       --bg: #0a0a0f;
@@ -165,7 +165,7 @@
     }
     .userAvatar { width:36px; height:36px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
     .userName { font-weight:700; font-size:16px; }
-    /* ========== HOME SCREEN ========== */
+    /* ========== HOME SCREEN (LOBBY) ========== */
     .homeScreen { padding:40px 24px; max-width:1400px; margin:0 auto; }
     .homeScreen.hidden { display:none; }
     .hero {
@@ -191,6 +191,68 @@
     .ctaBtn.primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,255,255,0.3); }
     .ctaBtn.secondary { background:transparent; color:white; border:2px solid white; }
     .ctaBtn.secondary:hover { background:rgba(255,255,255,0.1); }
+
+    /* Public Movie List */
+    .publicMoviesSection {
+      background:var(--surface);
+      border-radius:16px;
+      padding:24px;
+      border:1px solid var(--border);
+      margin-top:24px;
+    }
+    .movieList {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      max-height:300px;
+      overflow-y:auto;
+      margin:16px 0;
+    }
+    .movieItem {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      background:var(--surface-light);
+      border-radius:12px;
+      border:2px solid var(--border);
+    }
+    .movieInfo { flex:1; }
+    .movieName { font-weight:700; font-size:16px; }
+    .movieMeta { font-size:12px; color:var(--text-muted); }
+    .movieActions { display:flex; gap:8px; }
+    .movieBtn {
+      width:36px; height:36px; border:none; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.3s; font-size:18px;
+    }
+    .movieBtn.vote { background:var(--accent); color:white; }
+    .addMovieForm {
+      display:flex;
+      gap:12px;
+      margin-top:16px;
+    }
+    .addMovieInput {
+      flex:1;
+      padding:12px 16px;
+      background:var(--surface-light);
+      border:2px solid var(--border);
+      border-radius:12px;
+      color:var(--text);
+      font-size:14px;
+    }
+    .addMovieBtn {
+      padding:12px 24px;
+      background:var(--primary);
+      border:none;
+      border-radius:12px;
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.3s;
+    }
+    .addMovieBtn:hover { background:var(--primary-dark); transform:translateY(-2px); }
+
     /* ========== MODALS ========== */
     .modal {
       position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:24px;
@@ -239,6 +301,7 @@
     .btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(99,102,241,0.4); }
     .btn.secondary { background:var(--surface-light); color:var(--text); }
     .btn.secondary:hover { background:var(--surface-hover); box-shadow:none; }
+
     /* ========== WATCH ROOM ========== */
     .watchRoom { display:none; min-height:100vh; padding:24px; }
     .watchRoom.active { display:block; }
@@ -321,26 +384,47 @@
     .chatInputField:focus { outline:none; border-color:var(--primary); }
     .chatSendBtn { padding:12px 20px; background:var(--primary); border:none; border-radius:12px; color:white; font-size:20px; cursor:pointer; transition:all 0.3s; }
     .chatSendBtn:hover { background:var(--primary-dark); transform:scale(1.05); }
-    /* ========== MOVIE LIST ========== */
+
+    /* ========== MOVIE LIST (room) ========== */
     .movieListSection {
-      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+      background:var(--surface);
+      border-radius:16px;
+      padding:24px;
+      border:1px solid var(--border);
       margin-top:24px;
     }
     .movieTabs {
-      display:flex; gap:12px; margin-bottom:20px;
+      display:flex;
+      gap:12px;
+      margin-bottom:20px;
     }
     .movieTab {
-      flex:1; padding:12px; background:var(--surface-light); border-radius:12px;
-      text-align:center; font-weight:700; cursor:pointer; transition:all 0.3s;
+      flex:1;
+      padding:12px;
+      background:var(--surface-light);
+      border-radius:12px;
+      text-align:center;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.3s;
     }
     .movieTab.active { background:var(--primary); color:white; }
     .movieList {
-      display:flex; flex-direction:column; gap:12px; max-height:300px; overflow-y:auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      max-height:300px;
+      overflow-y:auto;
     }
     .movieItem {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 16px; background:var(--surface-light); border-radius:12px;
-      border:2px solid var(--border); transition:all 0.3s;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      background:var(--surface-light);
+      border-radius:12px;
+      border:2px solid var(--border);
+      transition:all 0.3s;
     }
     .movieItem:hover { border-color:var(--primary); }
     .movieInfo { flex:1; }
@@ -356,17 +440,31 @@
     .movieBtn.delete { background:var(--error); color:white; }
     .movieBtn:hover { transform:scale(1.1); }
     .addMovieForm {
-      display:flex; gap:12px; margin-top:16px;
+      display:flex;
+      gap:12px;
+      margin-top:16px;
     }
     .addMovieInput {
-      flex:1; padding:12px 16px; background:var(--surface-light); border:2px solid var(--border);
-      border-radius:12px; color:var(--text); font-size:14px;
+      flex:1;
+      padding:12px 16px;
+      background:var(--surface-light);
+      border:2px solid var(--border);
+      border-radius:12px;
+      color:var(--text);
+      font-size:14px;
     }
     .addMovieBtn {
-      padding:12px 24px; background:var(--primary); border:none; border-radius:12px;
-      color:white; font-weight:700; cursor:pointer; transition:all 0.3s;
+      padding:12px 24px;
+      background:var(--primary);
+      border:none;
+      border-radius:12px;
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.3s;
     }
     .addMovieBtn:hover { background:var(--primary-dark); transform:translateY(-2px); }
+
     /* ========== NOTIFICATION ========== */
     .notification {
       position:fixed; top:24px; right:24px; background:var(--surface); padding:16px 24px;
@@ -377,11 +475,13 @@
     .notification.show { transform:translateX(0); }
     .notificationIcon { font-size:24px; }
     .notificationText { font-weight:600; font-size:15px; }
+
     /* ========== SCROLLBAR ========== */
     ::-webkit-scrollbar { width:10px; height:10px; }
     ::-webkit-scrollbar-track { background:var(--surface-light); border-radius:5px; }
     ::-webkit-scrollbar-thumb { background:var(--surface-hover); border-radius:5px; }
     ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
+
     @media (max-width:768px) {
       .heroTitle { font-size:36px; }
       .heroSubtitle { font-size:16px; }
@@ -451,7 +551,7 @@
   </div>
 </div>
 
-<!-- Home Screen -->
+<!-- Home Screen (Lobby) -->
 <div class="homeScreen" id="homeScreen">
   <div class="hero">
     <div class="heroContent">
@@ -461,6 +561,17 @@
         <button class="ctaBtn primary" onclick="openCreateRoomModal()"><span>➕</span><span>Yeni Otaq Yarat</span></button>
         <button class="ctaBtn secondary" onclick="openJoinRoomModal()"><span>🔗</span><span>Otağa Qoşul</span></button>
       </div>
+    </div>
+  </div>
+
+  <!-- Public Movie List -->
+  <div class="publicMoviesSection">
+    <h2 class="cardTitle">📽️ Ümumi Film Siyahısı</h2>
+    <div class="movieList" id="publicMovieList"></div>
+    <div class="addMovieForm">
+      <input type="text" class="addMovieInput" id="publicMovieName" placeholder="Film adı">
+      <input type="text" class="addMovieInput" id="publicMovieUrl" placeholder="YouTube linki (istəyə bağlı)">
+      <button class="addMovieBtn" onclick="addPublicMovie()">➕ Təklif et</button>
     </div>
   </div>
 </div>
@@ -570,7 +681,7 @@
           <button class="btn" onclick="startScreenShare()"><span>🖥️</span><span>Ekran Paylaşımını Başlat</span></button>
         </div>
 
-        <!-- Video playback controls (sinxronizasiya üçün) -->
+        <!-- Playback controls -->
         <div style="display:flex; gap:12px; margin-top:12px;" id="playbackControls">
           <button class="btn secondary" onclick="syncPlay()" style="flex:1;" id="playPauseBtn">▶️ Oynat</button>
           <button class="btn secondary" onclick="syncPause()" style="flex:1;" id="pauseBtn">⏸️ Dayandır</button>
@@ -593,26 +704,22 @@
       </div>
     </div>
 
-    <!-- Movie List Section -->
+    <!-- Room Movie List -->
     <div class="movieListSection">
-      <div class="cardTitle"><span>🎬</span><span>Film Siyahısı</span></div>
+      <div class="cardTitle"><span>🎬</span><span>Otaq Film Siyahısı</span></div>
 
       <div class="movieTabs">
-        <div class="movieTab active" onclick="showMovieTab('toWatch')" id="toWatchTab">📋 İzlənəcəklər</div>
-        <div class="movieTab" onclick="showMovieTab('watched')" id="watchedTab">✅ İzlənilənlər</div>
+        <div class="movieTab active" onclick="showRoomMovieTab('toWatch')" id="roomToWatchTab">📋 İzlənəcəklər</div>
+        <div class="movieTab" onclick="showRoomMovieTab('watched')" id="roomWatchedTab">✅ İzlənilənlər</div>
       </div>
 
-      <div class="movieList" id="movieListToWatch">
-        <!-- to-watch movies will be rendered here -->
-      </div>
-      <div class="movieList" id="movieListWatched" style="display: none;">
-        <!-- watched movies will be rendered here -->
-      </div>
+      <div class="movieList" id="roomMovieListToWatch"></div>
+      <div class="movieList" id="roomMovieListWatched" style="display: none;"></div>
 
       <div class="addMovieForm">
-        <input type="text" class="addMovieInput" id="newMovieName" placeholder="Film adı">
-        <input type="text" class="addMovieInput" id="newMovieUrl" placeholder="YouTube linki (istəyə bağlı)">
-        <button class="addMovieBtn" onclick="addMovie()">➕ Əlavə et</button>
+        <input type="text" class="addMovieInput" id="roomNewMovieName" placeholder="Film adı">
+        <input type="text" class="addMovieInput" id="roomNewMovieUrl" placeholder="YouTube linki (istəyə bağlı)">
+        <button class="addMovieBtn" onclick="addRoomMovie()">➕ Əlavə et</button>
       </div>
     </div>
   </div>
@@ -646,12 +753,15 @@
   let userRef = null;
   let chatRef = null;
   let viewersRef = null;
-  let moviesRef = null;
+  let roomMoviesRef = null;
   let currentSource = 'youtube';
   let localStream = null;
-  let peerConnections = {};  // WebRTC peer connections, key: target username
+  let peerConnections = {};  // WebRTC peer connections
   let ytPlayer = null;       // YouTube player instance
   let isSyncing = false;     // Sinxronizasiya zamanı hadisələri göndərməmək üçün
+
+  // Signaling üçün Firebase yolları
+  let signalingRef = null;
 
   // ========== İLKİN ==========
   window.addEventListener('DOMContentLoaded', () => {
@@ -701,6 +811,11 @@
       } else {
         updateSidebarRooms([]);
       }
+    });
+
+    // Ümumi film siyahısını dinlə
+    database.ref('publicMovies').on('value', (snap) => {
+      renderPublicMovies(snap.val());
     });
   });
 
@@ -765,6 +880,46 @@
         </div>
       </div>
     `).join('');
+  }
+
+  // ========== ÜMUMİ FİLM SİYAHISI ==========
+  function renderPublicMovies(moviesObj) {
+    const container = document.getElementById('publicMovieList');
+    if (!moviesObj) {
+      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Hələ film yoxdur</div>';
+      return;
+    }
+    const movies = Object.keys(moviesObj).map(key => ({ id: key, ...moviesObj[key] }));
+    container.innerHTML = movies.map(movie => `
+      <div class="movieItem">
+        <div class="movieInfo">
+          <div class="movieName">${movie.name}</div>
+          <div class="movieMeta">${movie.url ? '🔗 YouTube' : ''} • ${movie.addedBy} • 🗳️ ${movie.votes || 0}</div>
+        </div>
+        <div class="movieActions">
+          <button class="movieBtn vote" onclick="votePublicMovie('${movie.id}')">👍</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function addPublicMovie() {
+    const name = document.getElementById('publicMovieName').value.trim();
+    const url = document.getElementById('publicMovieUrl').value.trim();
+    if (!name) { showNotification('⚠️ Film adı daxil edin!', '❌'); return; }
+    database.ref('publicMovies').push({
+      name: name,
+      url: url,
+      addedBy: username,
+      votes: 0,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+    document.getElementById('publicMovieName').value = '';
+    document.getElementById('publicMovieUrl').value = '';
+  }
+
+  function votePublicMovie(movieId) {
+    database.ref('publicMovies/' + movieId + '/votes').transaction((votes) => (votes || 0) + 1);
   }
 
   // ========== OTAQ YARATMA ==========
@@ -840,7 +995,8 @@
       currentRoomRef = roomRef;
       viewersRef = database.ref('rooms/' + roomId + '/viewers');
       chatRef = database.ref('rooms/' + roomId + '/messages');
-      moviesRef = database.ref('rooms/' + roomId + '/movies');
+      roomMoviesRef = database.ref('rooms/' + roomId + '/movies');
+      signalingRef = database.ref('rooms/' + roomId + '/signaling');
 
       // İstifadəçini viewer-lərə əlavə et
       viewersRef.child(username).set(true);
@@ -864,15 +1020,6 @@
         if (snap.exists()) {
           const viewers = Object.keys(snap.val());
           updateViewers(viewers);
-          // Əgər bu cihaz ekran paylaşırsa, yeni izləyici gələndə ona peer connection yarat
-          if (localStream && viewers.length > 0) {
-            viewers.forEach(v => {
-              if (v !== username && !peerConnections[v]) {
-                createPeerConnection(v);
-                sendOffer(v);
-              }
-            });
-          }
         } else {
           updateViewers([]);
         }
@@ -900,15 +1047,10 @@
         }
       });
 
-      // Movie list dəyişikliyini dinlə
-      moviesRef.on('value', (snap) => {
-        const movies = snap.val();
-        renderMovieLists(movies);
+      // Room movie list dəyişikliyini dinlə
+      roomMoviesRef.on('value', (snap) => {
+        renderRoomMovieLists(snap.val());
       });
-
-      // WebRTC signaling dinləyicilərini qur
-      setupAnswerListener();
-      setupCandidatesListener();
 
       // Sistem mesajı
       addMessage(`${username} otağa qoşuldu.`, 'Sistem', false, true);
@@ -918,9 +1060,6 @@
   function leaveRoom() {
     if (!currentRoomId || !username) return;
     if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      // WebRTC bağlantılarını dayandır
-      stopScreenShare();
-
       // İstifadəçini viewer-lərdən sil
       database.ref('rooms/' + currentRoomId + '/viewers/' + username).remove().then(() => {
         // Otaq boşdursa, otağı sil
@@ -935,7 +1074,11 @@
       if (currentRoomRef) currentRoomRef.off();
       if (viewersRef) viewersRef.off();
       if (chatRef) chatRef.off();
-      if (moviesRef) moviesRef.off();
+      if (roomMoviesRef) roomMoviesRef.off();
+      if (signalingRef) signalingRef.off();
+
+      // WebRTC bağlantılarını dayandır
+      stopScreenShare();
 
       currentRoomId = null;
       document.getElementById('watchRoom').classList.remove('active');
@@ -974,7 +1117,6 @@
 
     if (!videoId) { showNotification('⚠️ Düzgün YouTube linki deyil!', '❌'); return; }
 
-    // YouTube player yarat
     const wrapper = document.getElementById('videoWrapper');
     wrapper.innerHTML = `<div id="youtube-player"></div>`;
     if (ytPlayer) ytPlayer.destroy();
@@ -990,7 +1132,6 @@
       }
     });
 
-    // Firebase-ə yaz
     if (currentRoomId) {
       database.ref('rooms/' + currentRoomId + '/videoUrl').set(url);
     }
@@ -998,7 +1139,6 @@
   }
 
   function onPlayerReady(event) {
-    // Firebase-də saxlanılmış vəziyyəti tətbiq et
     if (currentRoomId) {
       database.ref('rooms/' + currentRoomId + '/videoState').once('value', (snap) => {
         const state = snap.val();
@@ -1015,7 +1155,6 @@
     const state = ytPlayer.getPlayerState();
     const currentTime = ytPlayer.getCurrentTime();
     const playing = (state === YT.PlayerState.PLAYING);
-    // Firebase-ə yaz
     database.ref('rooms/' + currentRoomId + '/videoState').set({
       playing: playing,
       currentTime: currentTime,
@@ -1023,17 +1162,8 @@
     });
   }
 
-  // Oynatma idarəsi (manual düymələr)
-  function syncPlay() {
-    if (ytPlayer) {
-      ytPlayer.playVideo();
-    }
-  }
-  function syncPause() {
-    if (ytPlayer) {
-      ytPlayer.pauseVideo();
-    }
-  }
+  function syncPlay() { if (ytPlayer) ytPlayer.playVideo(); }
+  function syncPause() { if (ytPlayer) ytPlayer.pauseVideo(); }
 
   // ========== EKRAN PAYLAŞIMI (WebRTC) ==========
   async function startScreenShare() {
@@ -1057,15 +1187,12 @@
 
       showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
 
-      // Otaqdakı bütün izləyicilər üçün peer connection yarat
-      viewersRef.once('value', (snap) => {
-        const viewers = snap.val() ? Object.keys(snap.val()) : [];
-        viewers.forEach(v => {
-          if (v !== username) {
-            createPeerConnection(v);
-            sendOffer(v);
-          }
-        });
+      // WebRTC signaling: hər bir izləyici üçün peer connection yarat
+      viewersRef.on('child_added', async (snap) => {
+        const viewer = snap.key;
+        if (viewer !== username) {
+          await createPeerConnection(viewer);
+        }
       });
 
       localStream.getVideoTracks()[0].onended = () => {
@@ -1077,121 +1204,41 @@
     }
   }
 
-  function createPeerConnection(targetUser) {
-    if (peerConnections[targetUser]) {
-      console.log('Peer connection already exists for', targetUser);
-      return peerConnections[targetUser];
-    }
-
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
-      ]
+  async function createPeerConnection(targetUser) {
+    const peer = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     });
 
-    peerConnections[targetUser] = pc;
+    peerConnections[targetUser] = peer;
 
-    // Yerel medya akışını ekle
-    if (localStream) {
-      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    }
+    // Lokal stream-i əlavə et
+    localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
 
-    // ICE candidate oluştuğunda Firebase'e yaz
-    pc.onicecandidate = (event) => {
+    // ICE namizədlərini topla və Firebase-ə yaz
+    peer.onicecandidate = (event) => {
       if (event.candidate) {
-        database.ref(`rooms/${currentRoomId}/webrtc/candidates/${targetUser}`).push({
-          candidate: event.candidate.candidate,
-          sdpMid: event.candidate.sdpMid,
-          sdpMLineIndex: event.candidate.sdpMLineIndex
-        });
+        database.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/ice`).push(event.candidate.toJSON());
       }
     };
 
-    pc.onconnectionstatechange = () => {
-      console.log('Connection state with', targetUser, ':', pc.connectionState);
-    };
+    // Offer yarat və Firebase-ə yaz
+    const offer = await peer.createOffer();
+    await peer.setLocalDescription(offer);
+    database.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/offer`).set(offer.toJSON());
 
-    return pc;
-  }
-
-  async function sendOffer(targetUser) {
-    const pc = peerConnections[targetUser];
-    if (!pc) return;
-
-    try {
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      database.ref(`rooms/${currentRoomId}/webrtc/offers/${targetUser}`).set({
-        sdp: offer.sdp,
-        type: offer.type
-      });
-    } catch (err) {
-      console.error('Offer creation error:', err);
-    }
-  }
-
-  function setupAnswerListener() {
-    // Kendi adımıza gelen cevapları dinle
-    const answerRef = database.ref(`rooms/${currentRoomId}/webrtc/answers/${username}`);
-    answerRef.on('value', async (snap) => {
-      const answer = snap.val();
-      if (!answer) return;
-      // Hangi kullanıcıdan geldiğini bilmiyoruz, ama tüm peer'lar için geçerli
-      // Aslında answer path'inde hedef kullanıcı olmalı, ama biz basit olsun diye hepsini deniyoruz.
-      // Daha iyisi: answer'ları gönderen kullanıcıya göre ayırmak.
-      // Bu örnekte, tüm peer'lara bu answer'ı set etmeye çalışacağız (doğru olanı bulana kadar).
-      for (let target in peerConnections) {
-        const pc = peerConnections[target];
-        if (pc.signalingState !== 'stable') {
-          try {
-            await pc.setRemoteDescription(new RTCSessionDescription(answer));
-          } catch (e) {
-            // Belki bu peer için değildir
-          }
-        }
+    // Qarşı tərəfin answer və ice namizədlərini dinlə
+    const userSignalingRef = database.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}`);
+    userSignalingRef.child('answer').on('value', async (snap) => {
+      if (snap.exists() && !peer.currentRemoteDescription) {
+        const answer = new RTCSessionDescription(snap.val());
+        await peer.setRemoteDescription(answer);
       }
     });
-  }
-
-  function setupCandidatesListener() {
-    // Kendi adımıza gelen ICE adaylarını dinle
-    const candidatesRef = database.ref(`rooms/${currentRoomId}/webrtc/candidates/${username}`);
-    candidatesRef.on('child_added', (snap) => {
-      const data = snap.val();
-      if (!data) return;
-      // Hangi peer'a ait olduğunu bilmiyoruz, tüm peer'lara eklemeyi dene
-      for (let target in peerConnections) {
-        const pc = peerConnections[target];
-        pc.addIceCandidate(new RTCIceCandidate(data)).catch(e => {});
+    userSignalingRef.child('ice').on('child_added', async (snap) => {
+      if (snap.exists()) {
+        const candidate = new RTCIceCandidate(snap.val());
+        await peer.addIceCandidate(candidate);
       }
-    });
-  }
-
-  // Karşı taraftan gelen offer'ları dinle (bu cihaz izleyici ise)
-  function setupOfferListener() {
-    const offerRef = database.ref(`rooms/${currentRoomId}/webrtc/offers/${username}`);
-    offerRef.on('value', async (snap) => {
-      const offer = snap.val();
-      if (!offer) return;
-      // Offer geldi, demek ki bu cihaz izleyici, host bize offer gönderdi.
-      const host = currentRoomRef ? currentRoomRef.host : null; // host adını bilmiyoruz, ama viewers'tan bulabiliriz
-      // Aslında host'u room'dan alabiliriz.
-      database.ref(`rooms/${currentRoomId}`).once('value', (snap) => {
-        const room = snap.val();
-        if (room && room.host) {
-          const hostUser = room.host;
-          const pc = createPeerConnection(hostUser);
-          pc.setRemoteDescription(new RTCSessionDescription(offer)).then(async () => {
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            database.ref(`rooms/${currentRoomId}/webrtc/answers/${hostUser}`).set({
-              sdp: answer.sdp,
-              type: answer.type
-            });
-          });
-        }
-      });
     });
   }
 
@@ -1200,15 +1247,11 @@
       localStream.getTracks().forEach(track => track.stop());
       localStream = null;
     }
-    // Peer connections təmizlə
     for (let id in peerConnections) {
       peerConnections[id].close();
     }
     peerConnections = {};
-    // Firebase'deki signaling verilerini temizle (opsiyonel)
-    if (currentRoomId) {
-      database.ref(`rooms/${currentRoomId}/webrtc`).remove();
-    }
+    if (viewersRef) viewersRef.off('child_added');
     showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
   }
 
@@ -1254,32 +1297,32 @@
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
-  // ========== FİLM SİYAHISI ==========
-  let currentMovieTab = 'toWatch';
+  // ========== OTAQ FİLM SİYAHISI ==========
+  let currentRoomMovieTab = 'toWatch';
 
-  function showMovieTab(tab) {
-    currentMovieTab = tab;
-    document.getElementById('toWatchTab').classList.toggle('active', tab === 'toWatch');
-    document.getElementById('watchedTab').classList.toggle('active', tab === 'watched');
-    document.getElementById('movieListToWatch').style.display = tab === 'toWatch' ? 'flex' : 'none';
-    document.getElementById('movieListWatched').style.display = tab === 'watched' ? 'flex' : 'none';
+  function showRoomMovieTab(tab) {
+    currentRoomMovieTab = tab;
+    document.getElementById('roomToWatchTab').classList.toggle('active', tab === 'toWatch');
+    document.getElementById('roomWatchedTab').classList.toggle('active', tab === 'watched');
+    document.getElementById('roomMovieListToWatch').style.display = tab === 'toWatch' ? 'flex' : 'none';
+    document.getElementById('roomMovieListWatched').style.display = tab === 'watched' ? 'flex' : 'none';
   }
 
-  function renderMovieLists(moviesObj) {
+  function renderRoomMovieLists(moviesObj) {
     if (!moviesObj) {
-      document.getElementById('movieListToWatch').innerHTML = '';
-      document.getElementById('movieListWatched').innerHTML = '';
+      document.getElementById('roomMovieListToWatch').innerHTML = '';
+      document.getElementById('roomMovieListWatched').innerHTML = '';
       return;
     }
     const movies = Object.keys(moviesObj).map(key => ({ id: key, ...moviesObj[key] }));
     const toWatch = movies.filter(m => !m.watched);
     const watched = movies.filter(m => m.watched);
 
-    renderMovieList('movieListToWatch', toWatch, false);
-    renderMovieList('movieListWatched', watched, true);
+    renderRoomMovieList('roomMovieListToWatch', toWatch, false);
+    renderRoomMovieList('roomMovieListWatched', watched, true);
   }
 
-  function renderMovieList(containerId, movies, watchedStatus) {
+  function renderRoomMovieList(containerId, movies, watchedStatus) {
     const container = document.getElementById(containerId);
     if (movies.length === 0) {
       container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Film yoxdur</div>';
@@ -1292,16 +1335,16 @@
           <div class="movieMeta">${movie.url ? '🔗 YouTube' : ''} • ${movie.addedBy}</div>
         </div>
         <div class="movieActions">
-          ${!watchedStatus ? `<button class="movieBtn watch" onclick="markAsWatched('${movie.id}')">✅</button>` : ''}
-          <button class="movieBtn delete" onclick="deleteMovie('${movie.id}')">🗑️</button>
+          ${!watchedStatus ? `<button class="movieBtn watch" onclick="markRoomMovieAsWatched('${movie.id}')">✅</button>` : ''}
+          <button class="movieBtn delete" onclick="deleteRoomMovie('${movie.id}')">🗑️</button>
         </div>
       </div>
     `).join('');
   }
 
-  function addMovie() {
-    const name = document.getElementById('newMovieName').value.trim();
-    const url = document.getElementById('newMovieUrl').value.trim();
+  function addRoomMovie() {
+    const name = document.getElementById('roomNewMovieName').value.trim();
+    const url = document.getElementById('roomNewMovieUrl').value.trim();
     if (!name) { showNotification('⚠️ Film adı daxil edin!', '❌'); return; }
     if (!currentRoomId) return;
     const movie = {
@@ -1312,16 +1355,16 @@
       timestamp: firebase.database.ServerValue.TIMESTAMP
     };
     database.ref('rooms/' + currentRoomId + '/movies').push(movie);
-    document.getElementById('newMovieName').value = '';
-    document.getElementById('newMovieUrl').value = '';
+    document.getElementById('roomNewMovieName').value = '';
+    document.getElementById('roomNewMovieUrl').value = '';
   }
 
-  function markAsWatched(movieId) {
+  function markRoomMovieAsWatched(movieId) {
     if (!currentRoomId) return;
     database.ref('rooms/' + currentRoomId + '/movies/' + movieId + '/watched').set(true);
   }
 
-  function deleteMovie(movieId) {
+  function deleteRoomMovie(movieId) {
     if (!currentRoomId) return;
     if (confirm('Bu filmi silmək istədiyinizə əminsiniz?')) {
       database.ref('rooms/' + currentRoomId + '/movies/' + movieId).remove();
@@ -1350,7 +1393,7 @@
 
   // ========== HAQQINDA ==========
   function showAbout() {
-    alert('🎬 CineParty Ultimate v6.0 (Firebase + WebRTC)\n\nSevdiyiniz insanlarla birlikdə film izləyin!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma (açıq/şəxsi, şifrəli)\n• Real-time chat\n• YouTube video sinxronizasiya (play/pause/seek)\n• Ekran paylaşımı (WebRTC)\n• Film siyahısı (izlənəcəklər/izlənilənlər)\n• Otaq link paylaşımı\n\n💕 Sevgilinizlə istifadə üçün mükəmməldir!');
+    alert('🎬 CineParty Ultimate v7.0 (Firebase + WebRTC)\n\nSevdiyiniz insanlarla birlikdə film izləyin!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma (açıq/şəxsi, şifrəli)\n• Real-time chat\n• YouTube video sinxronizasiya (play/pause/seek)\n• Ekran paylaşımı (WebRTC ilə tam işlək)\n• Ümumi film siyahısı (oy vermə ilə)\n• Otaq film siyahısı (izlənəcəklər/izlənilənlər)\n• Otaq link paylaşımı\n\n💕 Sevgilinizlə istifadə üçün mükəmməldir!');
     closeSidebar();
   }
 </script>
