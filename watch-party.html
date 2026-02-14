@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <title>🎬 CineParty - Tam Ekran Paylaşımı</title>
+  <title>🎬 CineParty - Sinxron İzləmə</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <!-- Firebase SDK -->
@@ -12,7 +12,6 @@
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
-    /* (Aynı CSS, kısaltmadım, tam halini koruyorum) */
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     :root {
       --bg: #0a0a0f;
@@ -27,614 +26,279 @@
       --text: #ffffff;
       --text-muted: #9ca3af;
       --border: rgba(255,255,255,0.1);
-      --gold: #ffd700;
-    }
-    [data-theme="light"] {
-      --bg: #f5f5f5;
-      --surface: #ffffff;
-      --surface-light: #f9fafb;
-      --surface-hover: #e5e7eb;
-      --text: #1a1a24;
-      --text-muted: #6b7280;
-      --border: rgba(0,0,0,0.1);
     }
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
-      overflow-x: hidden;
-      transition: background 0.3s, color 0.3s;
     }
-    /* ========== CINEMA INTRO ========== */
-    .cinemaIntro {
-      position: fixed; inset:0; background:#000; z-index:99999;
-      display:flex; align-items:center; justify-content:center;
-      opacity:1; transition:opacity 1s;
-    }
-    .cinemaIntro.hidden { opacity:0; pointer-events:none; }
-    .curtains {
-      position:absolute; inset:0; display:flex;
-    }
-    .curtain {
-      flex:1; background:linear-gradient(90deg, #8b0000 0%, #a00 50%, #8b0000 100%);
-      position:relative; transition:transform 2s cubic-bezier(0.645,0.045,0.355,1);
-      box-shadow:inset 0 0 50px rgba(0,0,0,0.5);
-    }
-    .curtain::before {
-      content:''; position:absolute; inset:0;
-      background:repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.1) 40px, rgba(0,0,0,0.1) 80px);
-    }
-    .curtain.left { border-right:3px solid var(--gold); }
-    .curtain.right { border-left:3px solid var(--gold); }
-    .curtains.open .curtain.left { transform:translateX(-100%); }
-    .curtains.open .curtain.right { transform:translateX(100%); }
-    .introContent {
-      position:relative; z-index:1; text-align:center;
-      animation:fadeInScale 1.5s ease;
-    }
-    @keyframes fadeInScale {
-      0%{opacity:0; transform:scale(0.8);}
-      100%{opacity:1; transform:scale(1);}
-    }
-    .introLogo { font-size:120px; margin-bottom:20px; animation:bounce 2s infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
-    .introTitle {
-      font-size:64px; font-weight:900;
-      background:linear-gradient(135deg, var(--gold), #fff, var(--gold));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-      margin-bottom:16px; letter-spacing:4px;
-    }
-    .introSubtitle { font-size:20px; color:#fff; opacity:0.9; letter-spacing:8px; text-transform:uppercase; }
-    /* ========== SIDEBAR ========== */
-    .sidebar {
-      position:fixed; left:-320px; top:0; bottom:0; width:320px;
-      background:var(--surface); border-right:1px solid var(--border);
-      z-index:9000; transition:left 0.3s cubic-bezier(0.4,0,0.2,1);
-      overflow-y:auto; box-shadow:4px 0 20px rgba(0,0,0,0.3);
-    }
-    .sidebar.open { left:0; }
-    .sidebarHeader {
-      padding:24px 20px; background:linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color:white; border-bottom:1px solid var(--border);
-      display:flex; justify-content:space-between; align-items:center;
-    }
-    .sidebarTitle { font-size:26px; font-weight:900; margin-bottom:4px; display:flex; align-items:center; gap:12px; }
-    .sidebarSubtitle { font-size:13px; font-weight:600; opacity:0.9; }
-    .sidebarCloseBtn {
-      width:40px; height:40px; background:rgba(255,255,255,0.2); border:none; border-radius:50%;
-      color:white; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:all 0.3s;
-    }
-    .sidebarCloseBtn:hover { background:rgba(255,255,255,0.3); transform:rotate(90deg); }
-    .sidebarSection { padding:20px; border-bottom:1px solid var(--border); }
-    .sectionTitle {
-      font-size:13px; font-weight:800; color:var(--text-muted);
-      margin-bottom:12px; text-transform:uppercase; letter-spacing:1.5px;
-    }
-    .themeToggle {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 16px; background:var(--surface-light); border-radius:12px; margin-bottom:8px; font-weight:700;
-    }
-    .themeSwitch {
-      width:56px; height:28px; background:var(--surface-hover); border-radius:14px; position:relative; cursor:pointer;
-      transition:background 0.3s;
-    }
-    .themeSwitch.active { background:var(--primary); }
-    .themeSwitch::after {
-      content:'☾'; position:absolute; left:2px; top:2px; width:24px; height:24px; background:white; border-radius:50%;
-      transition:all 0.3s; display:flex; align-items:center; justify-content:center; font-size:14px;
-    }
-    .themeSwitch.active::after { left:30px; content:'☀'; }
-    .roomList { max-height:300px; overflow-y:auto; }
-    .roomItem {
-      padding:14px 16px; background:var(--surface-light); border-radius:12px; margin-bottom:10px;
-      cursor:pointer; transition:all 0.3s; border:2px solid var(--border);
-    }
-    .roomItem:hover { background:var(--surface-hover); border-color:var(--primary); transform:translateY(-2px); }
-    .roomName { font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-    .roomMeta { display:flex; gap:12px; font-size:12px; color:var(--text-muted); }
-    .roomBadge { padding:2px 8px; background:var(--primary); border-radius:8px; font-size:10px; font-weight:600; }
-    .passwordBadge { background:var(--error); }
-    /* ========== OVERLAY ========== */
-    .overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:8000;
-      opacity:0; pointer-events:none; transition:opacity 0.3s; backdrop-filter:blur(4px);
-    }
-    .overlay.active { opacity:1; pointer-events:all; }
-    /* ========== TOP BAR ========== */
-    .topBar {
-      position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--border);
-      padding:16px 24px; display:flex; justify-content:space-between; align-items:center; z-index:100;
-      box-shadow:0 2px 10px rgba(0,0,0,0.1);
-    }
-    .menuBtn {
-      width:48px; height:48px; background:var(--primary); border:none; border-radius:12px;
-      color:white; font-size:24px; cursor:pointer; transition:all 0.3s;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .menuBtn:hover { background:var(--primary-dark); transform:scale(1.05); }
-    .logo { display:flex; align-items:center; gap:12px; }
-    .logoIcon { font-size:32px; }
-    .logoText {
-      font-size:24px; font-weight:900; background:linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    }
-    .userInfo {
-      display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface-light);
-      border-radius:24px;
-    }
-    .userAvatar { width:36px; height:36px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
-    .userName { font-weight:700; font-size:16px; }
-    /* ========== HOME SCREEN (LOBBY) ========== */
-    .homeScreen { padding:40px 24px; max-width:1400px; margin:0 auto; }
-    .homeScreen.hidden { display:none; }
-    .hero {
-      text-align:center; margin-bottom:48px; padding:60px 24px;
-      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      border-radius:24px; position:relative; overflow:hidden;
-    }
-    .hero::before {
-      content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
-      background:radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation:pulse 4s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{transform:scale(1); opacity:0.5;} 50%{transform:scale(1.1); opacity:0.8;} }
-    .heroContent { position:relative; z-index:1; }
-    .heroTitle { font-size:56px; font-weight:900; margin-bottom:16px; color:white; text-shadow:0 4px 20px rgba(0,0,0,0.3); }
-    .heroSubtitle { font-size:20px; color:rgba(255,255,255,0.9); margin-bottom:32px; }
-    .ctaButtons { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
-    .ctaBtn {
-      padding:16px 32px; border:none; border-radius:12px; font-size:18px; font-weight:700;
-      cursor:pointer; transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px;
-    }
-    .ctaBtn.primary { background:white; color:var(--primary); }
-    .ctaBtn.primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,255,255,0.3); }
-    .ctaBtn.secondary { background:transparent; color:white; border:2px solid white; }
-    .ctaBtn.secondary:hover { background:rgba(255,255,255,0.1); }
-
-    /* Public Movie List */
-    .publicMoviesSection {
-      background:var(--surface);
-      border-radius:16px;
-      padding:24px;
-      border:1px solid var(--border);
-      margin-top:24px;
-    }
-    .movieList {
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      max-height:300px;
-      overflow-y:auto;
-      margin:16px 0;
-    }
-    .movieItem {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 16px;
-      background:var(--surface-light);
-      border-radius:12px;
-      border:2px solid var(--border);
-    }
-    .movieInfo { flex:1; }
-    .movieName { font-weight:700; font-size:16px; }
-    .movieMeta { font-size:12px; color:var(--text-muted); }
-    .movieActions { display:flex; gap:8px; }
-    .movieBtn {
-      width:36px; height:36px; border:none; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; transition:all 0.3s; font-size:18px;
-    }
-    .movieBtn.vote { background:var(--accent); color:white; }
-    .addMovieForm {
-      display:flex;
-      gap:12px;
-      margin-top:16px;
-    }
-    .addMovieInput {
-      flex:1;
-      padding:12px 16px;
-      background:var(--surface-light);
-      border:2px solid var(--border);
-      border-radius:12px;
-      color:var(--text);
-      font-size:14px;
-    }
-    .addMovieBtn {
-      padding:12px 24px;
-      background:var(--primary);
-      border:none;
-      border-radius:12px;
-      color:white;
-      font-weight:700;
-      cursor:pointer;
-      transition:all 0.3s;
-    }
-    .addMovieBtn:hover { background:var(--primary-dark); transform:translateY(-2px); }
-
-    /* ========== MODALS ========== */
-    .modal {
-      position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:24px;
-    }
-    .modal.active { display:flex; }
-    .modalOverlay { position:absolute; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); }
-    .modalContent {
-      background:var(--surface); border-radius:24px; padding:40px; max-width:500px; width:100%;
-      position:relative; z-index:1; box-shadow:0 20px 60px rgba(0,0,0,0.5);
-      animation:modalSlideIn 0.3s ease;
-    }
-    @keyframes modalSlideIn { from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
-    .modalHeader {
-      display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;
-    }
-    .modalTitle { font-size:28px; font-weight:900; display:flex; align-items:center; gap:12px; }
-    .modalClose {
-      width:40px; height:40px; background:var(--surface-light); border:none; border-radius:50%;
-      color:var(--text); font-size:24px; cursor:pointer; transition:all 0.3s;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .modalClose:hover { background:var(--error); color:white; transform:rotate(90deg); }
-    .formGroup { margin-bottom:24px; }
-    .formLabel {
-      display:block; font-size:14px; font-weight:700; color:var(--text-muted);
-      margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;
-    }
-    .formInput, .formSelect {
-      width:100%; padding:14px 18px; background:var(--surface-light); border:2px solid var(--border);
-      border-radius:12px; color:var(--text); font-size:16px; font-family:'Poppins',sans-serif;
-      transition:all 0.3s;
-    }
-    .formInput:focus, .formSelect:focus { outline:none; border-color:var(--primary); background:var(--surface-hover); }
-    .checkbox {
-      display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px;
-      background:var(--surface-light); border-radius:12px; transition:all 0.3s;
-    }
-    .checkbox:hover { background:var(--surface-hover); }
-    .checkboxInput { width:20px; height:20px; cursor:pointer; }
-    .checkboxLabel { font-size:15px; font-weight:600; }
+    /* Sadə və təmiz dizayn */
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .hidden { display: none !important; }
     .btn {
-      width:100%; padding:16px; background:linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border:none; border-radius:12px; color:white; font-size:18px; font-weight:700; cursor:pointer;
-      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      background: var(--primary);
+      color: white;
     }
-    .btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(99,102,241,0.4); }
-    .btn.secondary { background:var(--surface-light); color:var(--text); }
-    .btn.secondary:hover { background:var(--surface-hover); box-shadow:none; }
-
-    /* ========== WATCH ROOM ========== */
-    .watchRoom { display:none; min-height:100vh; padding:24px; }
-    .watchRoom.active { display:block; }
-    .watchContainer { max-width:1600px; margin:0 auto; }
-    .watchHeader {
-      background:var(--surface); border-radius:16px; padding:24px; margin-bottom:24px;
-      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
-      border:1px solid var(--border);
+    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
     }
-    .watchRoomTitle { font-size:28px; font-weight:900; display:flex; align-items:center; gap:12px; }
-    .watchActions { display:flex; gap:12px; flex-wrap:wrap; }
-    .actionBtn {
-      padding:12px 24px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;
-      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px;
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: var(--surface-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 16px;
     }
-    .actionBtn.share { background:var(--success); color:white; }
-    .actionBtn.leave { background:var(--error); color:white; }
-    .actionBtn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.3); }
-    .watchGrid {
-      display:grid; grid-template-columns:1fr 400px; gap:24px; margin-bottom:24px;
+    /* Ana səhifə */
+    #homeScreen { text-align: center; }
+    .hero {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 60px 20px;
+      border-radius: 24px;
+      margin-bottom: 30px;
     }
-    @media (max-width:1024px) { .watchGrid { grid-template-columns:1fr; } }
-    .videoSection {
-      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+    .hero h1 { font-size: 48px; margin-bottom: 10px; }
+    .hero p { font-size: 18px; opacity: 0.9; }
+    .button-group { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    /* Otaq səhifəsi */
+    #roomScreen { display: none; }
+    #roomScreen.active { display: block; }
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
-    .cardTitle { font-size:18px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-    .videoWrapper {
-      background:#000; border-radius:12px; overflow:hidden; aspect-ratio:16/9;
-      margin-bottom:20px; position:relative;
+    .video-container {
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      margin-bottom: 20px;
     }
-    .videoWrapper iframe, .videoWrapper video { width:100%; height:100%; border:none; }
-    .videoPlaceholder {
-      width:100%; height:100%; display:flex; flex-direction:column; align-items:center;
-      justify-content:center; color:var(--text-muted);
+    #videoPlayer {
+      width: 100%;
+      height: 100%;
     }
-    .placeholderIcon { font-size:80px; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
-    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-    .placeholderText { font-size:18px; font-weight:600; }
-    .sourceSelection {
-      display:flex; gap:12px; margin-bottom:20px;
+    .source-selector {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
     }
-    .sourceBtn {
-      flex:1; padding:14px; background:var(--surface-light); border:2px solid var(--border);
-      border-radius:12px; color:var(--text); font-size:15px; font-weight:700; cursor:pointer;
-      transition:all 0.3s; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px;
+    .source-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--surface-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
     }
-    .sourceBtn.active { background:var(--primary); border-color:var(--primary); color:white; }
-    .sourceBtn:hover:not(.active) { background:var(--surface-hover); border-color:var(--primary); }
-    .videoControls { display:flex; gap:12px; margin-top:12px; }
-    .videoInput { flex:1; padding:14px 18px; background:var(--surface-light); border:2px solid var(--border); border-radius:12px; color:var(--text); font-size:15px; font-family:'Poppins',sans-serif; transition:all 0.3s; }
-    .videoInput:focus { outline:none; border-color:var(--primary); }
-    .videoBtn { padding:14px 24px; background:var(--success); border:none; border-radius:12px; color:white; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s; font-family:'Poppins',sans-serif; white-space:nowrap; }
-    .videoBtn:hover { background:#059669; transform:translateY(-2px); }
-    .chatSection { display:flex; flex-direction:column; gap:24px; }
-    .viewersCard {
-      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
+    .source-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
     }
-    .viewersList { display:flex; flex-wrap:wrap; gap:8px; }
-    .viewerTag { padding:8px 16px; background:var(--surface-light); border-radius:20px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; }
-    .chatCard {
-      background:var(--surface); border-radius:16px; padding:24px; border:1px solid var(--border);
-      display:flex; flex-direction:column; height:500px;
+    .viewers-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
     }
-    .chatMessages { flex:1; overflow-y:auto; margin-bottom:16px; display:flex; flex-direction:column; gap:12px; }
-    .chatMessage { display:flex; gap:12px; }
-    .chatMessage.own { flex-direction:row-reverse; }
-    .messageAvatar { width:36px; height:36px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
-    .chatMessage.own .messageAvatar { background:var(--accent); }
-    .messageBubble { flex:1; max-width:70%; }
-    .messageAuthor { font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px; }
-    .messageText { padding:12px 16px; background:var(--surface-light); border-radius:12px; font-size:14px; word-wrap:break-word; }
-    .chatMessage.own .messageText { background:var(--primary); color:white; }
-    .messageTime { font-size:11px; color:var(--text-muted); margin-top:4px; }
-    .chatInput { display:flex; gap:12px; }
-    .chatInputField {
-      flex:1; padding:12px 18px; background:var(--surface-light); border:2px solid var(--border);
-      border-radius:12px; color:var(--text); font-size:14px; font-family:'Poppins',sans-serif;
-      resize:none; transition:all 0.3s;
+    .viewer-tag {
+      background: var(--surface-light);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
     }
-    .chatInputField:focus { outline:none; border-color:var(--primary); }
-    .chatSendBtn { padding:12px 20px; background:var(--primary); border:none; border-radius:12px; color:white; font-size:20px; cursor:pointer; transition:all 0.3s; }
-    .chatSendBtn:hover { background:var(--primary-dark); transform:scale(1.05); }
-
-    /* ========== NOTIFICATION ========== */
-    .notification {
-      position:fixed; top:24px; right:24px; background:var(--surface); padding:16px 24px;
-      border-radius:12px; border:2px solid var(--border); box-shadow:0 10px 40px rgba(0,0,0,0.3);
-      display:flex; align-items:center; gap:12px; z-index:99999;
-      transform:translateX(400px); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    .chat-box {
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 20px;
     }
-    .notification.show { transform:translateX(0); }
-    .notificationIcon { font-size:24px; }
-    .notificationText { font-weight:600; font-size:15px; }
-
-    /* ========== SCROLLBAR ========== */
-    ::-webkit-scrollbar { width:10px; height:10px; }
-    ::-webkit-scrollbar-track { background:var(--surface-light); border-radius:5px; }
-    ::-webkit-scrollbar-thumb { background:var(--surface-hover); border-radius:5px; }
-    ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
-
-    @media (max-width:768px) {
-      .heroTitle { font-size:36px; }
-      .heroSubtitle { font-size:16px; }
-      .ctaButtons { flex-direction:column; }
-      .ctaBtn { width:100%; }
-      .watchGrid { grid-template-columns:1fr; }
-      .chatCard { height:400px; }
-      .modalContent { padding:24px; }
-      .addMovieForm { flex-direction:column; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .message {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .message.own { flex-direction: row-reverse; }
+    .message .avatar {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .message .bubble {
+      max-width: 70%;
+      background: var(--surface-light);
+      padding: 10px 15px;
+      border-radius: 12px;
+    }
+    .message.own .bubble { background: var(--primary); }
+    .chat-input { display: flex; gap: 10px; }
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--surface);
+      padding: 30px;
+      border-radius: 24px;
+      max-width: 400px;
+      width: 90%;
     }
   </style>
 </head>
 <body>
 
-<!-- Cinema Intro -->
-<div class="cinemaIntro" id="cinemaIntro">
-  <div class="curtains" id="curtains">
-    <div class="curtain left"></div>
-    <div class="curtain right"></div>
-  </div>
-  <div class="introContent">
-    <div class="introLogo">🎬</div>
-    <div class="introTitle">CineParty</div>
-    <div class="introSubtitle">Birlikdə İzləyin</div>
-  </div>
-</div>
-
-<!-- Overlay -->
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebarHeader">
-    <div class="sidebarTitleWrapper">
-      <div class="sidebarTitle"><span>🎬</span><span>CineParty</span></div>
-      <div class="sidebarSubtitle">Birlikdə Film İzləyin</div>
-    </div>
-    <button class="sidebarCloseBtn" onclick="closeSidebar()">✕</button>
-  </div>
-  <div class="sidebarSection">
-    <div class="sectionTitle">MÖVZU</div>
-    <div class="themeToggle">
-      <span>🌙 Qaranlıq Mövzu</span>
-      <div class="themeSwitch" id="themeSwitch" onclick="toggleTheme()"></div>
-    </div>
-  </div>
-  <div class="sidebarSection">
-    <div class="sectionTitle">OTAQLAR (<span id="sidebarRoomCount">0</span>)</div>
-    <div class="roomList" id="sidebarRoomList"></div>
-  </div>
-  <div class="sidebarSection">
-    <div class="sectionTitle">HAQQINDA</div>
-    <div class="menuItem" onclick="showAbout()"><span class="menuIcon">ℹ️</span><span>Haqqında</span></div>
-  </div>
-</div>
-
-<!-- Top Bar -->
-<div class="topBar">
-  <button class="menuBtn" onclick="openSidebar()">☰</button>
-  <div class="logo">
-    <div class="logoIcon">🎬</div>
-    <div class="logoText">CineParty</div>
-  </div>
-  <div class="userInfo" id="userInfo" style="display: none;">
-    <div class="userAvatar" id="userAvatar">U</div>
-    <div class="userName" id="userName">İstifadəçi</div>
-  </div>
-</div>
-
-<!-- Home Screen (Lobby) -->
-<div class="homeScreen" id="homeScreen">
+<!-- Ana səhifə -->
+<div id="homeScreen" class="container">
   <div class="hero">
-    <div class="heroContent">
-      <div class="heroTitle">🎬 CineParty</div>
-      <div class="heroSubtitle">Sevdiyiniz insanlarla birlikdə film izləyin</div>
-      <div class="ctaButtons">
-        <button class="ctaBtn primary" onclick="openCreateRoomModal()"><span>➕</span><span>Yeni Otaq Yarat</span></button>
-        <button class="ctaBtn secondary" onclick="openJoinRoomModal()"><span>🔗</span><span>Otağa Qoşul</span></button>
+    <h1>🎬 CineParty</h1>
+    <p>Birlikdə film izləməyin ən asan yolu</p>
+  </div>
+  <div class="button-group">
+    <button class="btn" onclick="showCreateRoomModal()">➕ Otaq Yarat</button>
+    <button class="btn" onclick="showJoinRoomModal()">🔗 Otağa Qoşul</button>
+  </div>
+
+  <!-- Ümumi film siyahısı (isteğe bağlı) -->
+  <div class="card" style="margin-top: 30px;">
+    <h2>📽️ Ümumi Film Siyahısı</h2>
+    <div id="publicMovieList" style="margin: 20px 0;"></div>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" id="movieName" placeholder="Film adı">
+      <input type="text" id="movieUrl" placeholder="YouTube linki">
+      <button class="btn" onclick="addMovie()">Əlavə et</button>
+    </div>
+  </div>
+</div>
+
+<!-- Otaq səhifəsi -->
+<div id="roomScreen">
+  <div class="container">
+    <div class="room-header">
+      <h2 id="roomTitle">🎬 Otaq</h2>
+      <div>
+        <button class="btn" onclick="shareRoom()">📤 Paylaş</button>
+        <button class="btn" onclick="leaveRoom()" style="background: var(--error);">🚪 Çıx</button>
       </div>
     </div>
-  </div>
 
-  <!-- Public Movie List -->
-  <div class="publicMoviesSection">
-    <h2 class="cardTitle">📽️ Ümumi Film Siyahısı</h2>
-    <div class="movieList" id="publicMovieList"></div>
-    <div class="addMovieForm">
-      <input type="text" class="addMovieInput" id="publicMovieName" placeholder="Film adı">
-      <input type="text" class="addMovieInput" id="publicMovieUrl" placeholder="YouTube linki (istəyə bağlı)">
-      <button class="addMovieBtn" onclick="addPublicMovie()">➕ Təklif et</button>
+    <div class="video-container">
+      <div id="videoPlayer"></div>
     </div>
-  </div>
-</div>
 
-<!-- Username Modal (ilk açılışda) -->
-<div class="modal" id="usernameModal">
-  <div class="modalOverlay"></div>
-  <div class="modalContent">
-    <div class="modalHeader"><div class="modalTitle"><span>👤</span><span>Adınızı Daxil Edin</span></div></div>
-    <div class="formGroup">
-      <label class="formLabel">İstifadəçi Adı</label>
-      <input type="text" class="formInput" id="usernameInput" placeholder="Adınızı yazın" maxlength="20">
+    <div class="source-selector">
+      <div class="source-btn active" onclick="selectSource('youtube')" id="youtubeBtn">📺 YouTube</div>
+      <div class="source-btn" onclick="selectSource('screen')" id="screenBtn">🖥️ Ekran Paylaş</div>
     </div>
-    <button class="btn" onclick="setUsername()"><span>🚀</span><span>Başla</span></button>
-  </div>
-</div>
 
-<!-- Create Room Modal -->
-<div class="modal" id="createRoomModal">
-  <div class="modalOverlay" onclick="closeCreateRoomModal()"></div>
-  <div class="modalContent">
-    <div class="modalHeader">
-      <div class="modalTitle"><span>➕</span><span>Yeni Otaq Yarat</span></div>
-      <button class="modalClose" onclick="closeCreateRoomModal()">✕</button>
-    </div>
-    <div class="formGroup">
-      <label class="formLabel">Otaq Adı</label>
-      <input type="text" class="formInput" id="createRoomName" placeholder="Məsələn: Film Gecəsi" maxlength="30">
-    </div>
-    <div class="formGroup">
-      <label class="formLabel">Növ</label>
-      <select class="formSelect" id="createRoomType">
-        <option value="public">🌍 Açıq (Hamı görə bilər)</option>
-        <option value="private">🔒 Şəxsi (Yalnız link ilə)</option>
-      </select>
-    </div>
-    <div class="formGroup">
-      <label class="checkbox">
-        <input type="checkbox" class="checkboxInput" id="createRoomPassword">
-        <span class="checkboxLabel">🔐 Şifrə əlavə et</span>
-      </label>
-    </div>
-    <div class="formGroup" id="passwordGroup" style="display: none;">
-      <label class="formLabel">Şifrə</label>
-      <input type="password" class="formInput" id="createRoomPasswordInput" placeholder="Şifrə daxil edin" maxlength="20">
-    </div>
-    <button class="btn" onclick="createRoom()"><span>🎬</span><span>Otaq Yarat</span></button>
-  </div>
-</div>
-
-<!-- Join Room Modal -->
-<div class="modal" id="joinRoomModal">
-  <div class="modalOverlay" onclick="closeJoinRoomModal()"></div>
-  <div class="modalContent">
-    <div class="modalHeader">
-      <div class="modalTitle"><span>🔗</span><span>Otağa Qoşul</span></div>
-      <button class="modalClose" onclick="closeJoinRoomModal()">✕</button>
-    </div>
-    <div class="formGroup">
-      <label class="formLabel">Otaq Kodu</label>
-      <input type="text" class="formInput" id="joinRoomCode" placeholder="Otaq kodunu daxil edin" maxlength="20">
-    </div>
-    <div class="formGroup" id="joinPasswordGroup" style="display: none;">
-      <label class="formLabel">Şifrə</label>
-      <input type="password" class="formInput" id="joinRoomPassword" placeholder="Şifrə daxil edin" maxlength="20">
-    </div>
-    <button class="btn" onclick="joinRoomByCode()"><span>🚪</span><span>Qoşul</span></button>
-  </div>
-</div>
-
-<!-- Watch Room -->
-<div class="watchRoom" id="watchRoom">
-  <div class="watchContainer">
-    <div class="watchHeader">
-      <div class="watchRoomTitle" id="watchRoomTitle"><span>🎬</span><span>Film Otağı</span></div>
-      <div class="watchActions">
-        <button class="actionBtn share" onclick="shareRoom()"><span>📤</span><span>Paylaş</span></button>
-        <button class="actionBtn leave" onclick="leaveRoom()"><span>🚪</span><span>Çıx</span></button>
+    <div id="youtubeControls">
+      <div style="display: flex; gap: 10px; margin: 20px 0;">
+        <input type="text" id="videoUrl" placeholder="YouTube video linki">
+        <button class="btn" onclick="loadVideo()">Yüklə</button>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button class="btn" onclick="syncPlay()">▶️ Oynat</button>
+        <button class="btn" onclick="syncPause()">⏸️ Dayandır</button>
       </div>
     </div>
-    <div class="watchGrid">
-      <div class="videoSection">
-        <div class="cardTitle"><span>📺</span><span>Video Player</span></div>
 
-        <div class="sourceSelection">
-          <button class="sourceBtn active" onclick="selectSource('youtube')" id="youtubeSourceBtn">
-            <span>📺</span><span>YouTube</span>
-          </button>
-          <button class="sourceBtn" onclick="selectSource('screen')" id="screenSourceBtn">
-            <span>🖥️</span><span>Ekran Paylaş</span>
-          </button>
-        </div>
+    <div id="screenControls" style="display: none; margin: 20px 0;">
+      <button class="btn" onclick="startScreenShare()">🖥️ Ekran Paylaşımını Başlat</button>
+    </div>
 
-        <div class="videoWrapper" id="videoWrapper">
-          <div class="videoPlaceholder" id="videoPlaceholder">
-            <div class="placeholderIcon">🎬</div>
-            <div class="placeholderText">Mənbə seçin və video yükləyin</div>
-          </div>
-        </div>
-
-        <div class="videoControls" id="youtubeControls">
-          <input type="text" class="videoInput" id="videoUrlInput" placeholder="YouTube video linki">
-          <button class="videoBtn" onclick="loadYouTubeVideo()"><span>▶️</span><span>Yüklə</span></button>
-        </div>
-
-        <div class="videoControls" id="screenControls" style="display: none;">
-          <button class="btn" onclick="startScreenShare()"><span>🖥️</span><span>Ekran Paylaşımını Başlat</span></button>
-        </div>
-
-        <!-- Playback controls -->
-        <div style="display:flex; gap:12px; margin-top:12px;" id="playbackControls">
-          <button class="btn secondary" onclick="syncPlay()" style="flex:1;" id="playPauseBtn">▶️ Oynat</button>
-          <button class="btn secondary" onclick="syncPause()" style="flex:1;" id="pauseBtn">⏸️ Dayandır</button>
-        </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div class="card">
+        <h3>👥 İzləyicilər (<span id="viewerCount">1</span>)</h3>
+        <div class="viewers-list" id="viewersList"></div>
       </div>
 
-      <div class="chatSection">
-        <div class="viewersCard">
-          <div class="cardTitle"><span>👥</span><span>İzləyicilər (<span id="viewerCount">1</span>)</span></div>
-          <div class="viewersList" id="viewersList"></div>
-        </div>
-        <div class="chatCard">
-          <div class="cardTitle"><span>💬</span><span>Söhbət</span></div>
-          <div class="chatMessages" id="chatMessages"></div>
-          <div class="chatInput">
-            <textarea class="chatInputField" id="messageInput" placeholder="Mesaj yazın..." rows="1"></textarea>
-            <button class="chatSendBtn" onclick="sendMessage()">📤</button>
-          </div>
+      <div class="chat-box">
+        <h3>💬 Söhbət</h3>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <input type="text" id="messageInput" placeholder="Mesaj yazın...">
+          <button class="btn" onclick="sendMessage()">Göndər</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Notification -->
-<div class="notification" id="notification">
-  <div class="notificationIcon" id="notificationIcon">✅</div>
-  <div class="notificationText" id="notificationText"></div>
+<!-- İstifadəçi adı modalı -->
+<div id="usernameModal" class="modal">
+  <div class="modal-content">
+    <h2>👤 Adınızı daxil edin</h2>
+    <input type="text" id="usernameInput" placeholder="Adınız" style="margin: 20px 0;">
+    <button class="btn" onclick="setUsername()" style="width: 100%;">Başla</button>
+  </div>
 </div>
+
+<!-- Otaq yaratma modalı -->
+<div id="createRoomModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>➕ Yeni Otaq Yarat</h2>
+    <input type="text" id="roomName" placeholder="Otaq adı" style="margin: 20px 0;">
+    <select id="roomType">
+      <option value="public">🌍 Açıq</option>
+      <option value="private">🔒 Şəxsi</option>
+    </select>
+    <label style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+      <input type="checkbox" id="hasPassword"> Şifrə qoy
+    </label>
+    <input type="password" id="roomPassword" placeholder="Şifrə" style="display: none; margin-bottom: 20px;">
+    <button class="btn" onclick="createRoom()" style="width: 100%;">Yarat</button>
+  </div>
+</div>
+
+<!-- Otağa qoşulma modalı -->
+<div id="joinRoomModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>🔗 Otağa Qoşul</h2>
+    <input type="text" id="joinCode" placeholder="Otaq kodu" style="margin: 20px 0;">
+    <input type="password" id="joinPassword" placeholder="Şifrə (varsa)" style="margin-bottom: 20px;">
+    <button class="btn" onclick="joinRoom()" style="width: 100%;">Qoşul</button>
+  </div>
+</div>
+
+<!-- Bildiriş -->
+<div id="toast" style="position: fixed; top: 20px; right: 20px; background: var(--surface); padding: 15px 25px; border-radius: 12px; border: 2px solid var(--border); transform: translateX(400px); transition: 0.3s; z-index: 9999;"></div>
 
 <script>
-  // ========== FIREBASE KONFİQ ==========
-  // KENDİ FIREBASE BİLGİLERİNİ BURAYA YAZ
+  // Firebase konfiqurasiyası
   const firebaseConfig = {
     apiKey: "AIzaSyBBgzimxxvNUWZTq3oFfW2pRIHwdT5eKic",
     authDomain: "nimewebsite.firebaseapp.com",
@@ -646,206 +310,78 @@
     measurementId: "G-KCK8M7TLCK"
   };
   firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
+  const db = firebase.database();
 
-  // ========== GLOBAL DƏYİŞƏNLƏR ==========
-  let username = localStorage.getItem('cineparty_username') || '';
+  // Global dəyişənlər
+  let username = localStorage.getItem('username') || '';
+  let currentRoom = null;
   let currentRoomId = null;
-  let currentRoomRef = null;
+  let roomRef = null;
   let viewersRef = null;
-  let chatRef = null;
-  let currentSource = 'youtube';
+  let messagesRef = null;
+  let ytPlayer = null;
   let localStream = null;
-  let peerConnections = {};  // WebRTC peer connections
-  let ytPlayer = null;       // YouTube player instance
-  let isSyncing = false;     // Sinxronizasiya zamanı hadisələni göndərməmək üçün
+  let peerConnections = {};
+  let isSyncing = false;
 
-  // Signaling üçün Firebase yolları
-  let signalingBaseRef = null;
-
-  // YouTube API hazır olduqda çağrılır
-  window.onYouTubeIframeAPIReady = function() {
-    console.log('YouTube API hazır');
+  // İlk açılış
+  window.onload = () => {
+    if (!username) showUsernameModal();
+    else {
+      hideUsernameModal();
+      document.getElementById('homeScreen').style.display = 'block';
+    }
+    // URL'de oda varsa
+    const hash = window.location.hash.substring(1);
+    if (hash) setTimeout(() => joinRoom(hash), 500);
   };
 
-  // ========== İLKİN ==========
-  window.addEventListener('DOMContentLoaded', () => {
-    // Cinema intro animasiyası
-    setTimeout(() => document.getElementById('curtains').classList.add('open'), 1000);
-    setTimeout(() => document.getElementById('cinemaIntro').classList.add('hidden'), 3000);
+  // ========== İSTİFADƏÇİ ADI ==========
+  function showUsernameModal() {
+    document.getElementById('usernameModal').style.display = 'flex';
+  }
+  function hideUsernameModal() {
+    document.getElementById('usernameModal').style.display = 'none';
+  }
+  function setUsername() {
+    const name = document.getElementById('usernameInput').value.trim();
+    if (name.length < 2) return alert('Ad ən az 2 hərf olmalıdır');
+    username = name;
+    localStorage.setItem('username', username);
+    hideUsernameModal();
+    document.getElementById('homeScreen').style.display = 'block';
+  }
 
-    // Yaddaşdan mövzu yüklə
-    const savedTheme = localStorage.getItem('cineparty_theme');
-    if (savedTheme === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.getElementById('themeSwitch').classList.add('active');
-    }
+  // ========== MODAL FUNKSİYALARI ==========
+  function showCreateRoomModal() {
+    document.getElementById('createRoomModal').style.display = 'flex';
+  }
+  function hideCreateRoomModal() {
+    document.getElementById('createRoomModal').style.display = 'none';
+  }
+  function showJoinRoomModal() {
+    document.getElementById('joinRoomModal').style.display = 'flex';
+  }
+  function hideJoinRoomModal() {
+    document.getElementById('joinRoomModal').style.display = 'none';
+  }
 
-    // İstifadəçi adı yoxla
-    if (!username) {
-      document.getElementById('usernameModal').classList.add('active');
-    } else {
-      document.getElementById('usernameModal').classList.remove('active');
-      document.getElementById('userAvatar').textContent = username[0].toUpperCase();
-      document.getElementById('userName').textContent = username;
-      document.getElementById('userInfo').style.display = 'flex';
-    }
-
-    // URL-də otaq varsa
-    const hash = window.location.hash.substring(1);
-    if (hash) {
-      setTimeout(() => joinRoom(hash), 500);
-    }
-
-    // Event listeners
-    document.getElementById('createRoomPassword').addEventListener('change', (e) => {
-      document.getElementById('passwordGroup').style.display = e.target.checked ? 'block' : 'none';
-    });
-    document.getElementById('usernameInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') setUsername(); });
-    document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-    document.getElementById('videoUrlInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') loadYouTubeVideo(); });
-    document.getElementById('joinRoomCode').addEventListener('keypress', (e) => { if (e.key === 'Enter') joinRoomByCode(); });
-    document.getElementById('createRoomName').addEventListener('keypress', (e) => { if (e.key === 'Enter') createRoom(); });
-
-    // Açıq otaqları dinlə
-    database.ref('rooms').on('value', (snapshot) => {
-      const roomsData = snapshot.val();
-      if (roomsData) {
-        const rooms = Object.keys(roomsData).map(key => ({ id: key, ...roomsData[key] }));
-        updateSidebarRooms(rooms);
-      } else {
-        updateSidebarRooms([]);
-      }
-    });
-
-    // Ümumi film siyahısını dinlə
-    database.ref('publicMovies').on('value', (snap) => {
-      renderPublicMovies(snap.val());
-    });
+  // Şifrə sahəsini göstər/gizlət
+  document.getElementById('hasPassword').addEventListener('change', (e) => {
+    document.getElementById('roomPassword').style.display = e.target.checked ? 'block' : 'none';
   });
 
-  // ========== İSTİFADƏÇİ ADI ==========
-  function setUsername() {
-    const input = document.getElementById('usernameInput');
-    const name = input.value.trim();
-    if (!name || name.length < 2) {
-      showNotification('⚠️ Adınızı daxil edin (ən az 2 hərf)!', '❌');
-      return;
-    }
-    username = name;
-    localStorage.setItem('cineparty_username', username);
-    document.getElementById('usernameModal').classList.remove('active');
-    document.getElementById('userAvatar').textContent = username[0].toUpperCase();
-    document.getElementById('userName').textContent = username;
-    document.getElementById('userInfo').style.display = 'flex';
-    showNotification(`Xoş gəlmisiniz, ${username}! 🎉`, '👋');
-  }
-
-  // ========== SIDEBAR ==========
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('overlay').classList.add('active');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('active');
-  }
-  function toggleTheme() {
-    const html = document.documentElement;
-    const themeSwitch = document.getElementById('themeSwitch');
-    if (html.getAttribute('data-theme') === 'light') {
-      html.removeAttribute('data-theme');
-      themeSwitch.classList.remove('active');
-      localStorage.setItem('cineparty_theme', 'dark');
-    } else {
-      html.setAttribute('data-theme', 'light');
-      themeSwitch.classList.add('active');
-      localStorage.setItem('cineparty_theme', 'light');
-    }
-  }
-
-  function updateSidebarRooms(rooms) {
-    const list = document.getElementById('sidebarRoomList');
-    const count = document.getElementById('sidebarRoomCount');
-    count.textContent = rooms.length;
-    if (rooms.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Hələ otaq yoxdur</div>';
-      return;
-    }
-    list.innerHTML = rooms.map(room => `
-      <div class="roomItem" onclick="joinRoom('${room.id}')">
-        <div class="roomName">
-          <span>${room.type === 'private' ? '🔒' : '🌍'}</span>
-          <span>${room.name}</span>
-          ${room.password ? '<span class="roomBadge passwordBadge">🔐</span>' : ''}
-        </div>
-        <div class="roomMeta">
-          <span>👤 ${room.host}</span>
-          <span>👥 ${room.viewers ? Object.keys(room.viewers).length : 0}</span>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // ========== ÜMUMİ FİLM SİYAHISI ==========
-  function renderPublicMovies(moviesObj) {
-    const container = document.getElementById('publicMovieList');
-    if (!moviesObj) {
-      container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Hələ film yoxdur</div>';
-      return;
-    }
-    const movies = Object.keys(moviesObj).map(key => ({ id: key, ...moviesObj[key] }));
-    container.innerHTML = movies.map(movie => `
-      <div class="movieItem">
-        <div class="movieInfo">
-          <div class="movieName">${movie.name}</div>
-          <div class="movieMeta">${movie.url ? '🔗 YouTube' : ''} • ${movie.addedBy} • 🗳️ ${movie.votes || 0}</div>
-        </div>
-        <div class="movieActions">
-          <button class="movieBtn vote" onclick="votePublicMovie('${movie.id}')">👍</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function addPublicMovie() {
-    const name = document.getElementById('publicMovieName').value.trim();
-    const url = document.getElementById('publicMovieUrl').value.trim();
-    if (!name) { showNotification('⚠️ Film adı daxil edin!', '❌'); return; }
-    database.ref('publicMovies').push({
-      name: name,
-      url: url,
-      addedBy: username,
-      votes: 0,
-      timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
-    document.getElementById('publicMovieName').value = '';
-    document.getElementById('publicMovieUrl').value = '';
-  }
-
-  function votePublicMovie(movieId) {
-    database.ref('publicMovies/' + movieId + '/votes').transaction((votes) => (votes || 0) + 1);
-  }
-
   // ========== OTAQ YARATMA ==========
-  function openCreateRoomModal() {
-    if (!username) { setUsername(); return; }
-    document.getElementById('createRoomModal').classList.add('active');
-  }
-  function closeCreateRoomModal() {
-    document.getElementById('createRoomModal').classList.remove('active');
-  }
   function createRoom() {
-    const name = document.getElementById('createRoomName').value.trim();
-    const type = document.getElementById('createRoomType').value;
-    const hasPassword = document.getElementById('createRoomPassword').checked;
-    const password = hasPassword ? document.getElementById('createRoomPasswordInput').value.trim() : '';
+    const name = document.getElementById('roomName').value.trim();
+    const type = document.getElementById('roomType').value;
+    const hasPassword = document.getElementById('hasPassword').checked;
+    const password = hasPassword ? document.getElementById('roomPassword').value.trim() : '';
+    if (!name) return alert('Otaq adı daxil edin');
+    if (hasPassword && !password) return alert('Şifrə daxil edin');
 
-    if (!name) { showNotification('⚠️ Otaq adı daxil edin!', '❌'); return; }
-    if (hasPassword && !password) { showNotification('⚠️ Şifrə daxil edin!', '❌'); return; }
-
-    const roomRef = database.ref('rooms').push();
-    const roomId = roomRef.key;
+    const newRoomRef = db.ref('rooms').push();
+    const roomId = newRoomRef.key;
     const roomData = {
       name, type,
       host: username,
@@ -853,157 +389,118 @@
       viewers: { [username]: true },
       videoUrl: '',
       videoState: { playing: false, currentTime: 0, timestamp: Date.now() },
-      createdAt: firebase.database.ServerValue.TIMESTAMP
+      createdAt: Date.now()
     };
-    roomRef.set(roomData).then(() => {
-      closeCreateRoomModal();
+    newRoomRef.set(roomData).then(() => {
+      hideCreateRoomModal();
       joinRoom(roomId);
     });
   }
 
-  // ========== OTAĞA QOŞULMA ==========
-  function openJoinRoomModal() {
-    if (!username) { setUsername(); return; }
-    document.getElementById('joinRoomModal').classList.add('active');
-  }
-  function closeJoinRoomModal() {
-    document.getElementById('joinRoomModal').classList.remove('active');
-    document.getElementById('joinPasswordGroup').style.display = 'none';
-  }
-  function joinRoomByCode() {
-    const code = document.getElementById('joinRoomCode').value.trim();
-    const password = document.getElementById('joinRoomPassword').value.trim();
-    if (!code) { showNotification('⚠️ Otaq kodunu daxil edin!', '❌'); return; }
-    joinRoom(code, password);
-  }
-
+  // ========== OTAĞA QOŞUL ==========
   function joinRoom(roomId, password = '') {
-    if (!username) { setUsername(); return; }
+    if (!roomId) {
+      roomId = document.getElementById('joinCode').value.trim();
+      password = document.getElementById('joinPassword').value.trim();
+    }
+    if (!roomId) return alert('Otaq kodu daxil edin');
 
-    const roomRef = database.ref('rooms/' + roomId);
-    roomRef.get().then((snap) => {
-      if (!snap.exists()) {
-        showNotification('❌ Otaq tapılmadı!', '⚠️');
-        return;
-      }
+    db.ref('rooms/' + roomId).get().then((snap) => {
+      if (!snap.exists()) return alert('Otaq tapılmadı');
       const room = snap.val();
       if (room.password && room.password !== password) {
-        document.getElementById('joinRoomCode').value = roomId;
-        document.getElementById('joinPasswordGroup').style.display = 'block';
-        openJoinRoomModal();
-        showNotification('🔐 Bu otaq şifrəlidir!', '🔒');
+        alert('Şifrə yanlışdır');
         return;
       }
 
       // Otağa qoşul
       currentRoomId = roomId;
-      currentRoomRef = roomRef;
-      viewersRef = database.ref('rooms/' + roomId + '/viewers');
-      chatRef = database.ref('rooms/' + roomId + '/messages');
-      signalingBaseRef = database.ref('rooms/' + roomId + '/signaling');
+      currentRoom = room;
+      roomRef = db.ref('rooms/' + roomId);
+      viewersRef = db.ref('rooms/' + roomId + '/viewers');
+      messagesRef = db.ref('rooms/' + roomId + '/messages');
 
       // İstifadəçini viewer-lərə əlavə et
       viewersRef.child(username).set(true);
 
-      // UI yenilə
-      document.getElementById('homeScreen').classList.add('hidden');
-      document.getElementById('watchRoom').classList.add('active');
-      document.getElementById('watchRoomTitle').innerHTML = `<span>🎬</span><span>${room.name}</span>`;
+      // UI keçid
+      document.getElementById('homeScreen').style.display = 'none';
+      document.getElementById('roomScreen').classList.add('active');
+      document.getElementById('roomTitle').innerText = `🎬 ${room.name}`;
       window.location.hash = roomId;
-      closeSidebar();
-      closeJoinRoomModal();
 
-      // Video varsa yüklə
-      if (room.videoUrl) {
-        document.getElementById('videoUrlInput').value = room.videoUrl;
-        loadYouTubeVideo();
-      }
-
-      // İzləyiciləri dinlə
+      // Dinləyicilər
       viewersRef.on('value', (snap) => {
-        if (snap.exists()) {
-          const viewers = Object.keys(snap.val());
-          updateViewers(viewers);
-        } else {
-          updateViewers([]);
-        }
+        const viewers = snap.val() ? Object.keys(snap.val()) : [];
+        document.getElementById('viewerCount').innerText = viewers.length;
+        document.getElementById('viewersList').innerHTML = viewers.map(v => `<div class="viewer-tag">${v}</div>`).join('');
       });
 
-      // Chat mesajlarını dinlə
-      chatRef.on('child_added', (snap) => {
+      // Mesajlar
+      messagesRef.on('child_added', (snap) => {
         const msg = snap.val();
-        addMessage(msg.text, msg.author, msg.author === username, false);
+        addMessage(msg);
       });
 
-      // Video state dəyişikliyini dinlə (sinxronizasiya)
+      // Video state
       roomRef.child('videoState').on('value', (snap) => {
         const state = snap.val();
-        if (state && ytPlayer && !isSyncing) {
-          isSyncing = true;
-          if (state.playing) {
-            ytPlayer.playVideo();
-            ytPlayer.seekTo(state.currentTime, true);
-          } else {
-            ytPlayer.pauseVideo();
-            ytPlayer.seekTo(state.currentTime, true);
-          }
-          setTimeout(() => { isSyncing = false; }, 500);
+        if (!ytPlayer || isSyncing) return;
+        isSyncing = true;
+        if (state) {
+          if (state.playing) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
+          ytPlayer.seekTo(state.currentTime, true);
         }
+        setTimeout(() => isSyncing = false, 500);
       });
 
-      // Sistem mesajı
-      addMessage(`${username} otağa qoşuldu.`, 'Sistem', false, true);
+      // Video URL varsa yüklə
+      if (room.videoUrl) {
+        document.getElementById('videoUrl').value = room.videoUrl;
+        loadVideo();
+      }
     });
   }
 
+  // ========== OTAQDAN ÇIX ==========
   function leaveRoom() {
-    if (!currentRoomId || !username) return;
-    if (confirm('Otaqdan çıxmaq istədiyinizdən əminsiniz?')) {
-      // İstifadəçini viewer-lərdən sil
-      database.ref('rooms/' + currentRoomId + '/viewers/' + username).remove().then(() => {
-        // Otaq boşdursa, otağı sil
-        database.ref('rooms/' + currentRoomId + '/viewers').once('value', (snap) => {
-          if (!snap.exists() || snap.numChildren() === 0) {
-            database.ref('rooms/' + currentRoomId).remove();
+    if (!currentRoomId) return;
+    if (confirm('Çıxmaq istədiyinizə əminsiniz?')) {
+      viewersRef.child(username).remove().then(() => {
+        viewersRef.once('value', (snap) => {
+          if (!snap.exists()) {
+            db.ref('rooms/' + currentRoomId).remove();
           }
         });
       });
-
-      // Dinləyiciləri dayandır
-      if (currentRoomRef) currentRoomRef.off();
-      if (viewersRef) viewersRef.off();
-      if (chatRef) chatRef.off();
-      if (signalingBaseRef) signalingBaseRef.off();
-
-      // WebRTC bağlantılarını dayandır
-      stopScreenShare();
-
+      roomRef.off();
+      viewersRef.off();
+      messagesRef.off();
+      if (ytPlayer) ytPlayer.destroy();
       currentRoomId = null;
-      document.getElementById('watchRoom').classList.remove('active');
-      document.getElementById('homeScreen').classList.remove('hidden');
+      document.getElementById('roomScreen').classList.remove('active');
+      document.getElementById('homeScreen').style.display = 'block';
       window.location.hash = '';
-      showNotification('👋 Otaqdan çıxdınız', '🚪');
     }
   }
 
-  // ========== VİDEO MƏNBƏ SEÇİMİ ==========
-  function selectSource(source) {
-    currentSource = source;
-    document.getElementById('youtubeSourceBtn').classList.toggle('active', source === 'youtube');
-    document.getElementById('screenSourceBtn').classList.toggle('active', source === 'screen');
-    document.getElementById('youtubeControls').style.display = source === 'youtube' ? 'flex' : 'none';
-    document.getElementById('screenControls').style.display = source === 'screen' ? 'flex' : 'none';
-
-    // Video yerini təmizlə
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `<div class="videoPlaceholder"><div class="placeholderIcon">${source === 'youtube' ? '📺' : '🖥️'}</div><div class="placeholderText">${source === 'youtube' ? 'YouTube linki daxil edin' : 'Ekran paylaşımını başladın'}</div></div>`;
+  // ========== PAYLAŞ ==========
+  function shareRoom() {
+    const url = window.location.href.split('#')[0] + '#' + currentRoomId;
+    navigator.clipboard.writeText(url).then(() => toast('Link kopyalandı!'));
   }
 
-  // ========== YOUTUBE VİDEO YÜKLƏ ==========
-  function loadYouTubeVideo() {
-    const url = document.getElementById('videoUrlInput').value.trim();
-    if (!url) { showNotification('⚠️ YouTube linki daxil edin!', '❌'); return; }
+  // ========== YOUTUBE ==========
+  function selectSource(source) {
+    document.getElementById('youtubeBtn').classList.toggle('active', source === 'youtube');
+    document.getElementById('screenBtn').classList.toggle('active', source === 'screen');
+    document.getElementById('youtubeControls').style.display = source === 'youtube' ? 'block' : 'none';
+    document.getElementById('screenControls').style.display = source === 'screen' ? 'block' : 'none';
+  }
 
+  function loadVideo() {
+    const url = document.getElementById('videoUrl').value.trim();
+    if (!url) return alert('Link daxil edin');
     let videoId = '';
     if (url.includes('youtube.com/watch?v=')) {
       videoId = url.split('v=')[1]?.split('&')[0];
@@ -1012,58 +509,43 @@
     } else if (url.includes('youtube.com/embed/')) {
       videoId = url.split('embed/')[1]?.split('?')[0];
     }
+    if (!videoId) return alert('Düzgün YouTube linki deyil');
 
-    if (!videoId) { showNotification('⚠️ Düzgün YouTube linki deyil!', '❌'); return; }
-
-    const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `<div id="youtube-player"></div>`;
+    document.getElementById('videoPlayer').innerHTML = `<div id="youtube-player"></div>`;
     if (ytPlayer) ytPlayer.destroy();
-
     ytPlayer = new YT.Player('youtube-player', {
       height: '100%',
       width: '100%',
       videoId: videoId,
-      playerVars: { 'autoplay': 1, 'controls': 1 },
+      playerVars: { autoplay: 1, controls: 1 },
       events: {
-        'onStateChange': onPlayerStateChange,
-        'onReady': onPlayerReady
+        onStateChange: (e) => {
+          if (!currentRoomId || isSyncing) return;
+          const state = e.data;
+          const playing = state === YT.PlayerState.PLAYING;
+          const currentTime = ytPlayer.getCurrentTime();
+          roomRef.child('videoState').set({
+            playing, currentTime, timestamp: Date.now()
+          });
+        },
+        onReady: () => {
+          roomRef.child('videoState').once('value', (snap) => {
+            const state = snap.val();
+            if (state) {
+              ytPlayer.seekTo(state.currentTime, true);
+              if (state.playing) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
+            }
+          });
+        }
       }
     });
-
-    if (currentRoomId) {
-      database.ref('rooms/' + currentRoomId + '/videoUrl').set(url);
-    }
-    showNotification('✅ Video yükləndi!', '🎬');
-  }
-
-  function onPlayerReady(event) {
-    if (currentRoomId) {
-      database.ref('rooms/' + currentRoomId + '/videoState').once('value', (snap) => {
-        const state = snap.val();
-        if (state) {
-          ytPlayer.seekTo(state.currentTime, true);
-          if (state.playing) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
-        }
-      });
-    }
-  }
-
-  function onPlayerStateChange(event) {
-    if (!currentRoomId || isSyncing) return;
-    const state = ytPlayer.getPlayerState();
-    const currentTime = ytPlayer.getCurrentTime();
-    const playing = (state === YT.PlayerState.PLAYING);
-    database.ref('rooms/' + currentRoomId + '/videoState').set({
-      playing: playing,
-      currentTime: currentTime,
-      timestamp: Date.now()
-    });
+    roomRef.child('videoUrl').set(url);
   }
 
   function syncPlay() { if (ytPlayer) ytPlayer.playVideo(); }
   function syncPause() { if (ytPlayer) ytPlayer.pauseVideo(); }
 
-  // ========== EKRAN PAYLAŞIMI (WebRTC) - DÜZƏLDİLMİŞ VERSİYA ==========
+  // ========== EKRAN PAYLAŞIMI (WebRTC) ==========
   async function startScreenShare() {
     if (!currentRoomId) return;
     try {
@@ -1072,9 +554,6 @@
         audio: true
       });
 
-      // Paylaşanın kendi ekranını göster
-      const wrapper = document.getElementById('videoWrapper');
-      wrapper.innerHTML = '';
       const video = document.createElement('video');
       video.srcObject = localStream;
       video.autoplay = true;
@@ -1082,220 +561,142 @@
       video.style.width = '100%';
       video.style.height = '100%';
       video.style.objectFit = 'contain';
-      wrapper.appendChild(video);
+      document.getElementById('videoPlayer').innerHTML = '';
+      document.getElementById('videoPlayer').appendChild(video);
 
-      showNotification('✅ Ekran paylaşımı başladı!', '🖥️');
+      toast('Ekran paylaşımı başladı');
 
-      // Mevcut izleyicilere bağlan
-      const viewersSnap = await viewersRef.once('value');
-      const viewers = viewersSnap.val() ? Object.keys(viewersSnap.val()) : [];
-      
-      for (const viewer of viewers) {
-        if (viewer !== username && !peerConnections[viewer]) {
-          createPeerConnection(viewer, true); // true = offer yapan (paylaşan)
-        }
+      // WebRTC signaling
+      const viewers = await viewersRef.once('value');
+      const viewersList = viewers.val() ? Object.keys(viewers.val()) : [];
+      for (const viewer of viewersList) {
+        if (viewer !== username) createPeerConnection(viewer);
       }
 
-      // Yeni izleyiciler için dinle
       viewersRef.on('child_added', (snap) => {
         const viewer = snap.key;
-        if (viewer !== username && !peerConnections[viewer]) {
-          createPeerConnection(viewer, true);
-        }
+        if (viewer !== username && !peerConnections[viewer]) createPeerConnection(viewer);
       });
 
-      localStream.getVideoTracks()[0].onended = () => {
-        stopScreenShare();
-      };
+      localStream.getVideoTracks()[0].onended = stopScreenShare;
     } catch (err) {
-      showNotification('❌ Ekran paylaşımı xətası!', '⚠️');
-      console.error(err);
+      toast('Xəta: ' + err.message);
     }
   }
 
-  function createPeerConnection(targetUser, amIOfferer = false) {
+  function createPeerConnection(targetUser) {
     const peer = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        // Ücretsiz TURN sunucu (metered.ca) - herkes kullanabilir
-        {
-          urls: 'turn:openrelay.metered.ca:80',
-          username: 'openrelayproject',
-          credential: 'openrelayproject'
-        },
-        {
-          urls: 'turn:openrelay.metered.ca:443',
-          username: 'openrelayproject',
-          credential: 'openrelayproject'
-        }
+        { urls: 'turn:turn.viagenie.ca', username: 'webrtc', credential: 'webrtc' } // Ücretsiz TURN
       ]
     });
-
     peerConnections[targetUser] = peer;
 
-    // Lokal stream'i ekle (sadece paylaşan için)
-    if (localStream) {
-      localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
-    }
+    localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
 
-    // ICE candidate gönder
-    peer.onicecandidate = (event) => {
-      if (event.candidate) {
-        database.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/ice`).push(event.candidate.toJSON());
+    peer.onicecandidate = (e) => {
+      if (e.candidate) {
+        db.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/ice`).push(e.candidate.toJSON());
       }
     };
 
-    // Karşı tarafın ICE candidate'larını dinle
-    const iceRef = database.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}/ice`);
-    iceRef.on('child_added', (snap) => {
+    db.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}/ice`).on('child_added', (snap) => {
       if (snap.exists()) {
-        const candidate = new RTCIceCandidate(snap.val());
-        peer.addIceCandidate(candidate).catch(e => console.log('ICE ekleme hatası', e));
+        peer.addIceCandidate(new RTCIceCandidate(snap.val()));
       }
     });
 
-    // Track geldiğinde (izleyici için)
-    peer.ontrack = (event) => {
-      // Sadece izleyici buraya düşer, paylaşanın track'i yok
-      const wrapper = document.getElementById('videoWrapper');
-      wrapper.innerHTML = '';
+    peer.createOffer().then(offer => {
+      return peer.setLocalDescription(offer);
+    }).then(() => {
+      db.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/offer`).set(peer.localDescription.toJSON());
+    });
+
+    db.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}/answer`).on('value', (snap) => {
+      if (snap.exists() && !peer.currentRemoteDescription) {
+        peer.setRemoteDescription(new RTCSessionDescription(snap.val()));
+      }
+    });
+
+    peer.ontrack = (e) => {
       const video = document.createElement('video');
-      video.srcObject = event.streams[0];
+      video.srcObject = e.streams[0];
       video.autoplay = true;
-      video.muted = false; // sesi aç
       video.style.width = '100%';
       video.style.height = '100%';
       video.style.objectFit = 'contain';
-      wrapper.appendChild(video);
-      showNotification(`📺 ${targetUser} ekran paylaşır`, '🖥️');
-    };
-
-    if (amIOfferer) {
-      // Offer oluştur ve gönder
-      peer.createOffer().then(offer => {
-        return peer.setLocalDescription(offer);
-      }).then(() => {
-        database.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/offer`).set(peer.localDescription);
-      }).catch(e => console.log('Offer hatası', e));
-
-      // Karşı tarafın answer'ını dinle
-      const answerRef = database.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}/answer`);
-      answerRef.on('value', (snap) => {
-        if (snap.exists() && !peer.currentRemoteDescription) {
-          const answer = new RTCSessionDescription(snap.val());
-          peer.setRemoteDescription(answer).catch(e => console.log('Answer set hatası', e));
-        }
-      });
-    } else {
-      // İzleyici: önce offer gelmiş mi diye dinle
-      const offerRef = database.ref(`rooms/${currentRoomId}/signaling/${username}/${targetUser}/offer`);
-      offerRef.on('value', (snap) => {
-        if (snap.exists() && !peer.currentRemoteDescription) {
-          const offer = new RTCSessionDescription(snap.val());
-          peer.setRemoteDescription(offer).then(() => {
-            return peer.createAnswer();
-          }).then(answer => {
-            return peer.setLocalDescription(answer);
-          }).then(() => {
-            database.ref(`rooms/${currentRoomId}/signaling/${targetUser}/${username}/answer`).set(peer.localDescription);
-          }).catch(e => console.log('Answer oluşturma hatası', e));
-        }
-      });
-    }
-
-    // Bağlantı durumunu izle
-    peer.oniceconnectionstatechange = () => {
-      console.log(`${targetUser} ICE durumu:`, peer.iceConnectionState);
-      if (peer.iceConnectionState === 'failed' || peer.iceConnectionState === 'disconnected') {
-        // Yeniden bağlanmayı dene
-        if (peerConnections[targetUser]) {
-          delete peerConnections[targetUser];
-          createPeerConnection(targetUser, amIOfferer);
-        }
-      }
+      document.getElementById('videoPlayer').innerHTML = '';
+      document.getElementById('videoPlayer').appendChild(video);
     };
   }
 
   function stopScreenShare() {
     if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
+      localStream.getTracks().forEach(t => t.stop());
       localStream = null;
     }
     for (let id in peerConnections) {
       peerConnections[id].close();
-      delete peerConnections[id];
     }
-    if (viewersRef) viewersRef.off('child_added');
-    showNotification('📺 Ekran paylaşımı dayandırıldı', '⏹️');
-  }
-
-  // ========== İZLƏYİCİLƏR ==========
-  function updateViewers(viewers) {
-    const list = document.getElementById('viewersList');
-    const count = document.getElementById('viewerCount');
-    count.textContent = viewers.length;
-    list.innerHTML = viewers.map(v => `
-      <div class="viewerTag"><span>${v[0].toUpperCase()}</span><span>${v}</span></div>
-    `).join('');
+    peerConnections = {};
+    toast('Ekran paylaşımı dayandı');
   }
 
   // ========== CHAT ==========
   function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const text = input.value.trim();
-    if (!text || !currentRoomId || !username) return;
-    const msg = { author: username, text: text, timestamp: firebase.database.ServerValue.TIMESTAMP };
-    database.ref('rooms/' + currentRoomId + '/messages').push(msg);
-    input.value = '';
+    const text = document.getElementById('messageInput').value.trim();
+    if (!text || !currentRoomId) return;
+    messagesRef.push({ author: username, text, timestamp: Date.now() });
+    document.getElementById('messageInput').value = '';
   }
 
-  function addMessage(text, author, isOwn, isSystem = false) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageEl = document.createElement('div');
-    messageEl.className = 'chatMessage' + (isOwn ? ' own' : '');
-    if (isSystem) {
-      messageEl.innerHTML = `<div style="width:100%; text-align:center; padding:8px; background:var(--surface-light); border-radius:12px; font-size:13px; color:var(--text-muted);">${text}</div>`;
-    } else {
-      const avatar = author[0].toUpperCase();
-      const time = new Date().toLocaleTimeString('az', { hour:'2-digit', minute:'2-digit' });
-      messageEl.innerHTML = `
-        <div class="messageAvatar">${avatar}</div>
-        <div class="messageBubble">
-          <div class="messageAuthor">${author}</div>
-          <div class="messageText">${text}</div>
-          <div class="messageTime">${time}</div>
-        </div>
-      `;
-    }
-    messagesDiv.appendChild(messageEl);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  function addMessage(msg) {
+    const div = document.createElement('div');
+    div.className = 'message' + (msg.author === username ? ' own' : '');
+    div.innerHTML = `
+      <div class="avatar">${msg.author[0]}</div>
+      <div class="bubble">
+        <div style="font-size:12px; opacity:0.7;">${msg.author}</div>
+        <div>${msg.text}</div>
+      </div>
+    `;
+    document.getElementById('chatMessages').appendChild(div);
+    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
   }
 
-  // ========== PAYLAŞ ==========
-  function shareRoom() {
-    if (!currentRoomId) return;
-    const shareUrl = window.location.origin + window.location.pathname + '#' + currentRoomId;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      showNotification('✅ Link kopyalandı! Sevgilinizə göndərin! 💕', '📋');
-    }).catch(() => {
-      prompt('Link kopyalana bilmədi. Manuel kopyalayın:', shareUrl);
-    });
+  // ========== FİLM SİYAHISI ==========
+  db.ref('publicMovies').on('value', (snap) => {
+    const movies = snap.val();
+    const list = document.getElementById('publicMovieList');
+    if (!movies) { list.innerHTML = '<p>Hələ film yoxdur</p>'; return; }
+    list.innerHTML = Object.keys(movies).map(key => `
+      <div style="display:flex; justify-content:space-between; margin:10px 0;">
+        <span>${movies[key].name}</span>
+        <button onclick="voteMovie('${key}')">👍 ${movies[key].votes || 0}</button>
+      </div>
+    `).join('');
+  });
+
+  function addMovie() {
+    const name = document.getElementById('movieName').value.trim();
+    const url = document.getElementById('movieUrl').value.trim();
+    if (!name) return alert('Film adı daxil edin');
+    db.ref('publicMovies').push({ name, url, votes: 0, addedBy: username });
+    document.getElementById('movieName').value = '';
+    document.getElementById('movieUrl').value = '';
+  }
+
+  function voteMovie(id) {
+    db.ref('publicMovies/' + id + '/votes').transaction(v => (v || 0) + 1);
   }
 
   // ========== BİLDİRİŞ ==========
-  function showNotification(text, icon = '✅') {
-    const notif = document.getElementById('notification');
-    document.getElementById('notificationText').textContent = text;
-    document.getElementById('notificationIcon').textContent = icon;
-    notif.classList.add('show');
-    setTimeout(() => notif.classList.remove('show'), 3500);
-  }
-
-  // ========== HAQQINDA ==========
-  function showAbout() {
-    alert('🎬 CineParty Ultimate v10.0 (Firebase + WebRTC)\n\nSevdiyiniz insanlarla birlikdə film izləyin!\n\n✨ Xüsusiyyətlər:\n• Otaq yaratma (açıq/şəxsi, şifrəli)\n• Real-time chat\n• YouTube video sinxronizasiya (play/pause/seek)\n• Ekran paylaşımı (WebRTC ilə tam işlək, TURN serverli)\n• Ümumi film siyahısı (oy vermə ilə)\n• Otaq link paylaşımı\n\n💕 Sevgilinizlə istifadə üçün mükəmməldir!');
-    closeSidebar();
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.style.transform = 'translateX(0)';
+    setTimeout(() => t.style.transform = 'translateX(400px)', 3000);
   }
 </script>
 </body>
