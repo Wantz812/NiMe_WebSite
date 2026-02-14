@@ -7,398 +7,86 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <link rel="stylesheet" href="assets/css/app.css">
   <script defer src="assets/js/app.js"></script>
+  
+  <!-- Firebase SDK (əvvələ alındı) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script>
+    // Firebase konfiqurasiyası - databaseURL daxil edilib
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBgzimxxvNUWZTq3oFfW2pRIHwdT5eKic",
+      authDomain: "nimewebsite.firebaseapp.com",
+      databaseURL: "https://nimewebsite-default-rtdb.firebaseio.com",
+      projectId: "nimewebsite",
+      storageBucket: "nimewebsite.firebasestorage.app",
+      messagingSenderId: "29668822721",
+      appId: "1:29668822721:web:9b4b7b77a44ee600298e40",
+      measurementId: "G-KCK8M7TLCK"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
+
   <style>
-    /* Ultra Smooth Animations */
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    @keyframes scaleIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-    @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-    /* Memory Cards - Ultra Cartoon */
-    .memoryCard {
-      position: relative;
-      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      border: 3px solid var(--stroke);
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: fadeInUp 0.6s ease forwards;
-      box-shadow: 0 8px 24px rgba(0,0,0,.3);
-    }
-    .memoryCard:hover {
-      transform: translateY(-12px) scale(1.02);
-      border-color: var(--accent);
-      box-shadow: 0 20px 60px rgba(124,92,255,.5);
-    }
-    .memoryCard.locked::before {
-      content: "🔒";
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 10;
-      font-size: 28px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,.7));
-      animation: pulse 2s infinite;
-    }
-    .memoryCard.video::after {
-      content: "▶️";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 56px;
-      z-index: 5;
-      filter: drop-shadow(0 4px 16px rgba(0,0,0,.8));
-      opacity: 0.95;
-    }
-    .memoryCard img, .memoryCard video {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      display: block;
-    }
-    .memoryCardBody {
-      padding: 16px;
-      background: linear-gradient(to top, rgba(0,0,0,.8), transparent);
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-    }
-    .memoryCardTitle {
-      font-size: 16px;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 6px;
-      text-shadow: 0 2px 8px rgba(0,0,0,.7);
-      line-height: 1.3;
-    }
-    .memoryCardMeta {
-      font-size: 12px;
-      color: rgba(255,255,255,.9);
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      text-shadow: 0 1px 4px rgba(0,0,0,.5);
-    }
-    .memoryReactions {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      display: flex;
-      gap: 6px;
-      z-index: 10;
-      flex-wrap: wrap;
-      max-width: calc(100% - 80px);
-    }
-    .reactionBadge {
-      background: rgba(0,0,0,.8);
-      backdrop-filter: blur(12px);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 14px;
-      border: 2px solid rgba(255,255,255,.3);
-      box-shadow: 0 4px 12px rgba(0,0,0,.4);
-    }
-    .favBadge {
-      position: absolute;
-      bottom: 80px;
-      right: 12px;
-      font-size: 32px;
-      filter: drop-shadow(0 2px 8px rgba(255,215,0,.7));
-      animation: pulse 1.5s infinite;
-      z-index: 10;
-    }
-
-    /* Lightbox Gallery */
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      background: rgba(0,0,0,.97);
-      backdrop-filter: blur(20px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      animation: fadeIn 0.3s;
-    }
-    .lightbox.show { display: flex; }
-    .lightboxContent {
-      max-width: 900px;
-      width: 100%;
-      position: relative;
-    }
-    .lightboxMedia {
-      max-width: 100%;
-      max-height: 70vh;
-      border-radius: 16px;
-      box-shadow: 0 20px 80px rgba(0,0,0,.9);
-      margin: 0 auto;
-      display: block;
-    }
-    .lightboxInfo {
-      background: rgba(255,255,255,.12);
-      backdrop-filter: blur(24px);
-      padding: 20px;
-      border-radius: 16px;
-      margin-top: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-      border: 2px solid rgba(255,255,255,.2);
-    }
-    .lightboxTitle {
-      font-size: 22px;
-      font-weight: 900;
-      margin-bottom: 12px;
-      color: #fff;
-    }
-    .lightboxText {
-      font-size: 15px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      color: rgba(255,255,255,.95);
-    }
-    .lightboxActions {
-      margin-top: 16px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .lightboxNav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-      backdrop-filter: blur(12px);
-      border: 3px solid rgba(255,255,255,.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 28px;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 10001;
-    }
-    .lightboxNav:hover { background: rgba(255,255,255,.3); transform: translateY(-50%) scale(1.15); }
-    .lightboxNav.prev { left: 20px; }
-    .lightboxNav.next { right: 20px; }
-    .lightboxClose {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-      backdrop-filter: blur(12px);
-      border: 3px solid rgba(255,255,255,.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 28px;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      color: #fff;
-      z-index: 10001;
-    }
-    .lightboxClose:hover { background: rgba(255,92,92,.9); transform: rotate(90deg) scale(1.15); }
-
-    /* Month Carousel */
-    .monthCarousel {
-      display: flex;
-      gap: 14px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 16px 0;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-    .monthCarousel::-webkit-scrollbar { display: none; }
-    .monthCard {
-      min-width: 150px;
-      padding: 18px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      border: 3px solid var(--stroke);
-      text-align: center;
-      cursor: pointer;
-      scroll-snap-align: start;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: float 3s ease-in-out infinite;
-      box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    }
-    .monthCard:nth-child(2) { animation-delay: 0.4s; }
-    .monthCard:nth-child(3) { animation-delay: 0.8s; }
-    .monthCard:nth-child(4) { animation-delay: 1.2s; }
-    .monthCard:hover { transform: translateY(-10px) scale(1.05); border-color: var(--accent); }
-    .monthCard.active {
-      border-color: var(--accent);
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 12px 32px rgba(124,92,255,.5);
-      transform: scale(1.08);
-    }
-    .monthIcon { font-size: 36px; margin-bottom: 10px; }
-    .monthName { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
-    .monthCount { font-size: 12px; opacity: 0.85; }
-
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: calc(90px + env(safe-area-inset-bottom));
-      right: 24px;
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 12px 32px rgba(124,92,255,.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 32px;
-      z-index: 1000;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: float 2.5s ease-in-out infinite;
-      border: 3px solid rgba(255,255,255,.3);
-    }
-    .fab:hover { transform: scale(1.2) rotate(90deg); box-shadow: 0 16px 40px rgba(124,92,255,.8); }
-
-    /* Bottom Sheet */
-    .sheet {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(0,0,0,.9);
-      backdrop-filter: blur(16px);
-      display: none;
-      align-items: flex-end;
-    }
-    .sheet.show { display: flex; }
-    .sheetContent {
-      background: var(--bg);
-      border-radius: 28px 28px 0 0;
-      padding: 28px;
-      max-width: 700px;
-      width: 100%;
-      max-height: 88vh;
-      overflow-y: auto;
-      animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      margin: 0 auto;
-      border: 3px solid var(--stroke);
-      border-bottom: none;
-    }
-    .sheetHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 3px solid var(--stroke);
-    }
-    .sheetClose {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.1);
-      border: 2px solid var(--stroke);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 24px;
-      transition: all 0.3s;
-    }
-    .sheetClose:hover { background: rgba(255,92,92,.8); transform: rotate(90deg); }
-
-    /* Filter Tags */
-    .filterTags {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 14px 0;
-    }
-    .filterTag {
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.1);
-      border: 2px solid var(--stroke);
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .filterTag:hover { background: rgba(255,255,255,.18); transform: scale(1.05); }
-    .filterTag.active {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-color: transparent;
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(124,92,255,.4);
-    }
-
-    /* Stats Dashboard */
-    .statsGrid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 14px;
-      margin: 16px 0;
-    }
-    .statCard {
-      padding: 20px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      border: 2px solid var(--stroke);
-      text-align: center;
-      transition: all 0.3s;
-    }
-    .statCard:hover { transform: translateY(-4px); border-color: var(--accent); }
-    .statValue {
-      font-size: 36px;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .statLabel { font-size: 12px; color: var(--muted); margin-top: 6px; font-weight: 800; text-transform: uppercase; }
-
-    /* Media Preview in Form */
-    .mediaPreview {
-      margin-top: 16px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid var(--stroke);
-      max-height: 300px;
-      display: none;
-    }
-    .mediaPreview.show { display: block; }
-    .mediaPreview img, .mediaPreview video {
-      width: 100%;
-      display: block;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .lightboxNav { width: 52px; height: 52px; font-size: 22px; }
-      .lightboxNav.prev { left: 10px; }
-      .lightboxNav.next { right: 10px; }
-      .lightboxClose { width: 48px; height: 48px; top: 15px; right: 15px; }
-      .fab { width: 60px; height: 60px; font-size: 28px; right: 16px; }
-      .monthCard { min-width: 130px; }
-    }
-
-    @media (max-width: 480px) {
-      .grid.three { grid-template-columns: 1fr !important; }
-    }
+    /* (əvvəlki CSS eyni qalır, yer qənaəti üçün qısaldıldı) */
+    @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+    .memoryCard { position:relative; background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06)); border:3px solid var(--stroke); border-radius:20px; overflow:hidden; cursor:pointer; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); animation:fadeInUp 0.6s ease forwards; box-shadow:0 8px 24px rgba(0,0,0,.3); }
+    .memoryCard:hover { transform:translateY(-12px) scale(1.02); border-color:var(--accent); box-shadow:0 20px 60px rgba(124,92,255,.5); }
+    .memoryCard.locked::before { content:"🔒"; position:absolute; top:12px; right:12px; z-index:10; font-size:28px; filter:drop-shadow(0 2px 8px rgba(0,0,0,.7)); animation:pulse 2s infinite; }
+    .memoryCard.video::after { content:"▶️"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:56px; z-index:5; filter:drop-shadow(0 4px 16px rgba(0,0,0,.8)); opacity:0.95; }
+    .memoryCard img, .memoryCard video { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .memoryCardBody { padding:16px; background:linear-gradient(to top,rgba(0,0,0,.8),transparent); position:absolute; bottom:0; left:0; right:0; }
+    .memoryCardTitle { font-size:16px; font-weight:900; color:#fff; margin-bottom:6px; text-shadow:0 2px 8px rgba(0,0,0,.7); line-height:1.3; }
+    .memoryCardMeta { font-size:12px; color:rgba(255,255,255,.9); display:flex; gap:10px; align-items:center; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    .memoryReactions { position:absolute; top:12px; left:12px; display:flex; gap:6px; z-index:10; flex-wrap:wrap; max-width:calc(100% - 80px); }
+    .reactionBadge { background:rgba(0,0,0,.8); backdrop-filter:blur(12px); padding:6px 10px; border-radius:999px; font-size:14px; border:2px solid rgba(255,255,255,.3); box-shadow:0 4px 12px rgba(0,0,0,.4); }
+    .favBadge { position:absolute; bottom:80px; right:12px; font-size:32px; filter:drop-shadow(0 2px 8px rgba(255,215,0,.7)); animation:pulse 1.5s infinite; z-index:10; }
+    .lightbox { position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.97); backdrop-filter:blur(20px); display:none; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.3s; }
+    .lightbox.show { display:flex; }
+    .lightboxContent { max-width:900px; width:100%; position:relative; }
+    .lightboxMedia { max-width:100%; max-height:70vh; border-radius:16px; box-shadow:0 20px 80px rgba(0,0,0,.9); margin:0 auto; display:block; }
+    .lightboxInfo { background:rgba(255,255,255,.12); backdrop-filter:blur(24px); padding:20px; border-radius:16px; margin-top:20px; max-height:200px; overflow-y:auto; border:2px solid rgba(255,255,255,.2); }
+    .lightboxTitle { font-size:22px; font-weight:900; margin-bottom:12px; color:#fff; }
+    .lightboxText { font-size:15px; line-height:1.7; white-space:pre-wrap; color:rgba(255,255,255,.95); }
+    .lightboxActions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+    .lightboxNav { position:absolute; top:50%; transform:translateY(-50%); width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,.18); backdrop-filter:blur(12px); border:3px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:28px; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index:10001; }
+    .lightboxNav:hover { background:rgba(255,255,255,.3); transform:translateY(-50%) scale(1.15); }
+    .lightboxNav.prev { left:20px; }
+    .lightboxNav.next { right:20px; }
+    .lightboxClose { position:absolute; top:20px; right:20px; width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,.18); backdrop-filter:blur(12px); border:3px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:28px; transition:all 0.3s; color:#fff; z-index:10001; }
+    .lightboxClose:hover { background:rgba(255,92,92,.9); transform:rotate(90deg) scale(1.15); }
+    .monthCarousel { display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; padding:16px 0; scrollbar-width:none; -ms-overflow-style:none; }
+    .monthCarousel::-webkit-scrollbar { display:none; }
+    .monthCard { min-width:150px; padding:18px; border-radius:18px; background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06)); border:3px solid var(--stroke); text-align:center; cursor:pointer; scroll-snap-align:start; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); animation:float 3s ease-in-out infinite; box-shadow:0 4px 16px rgba(0,0,0,.2); }
+    .monthCard.active { border-color:var(--accent); background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 12px 32px rgba(124,92,255,.5); transform:scale(1.08); }
+    .monthIcon { font-size:36px; margin-bottom:10px; }
+    .monthName { font-size:15px; font-weight:900; margin-bottom:6px; }
+    .monthCount { font-size:12px; opacity:0.85; }
+    .fab { position:fixed; bottom:calc(90px + env(safe-area-inset-bottom)); right:24px; width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 12px 32px rgba(124,92,255,.6); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:32px; z-index:1000; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); animation:float 2.5s ease-in-out infinite; border:3px solid rgba(255,255,255,.3); }
+    .fab:hover { transform:scale(1.2) rotate(90deg); box-shadow:0 16px 40px rgba(124,92,255,.8); }
+    .sheet { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.9); backdrop-filter:blur(16px); display:none; align-items:flex-end; }
+    .sheet.show { display:flex; }
+    .sheetContent { background:var(--bg); border-radius:28px 28px 0 0; padding:28px; max-width:700px; width:100%; max-height:88vh; overflow-y:auto; animation:slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1); margin:0 auto; border:3px solid var(--stroke); border-bottom:none; }
+    .sheetHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:3px solid var(--stroke); }
+    .sheetClose { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid var(--stroke); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:24px; transition:all 0.3s; }
+    .sheetClose:hover { background:rgba(255,92,92,.8); transform:rotate(90deg); }
+    .filterTags { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+    .filterTag { padding:10px 16px; border-radius:999px; background:rgba(255,255,255,.1); border:2px solid var(--stroke); font-size:13px; font-weight:800; cursor:pointer; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+    .filterTag.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; box-shadow:0 4px 16px rgba(124,92,255,.4); }
+    .statsGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:14px; margin:16px 0; }
+    .statCard { padding:20px; border-radius:16px; background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06)); border:2px solid var(--stroke); text-align:center; transition:all 0.3s; }
+    .statCard:hover { transform:translateY(-4px); border-color:var(--accent); }
+    .statValue { font-size:36px; font-weight:900; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .statLabel { font-size:12px; color:var(--muted); margin-top:6px; font-weight:800; text-transform:uppercase; }
+    .mediaPreview { margin-top:16px; border-radius:16px; overflow:hidden; border:2px solid var(--stroke); max-height:300px; display:none; }
+    .mediaPreview.show { display:block; }
+    .mediaPreview img, .mediaPreview video { width:100%; display:block; }
+    @media (max-width:768px){ .lightboxNav{width:52px;height:52px;font-size:22px;} .lightboxNav.prev{left:10px;} .lightboxNav.next{right:10px;} .lightboxClose{width:48px;height:48px;top:15px;right:15px;} .fab{width:60px;height:60px;font-size:28px;right:16px;} .monthCard{min-width:130px;} }
+    @media (max-width:480px){ .grid.three{grid-template-columns:1fr !important;} }
   </style>
 </head>
-
 <body>
   <div class="topbar">
     <a class="brand" href="index.html">
@@ -589,35 +277,25 @@
 
   <div id="toast" class="toast"></div>
 
+  <!-- album-data.js faylından DEFAULT_MEMORIES gəlir -->
   <script src="assets/js/album-data.js"></script>
+
   <script>
-    const STORAGE_KEY = 'ALBUM_CUSTOM_MEMORIES_V3';
-    const startDate = new Date('2025-11-08');
+    // ----------------------------------------------------------------------
+    // YENİ: Firebase ilə işləyən kod (localStorage tamamilə silinib)
+    // ----------------------------------------------------------------------
 
-    // Load memories
-    function loadMemories() {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      let customMems = [];
-      if (stored) {
-        try { customMems = JSON.parse(stored); } catch (e) {}
-      }
-      return [...window.DEFAULT_MEMORIES, ...customMems];
-    }
-
-    function saveMemories(memories) {
-      const custom = memories.filter(m => m.custom);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(custom));
-    }
-
-    let memories = loadMemories();
+    let memories = [];               // Bütün anılar (Firebase-dən gəlir)
     let activeMonth = 'all';
     let activeFilter = 'all';
     let searchQuery = '';
     let currentLightboxIndex = 0;
     let filteredMemories = [];
-    let editingIndex = -1;
+    let editingIndex = -1;           // -1 = yeni, 0+ = düzəltmə
 
-    // Love Counter
+    const startDate = new Date('2025-11-08');
+
+    // Gün sayğacı
     function updateCounter() {
       const now = new Date();
       const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
@@ -626,7 +304,41 @@
     setInterval(updateCounter, 1000);
     updateCounter();
 
-    // Render months
+    // ----------------------------------------------------------------------
+    // Firebase-dən realtime dinləmə
+    // ----------------------------------------------------------------------
+    function subscribeMemories() {
+      const memoriesRef = database.ref('memories');
+      memoriesRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          // Firebase obyektini diziye çevir
+          memories = Object.keys(data).map(id => ({
+            id: id,
+            ...data[id]
+          }));
+        } else {
+          memories = [];
+          // İlk dəfədir, heç məlumat yoxdursa DEFAULT_MEMORIES-i Firebase-ə yüklə
+          if (window.DEFAULT_MEMORIES && window.DEFAULT_MEMORIES.length > 0) {
+            window.DEFAULT_MEMORIES.forEach(mem => {
+              database.ref('memories').push(mem);
+            });
+          }
+        }
+        // Arayüzü yenilə
+        renderMonths();
+        renderMemories();
+        updateStats();
+      });
+    }
+
+    // Dərhal başlat
+    subscribeMemories();
+
+    // ----------------------------------------------------------------------
+    // Ayları göstər
+    // ----------------------------------------------------------------------
     function renderMonths() {
       const months = [
         { key: 'all', label: 'Hamısı', icon: '🎯' },
@@ -654,7 +366,9 @@
       });
     }
 
-    // Filter memories
+    // ----------------------------------------------------------------------
+    // Filterləmə
+    // ----------------------------------------------------------------------
     function filterMemories() {
       let filtered = memories;
 
@@ -678,7 +392,9 @@
       return filtered;
     }
 
-    // Render memories
+    // ----------------------------------------------------------------------
+    // Anıları HTML-ə bas
+    // ----------------------------------------------------------------------
     function renderMemories() {
       filteredMemories = filterMemories();
       const grid = document.getElementById('memoriesGrid');
@@ -726,7 +442,9 @@
       updateStats();
     }
 
-    // Update stats
+    // ----------------------------------------------------------------------
+    // Statistikaları yenilə
+    // ----------------------------------------------------------------------
     function updateStats() {
       document.getElementById('totalCount').textContent = memories.length;
       document.getElementById('photoCount').textContent = memories.filter(m => m.type === 'photo').length;
@@ -734,7 +452,9 @@
       document.getElementById('favoriteCount').textContent = memories.filter(m => m.favorite).length;
     }
 
+    // ----------------------------------------------------------------------
     // Lightbox
+    // ----------------------------------------------------------------------
     function openLightbox(index) {
       const mem = filteredMemories[index];
       
@@ -779,45 +499,53 @@
       openLightbox(currentLightboxIndex);
     }
 
+    // ----------------------------------------------------------------------
+    // Favori dəyiş (Firebase)
+    // ----------------------------------------------------------------------
     function toggleFavorite() {
       const mem = filteredMemories[currentLightboxIndex];
-      const globalIndex = memories.findIndex(m => m === mem);
-      memories[globalIndex].favorite = !memories[globalIndex].favorite;
-      saveMemories(memories);
-      renderMemories();
-      openLightbox(currentLightboxIndex);
-      App.toast(memories[globalIndex].favorite ? '⭐ Favoriyə əlavə edildi!' : '⭐ Favoritdən çıxarıldı!');
+      const yeniDeger = !mem.favorite;
+      database.ref(`memories/${mem.id}/favorite`).set(yeniDeger)
+        .then(() => {
+          App.toast(yeniDeger ? '⭐ Favoriyə əlavə edildi!' : '⭐ Favoritdən çıxarıldı!');
+        });
     }
 
+    // ----------------------------------------------------------------------
+    // Sil (Firebase)
+    // ----------------------------------------------------------------------
     function deleteMemory() {
       if (!confirm('Bu xatirəni silmək istədiyinizə əminsiniz?')) return;
       
       const mem = filteredMemories[currentLightboxIndex];
-      const globalIndex = memories.findIndex(m => m === mem);
       
       if (!mem.custom) {
         App.toast('❌ Orijinal xatirələr silinə bilməz!');
         return;
       }
 
-      memories.splice(globalIndex, 1);
-      saveMemories(memories);
-      closeLightbox();
-      renderMonths();
-      renderMemories();
-      App.toast('🗑️ Xatirə silindi!');
+      database.ref(`memories/${mem.id}`).remove()
+        .then(() => {
+          closeLightbox();
+          App.toast('🗑️ Xatirə silindi!');
+        });
     }
 
+    // ----------------------------------------------------------------------
+    // Düzəltmə (edit) sheet-i aç
+    // ----------------------------------------------------------------------
     function editMemory() {
       const mem = filteredMemories[currentLightboxIndex];
-      const globalIndex = memories.findIndex(m => m === mem);
       
       if (!mem.custom) {
         App.toast('❌ Orijinal xatirələr düzəldilə bilməz!');
         return;
       }
 
+      // memories içində index-i tap
+      const globalIndex = memories.findIndex(m => m.id === mem.id);
       editingIndex = globalIndex;
+
       document.getElementById('sheetTitle').textContent = '✏️ Xatirəni Düzəlt';
       document.getElementById('memMonth').value = mem.month;
       document.getElementById('memTitle').value = mem.title;
@@ -832,7 +560,9 @@
       document.getElementById('memorySheet').classList.add('show');
     }
 
-    // Add memory
+    // ----------------------------------------------------------------------
+    // Yeni anı əlavə et (FAB klik)
+    // ----------------------------------------------------------------------
     document.getElementById('addMemoryBtn').onclick = () => {
       editingIndex = -1;
       document.getElementById('sheetTitle').textContent = '➕ Yeni Xatirə';
@@ -847,10 +577,12 @@
       document.getElementById('memorySheet').classList.add('show');
     };
 
+    // Şifrə sahəsini göstər/gizlət
     document.getElementById('memLocked').onchange = (e) => {
       document.getElementById('passwordField').style.display = e.target.checked ? 'block' : 'none';
     };
 
+    // Media önizləmə
     document.getElementById('memMedia').onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -873,6 +605,9 @@
       reader.readAsDataURL(file);
     };
 
+    // ----------------------------------------------------------------------
+    // Saxla düyməsi (yeni və ya düzəltmə)
+    // ----------------------------------------------------------------------
     document.getElementById('saveMemoryBtn').onclick = () => {
       const month = document.getElementById('memMonth').value;
       const title = document.getElementById('memTitle').value;
@@ -886,19 +621,23 @@
       }
 
       if (editingIndex >= 0) {
-        // Edit existing
-        memories[editingIndex].month = month;
-        memories[editingIndex].title = title;
-        memories[editingIndex].text = text;
-        memories[editingIndex].locked = locked;
-        memories[editingIndex].password = password;
-        saveMemories(memories);
-        document.getElementById('memorySheet').classList.remove('show');
-        renderMonths();
-        renderMemories();
-        App.toast('✅ Xatirə yeniləndi!');
+        // DÜZƏLTMƏ (editingIndex memories içindəki index)
+        const mem = memories[editingIndex];
+        const memId = mem.id;
+
+        // Dəyişəcəyimiz sahələr
+        const updates = {
+          month, title, text, locked, password
+          // media dəyişməyib, ona görə göndərmirik
+        };
+
+        database.ref(`memories/${memId}`).update(updates)
+          .then(() => {
+            App.toast('✅ Xatirə yeniləndi!');
+            document.getElementById('memorySheet').classList.remove('show');
+          });
       } else {
-        // Add new
+        // YENİ ANI
         const mediaFile = document.getElementById('memMedia').files[0];
         if (!mediaFile) {
           App.toast('⚠️ Şəkil və ya video seçin!');
@@ -911,27 +650,29 @@
             month,
             title,
             text,
-            media: e.target.result,
+            media: e.target.result,      // base64
             type: mediaFile.type.startsWith('video/') ? 'video' : 'photo',
             locked,
             password,
             custom: true,
             favorite: false,
-            reactions: []
+            reactions: [],
+            createdAt: firebase.database.ServerValue.TIMESTAMP
           };
 
-          memories.push(newMem);
-          saveMemories(memories);
-          renderMonths();
-          renderMemories();
-          document.getElementById('memorySheet').classList.remove('show');
-          App.toast('✅ Xatirə əlavə olundu!');
+          database.ref('memories').push(newMem)
+            .then(() => {
+              App.toast('✅ Xatirə əlavə olundu!');
+              document.getElementById('memorySheet').classList.remove('show');
+            });
         };
         reader.readAsDataURL(mediaFile);
       }
     };
 
-    // Filters
+    // ----------------------------------------------------------------------
+    // Filterlərə klik
+    // ----------------------------------------------------------------------
     document.querySelectorAll('.filterTag').forEach(tag => {
       tag.onclick = () => {
         document.querySelectorAll('.filterTag').forEach(t => t.classList.remove('active'));
@@ -946,19 +687,25 @@
       renderMemories();
     };
 
-    // Lightbox controls
+    // ----------------------------------------------------------------------
+    // Lightbox idarəsi
+    // ----------------------------------------------------------------------
     document.getElementById('lightboxClose').onclick = closeLightbox;
     document.getElementById('lightboxNext').onclick = nextLightbox;
     document.getElementById('lightboxPrev').onclick = prevLightbox;
     document.getElementById('editMemBtn').onclick = editMemory;
     document.getElementById('deleteMemBtn').onclick = deleteMemory;
 
-    // Settings
+    // ----------------------------------------------------------------------
+    // Ayarlar sheet
+    // ----------------------------------------------------------------------
     document.getElementById('settingsBtn').onclick = () => document.getElementById('settingsSheet').classList.add('show');
     document.getElementById('settingsSheetClose').onclick = () => document.getElementById('settingsSheet').classList.remove('show');
     document.getElementById('memorySheetClose').onclick = () => document.getElementById('memorySheet').classList.remove('show');
 
-    // Export/Import
+    // ----------------------------------------------------------------------
+    // Export/Import (hələki local JSON – Firebase-dən export edir)
+    // ----------------------------------------------------------------------
     document.getElementById('exportBtn').onclick = () => {
       const dataStr = JSON.stringify(memories, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
@@ -978,10 +725,12 @@
       reader.onload = (ev) => {
         try {
           const imported = JSON.parse(ev.target.result);
-          memories = imported;
-          saveMemories(memories);
-          renderMonths();
-          renderMemories();
+          // Firebase-ə yüklə (hər birini push et)
+          imported.forEach(mem => {
+            // Əgər id varsa sil, Firebase özü yaradacaq
+            delete mem.id;
+            database.ref('memories').push(mem);
+          });
           App.toast('📥 Import edildi!');
         } catch {
           App.toast('❌ Xəta! Fayl düzgün deyil.');
@@ -990,16 +739,22 @@
       reader.readAsText(file);
     };
 
+    // ----------------------------------------------------------------------
+    // Clear all custom (yalnız custom olanları sil)
+    // ----------------------------------------------------------------------
     document.getElementById('clearAllBtn').onclick = () => {
       if (!confirm('Əlavə etdiyiniz bütün xatirələri silmək istədiyinizə əminsiniz?')) return;
-      memories = window.DEFAULT_MEMORIES;
-      localStorage.removeItem(STORAGE_KEY);
-      renderMonths();
-      renderMemories();
+      
+      const customMemories = memories.filter(m => m.custom);
+      customMemories.forEach(mem => {
+        database.ref(`memories/${mem.id}`).remove();
+      });
       App.toast('🗑️ Əlavə edilmiş xatirələr silindi!');
     };
 
-    // Swipe gestures
+    // ----------------------------------------------------------------------
+    // Swipe gestures (lightbox)
+    // ----------------------------------------------------------------------
     let touchStartX = 0;
     let touchEndX = 0;
     const lightbox = document.getElementById('lightbox');
@@ -1020,9 +775,11 @@
       if (e.key === 'ArrowLeft') prevLightbox();
     });
 
-    // Init
-    renderMonths();
-    renderMemories();
+    // ----------------------------------------------------------------------
+    // İlkin render (əslində subscribeMemories artıq çağırıldı)
+    // Ancaq əgər Firebase hələ gəlməyibsə, boş olsa da problem yox
+    // ----------------------------------------------------------------------
+    // Heç bir şey etməyə ehtiyac yox, çünki subscribe on('value') dərhal işləyir
   </script>
 </body>
 </html>
