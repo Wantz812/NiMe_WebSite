@@ -81,6 +81,11 @@
       '<div class="bsn-grip"></div>' +
       '<div class="bsn-inner">' +
         '<div class="bsn-grid">' + gridHtml + '</div>' +
+      '</div>' +
+      '<div class="bsn-close-row">' +
+        '<button class="bsn-close-btn" aria-label="Menyunu bağla">' +
+          '<span>✕</span><span>Bağla</span>' +
+        '</button>' +
       '</div>';
 
     document.body.appendChild(overlay);
@@ -104,6 +109,8 @@
       sheet.classList.remove('open');
       overlay.classList.remove('open');
       trigger.setAttribute('aria-expanded', 'false');
+      // Trigger-i yenidən görünür et — az gecikmə ilə
+      trigger.style.transition = 'opacity 0.25s ease 0.1s, transform 0.25s ease 0.1s';
     }
 
     trigger.addEventListener('click', function () {
@@ -111,6 +118,10 @@
     });
 
     overlay.addEventListener('click', closeSheet);
+
+    /* Sheet içindəki bağla düyməsi */
+    var closeBtn = sheet.querySelector('.bsn-close-btn');
+    if (closeBtn) closeBtn.addEventListener('click', closeSheet);
 
     /* Seçim edəndən sonra bağlanır (natural navigation baş verəcək) */
     var items = sheet.querySelectorAll('.bsn-item');
