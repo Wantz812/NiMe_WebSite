@@ -7,6 +7,7 @@
   <meta name="description" content="Temaları, fonları və effektləri seçin">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
   <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/bottomnav.css">
   <script defer src="assets/js/app.js"></script>
 </head>
 
@@ -337,6 +338,41 @@
       </aside>
     </div>
 
+    <!-- NAVİQASİYA AYARLARI -->
+    <section class="card" style="margin-top: 14px;">
+      <div class="cardInner">
+        <div class="sectionHeader">
+          <h2 class="h2">🧭 Naviqasiya Ayarları</h2>
+          <p class="p" style="font-size: 12px; margin-top: 6px;">Alt menyu görünüşü</p>
+        </div>
+
+        <div class="row">
+          <div>
+            <b>Menyu Düyməsi Yazısı</b>
+            <small>Trigger düyməsindəki mətn</small>
+          </div>
+          <input class="input" id="navLabelInput" type="text"
+            placeholder="Menyu"
+            style="width: 110px; padding: 8px 12px; font-size: 13px;">
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div class="label" style="margin-bottom: 8px;">👁️ Canlı Önizləmə</div>
+          <div class="bsn-preview">
+            <span style="font-size: 19px;">☰</span>
+            <span id="navLabelPreview" style="font-size: 13px; font-weight: 600;">Menyu</span>
+          </div>
+          <p style="font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.6;">
+            💡 <b>İpucu:</b> Düyməyə klik etdikdə panel aşağıdan qalxır. İkon üzərinə gəldikdə böyüyür, aktiv səhifə işıqlanır.
+          </p>
+        </div>
+
+        <div class="btnRow" style="margin-top: 14px;">
+          <button class="btn primary" id="saveNavLabel">💾 Yadda Saxla</button>
+        </div>
+      </div>
+    </section>
+
     <!-- RƏNG PALİTRASI -->
     <section class="card" style="margin-top: 14px;">
       <div class="cardInner">
@@ -370,19 +406,32 @@
     </section>
   </main>
 
-  <nav class="bottomNav" aria-label="Primary">
-    <a class="navBtn" href="index.html"><div class="icon">🏠</div>Home</a>
-    <a class="navBtn" href="gift-vault.html"><div class="icon">🎁</div>Vault</a>
-    <a class="navBtn" href="album.html"><div class="icon">📖</div>Album</a>
-    <a class="navBtn" href="plans.html"><div class="icon">🗒️</div>Plans</a>
-    <a class="navBtn" href="puzzlebox.html"><div class="icon">🔐</div>Puzzle</a>
-    <a class="navBtn" aria-current="page" href="settings.html"><div class="icon">⚙️</div>Settings</a>
-  </nav>
-
   <div id="toast" class="toast" aria-live="polite"></div>
 
+  <script src="assets/js/bottomnav.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // ── Nav label ayarı ───────────────────────────────────
+      const navLabelInput   = document.getElementById('navLabelInput');
+      const navLabelPreview = document.getElementById('navLabelPreview');
+      const saveNavLabel    = document.getElementById('saveNavLabel');
+
+      // Mövcud dəyəri yüklə
+      const currentSettings = App.getSettings();
+      const currentLabel = currentSettings.navLabel || 'Menyu';
+      navLabelInput.value   = currentLabel;
+      navLabelPreview.textContent = currentLabel;
+
+      navLabelInput.addEventListener('input', () => {
+        navLabelPreview.textContent = navLabelInput.value || 'Menyu';
+      });
+
+      saveNavLabel.addEventListener('click', () => {
+        App.setSettings({ navLabel: navLabelInput.value || 'Menyu' });
+        App.toast('🧭 Nav ayarı saxlandı — yenilə üçün səhifəni refresh et');
+      });
+
+      // ── Mövcud settings init ──────────────────────────────
       const s = App.getSettings();
 
       // Elements
