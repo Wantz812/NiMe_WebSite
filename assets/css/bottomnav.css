@@ -1,0 +1,278 @@
+/* ═══════════════════════════════════════════════════════════
+   NiMe — Bottom Sheet Navigation
+   assets/css/bottomnav.css
+
+   QOŞMAQ ÜÇÜN hər səhifənin <head>-inə əlavə et:
+   <link rel="stylesheet" href="assets/css/bottomnav.css">
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Köhnə nav-ı gizlət ─────────────────────────────────── */
+.bottomNav,
+.cartoonNav {
+  display: none !important;
+}
+
+/* ── Səhifəyə altdan boşluq (trigger üstünə gəlməsin) ───── */
+body {
+  padding-bottom: 86px !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   OVERLAY
+   ══════════════════════════════════════════════════════════ */
+.bsn-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 900;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.bsn-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TRIGGER BUTTON — Floating pill at bottom center
+   ══════════════════════════════════════════════════════════ */
+.bsn-trigger {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 910;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 24px;
+  background: rgba(15, 15, 22, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 60px;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45),
+              0 2px 8px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background 0.25s ease,
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.bsn-trigger:hover {
+  background: rgba(25, 25, 38, 0.95);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bsn-trigger:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+.bsn-trigger.open {
+  background: rgba(124, 92, 255, 0.22);
+  border-color: rgba(124, 92, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(124, 92, 255, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Hamburger ikonu ─────────────────────────────────────── */
+.bsn-ham {
+  width: 19px;
+  height: 13px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.bsn-ham span {
+  display: block;
+  height: 1.8px;
+  background: currentColor;
+  border-radius: 2px;
+  transform-origin: center;
+  transition: transform 0.38s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+              opacity  0.22s ease,
+              width    0.28s ease;
+}
+.bsn-ham span:nth-child(1) { width: 100%; }
+.bsn-ham span:nth-child(2) { width: 68%; align-self: flex-end; }
+.bsn-ham span:nth-child(3) { width: 45%; }
+
+/* X animasiyası */
+.bsn-trigger.open .bsn-ham span:nth-child(1) {
+  transform: translateY(5.6px) rotate(45deg);
+  width: 100%;
+}
+.bsn-trigger.open .bsn-ham span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.bsn-trigger.open .bsn-ham span:nth-child(3) {
+  transform: translateY(-5.6px) rotate(-45deg);
+  width: 100%;
+}
+
+.bsn-trigger-lbl {
+  transition: opacity 0.2s ease;
+}
+.bsn-trigger.open .bsn-trigger-lbl {
+  opacity: 0.65;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM SHEET
+   ══════════════════════════════════════════════════════════ */
+.bsn-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 905;
+  background: rgba(10, 10, 16, 0.97);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px 22px 0 0;
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -16px 60px rgba(0, 0, 0, 0.55),
+              0 -1px 0 rgba(255, 255, 255, 0.05);
+  transform: translateY(100%);
+  transition: transform 0.44s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.bsn-sheet.open {
+  transform: translateY(0);
+}
+
+/* Drag handle */
+.bsn-grip {
+  width: 30px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  margin: 10px auto 0;
+}
+
+.bsn-inner {
+  padding: 14px 14px 4px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+/* ── Nav items grid ─────────────────────────────────────── */
+.bsn-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+@media (max-width: 420px) {
+  .bsn-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Hər nav item ──────────────────────────────────────── */
+.bsn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.38);
+  cursor: pointer;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: background 0.2s ease,
+              color     0.2s ease,
+              transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity   0.28s ease;
+}
+
+/* Stagger animasiyası */
+.bsn-sheet.open .bsn-item { opacity: 1; transform: translateY(0); }
+.bsn-sheet.open .bsn-item:nth-child(1) { transition-delay: 0.04s; }
+.bsn-sheet.open .bsn-item:nth-child(2) { transition-delay: 0.07s; }
+.bsn-sheet.open .bsn-item:nth-child(3) { transition-delay: 0.10s; }
+.bsn-sheet.open .bsn-item:nth-child(4) { transition-delay: 0.13s; }
+.bsn-sheet.open .bsn-item:nth-child(5) { transition-delay: 0.16s; }
+.bsn-sheet.open .bsn-item:nth-child(6) { transition-delay: 0.19s; }
+.bsn-sheet.open .bsn-item:nth-child(7) { transition-delay: 0.22s; }
+
+.bsn-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.88);
+  transform: translateY(-3px);
+}
+.bsn-item:active { transform: scale(0.92); }
+
+/* ── Aktiv item ─────────────────────────────────────────── */
+.bsn-item.active {
+  background: rgba(124, 92, 255, 0.18);
+  color: #ffffff;
+}
+.bsn-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2.5px;
+  background: var(--accent, #7c5cff);
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 0 10px var(--accent, #7c5cff),
+              0 0 20px rgba(124, 92, 255, 0.4);
+}
+
+/* ── İkon ──────────────────────────────────────────────── */
+.bsn-icon {
+  font-size: 21px;
+  line-height: 1;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+.bsn-item:hover .bsn-icon,
+.bsn-item.active .bsn-icon { transform: scale(1.22) translateY(-2px); }
+.bsn-item.active .bsn-icon { filter: drop-shadow(0 0 8px rgba(124, 92, 255, 0.5)); }
+
+/* ── Label — açılanda animasiya ilə gəlir ─────────────── */
+.bsn-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: nowrap;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: max-height 0.32s ease,
+              opacity    0.28s ease,
+              transform  0.28s ease,
+              margin-top 0.28s ease;
+}
+.bsn-sheet.open .bsn-lbl {
+  max-height: 14px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 5px;
+}
