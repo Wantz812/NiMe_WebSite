@@ -82,11 +82,11 @@ body {
   transform: translateX(-50%) scale(0.96);
 }
 
+/* Trigger açıq halda — gizlən */
 .bsn-trigger.open {
-  background: rgba(124, 92, 255, 0.22);
-  border-color: rgba(124, 92, 255, 0.5);
-  box-shadow: 0 8px 32px rgba(124, 92, 255, 0.25),
-              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.85);
 }
 
 /* ── Hamburger ikonu ─────────────────────────────────────── */
@@ -275,4 +275,53 @@ body {
   opacity: 1;
   transform: translateY(0);
   margin-top: 5px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SHEET İÇİNDƏ BAĞLA DÜYMƏSİ
+   ══════════════════════════════════════════════════════════ */
+.bsn-close-row {
+  display: flex;
+  justify-content: center;
+  padding: 10px 14px 2px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.bsn-close-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 22px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bsn-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.bsn-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Bağla düyməsi sheet açılanda görünür */
+.bsn-close-row {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease 0.2s, transform 0.25s ease 0.2s;
+}
+.bsn-sheet.open .bsn-close-row {
+  opacity: 1;
+  transform: translateY(0);
 }
