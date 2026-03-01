@@ -9,6 +9,56 @@
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/bottomnav.css">
   <script defer src="assets/js/app.js"></script>
+  <style>
+    .nav-style-card {
+      appearance: none;
+      border: 2px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all .25s cubic-bezier(.34,1.56,.64,1);
+      text-align: center;
+      color: var(--text);
+    }
+    .nav-style-card:hover {
+      transform: scale(1.05) translateY(-2px);
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    }
+    .nav-style-card.active {
+      border-color: var(--accent);
+      background: rgba(255,255,255,.10);
+      box-shadow: 0 8px 28px rgba(0,0,0,.25), 0 0 22px rgba(124,92,255,.22);
+    }
+    .nav-style-preview {
+      width: 100%; height: 46px; margin-bottom: 9px;
+      border-radius: 10px; transition: box-shadow .2s ease;
+    }
+    .nav-style-card.active .nav-style-preview { box-shadow: 0 4px 16px rgba(124,92,255,.35); }
+    .nav-style-name { font-size: 12px; font-weight: 800; margin-bottom: 3px; }
+    .nav-style-desc { font-size: 10px; color: var(--muted); }
+
+    .nav-pos-btn { font-size: 11px; padding: 9px 14px; }
+    .nav-pos-btn.active {
+      border-color: var(--accent);
+      background: rgba(124,92,255,.2);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(124,92,255,.35);
+    }
+
+    #navPreviewBtn {
+      display: inline-flex; align-items: center; gap: 11px;
+      padding: 14px 28px; cursor: default; pointer-events: none;
+      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: .05em;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .preview-ham { display: flex; flex-direction: column; gap: 3.5px; width: 20px; flex-shrink: 0; }
+    .preview-ham span { height: 2px; background: #fff; border-radius: 2px; display: block; }
+    .preview-ham span:nth-child(2) { width: 65%; align-self: flex-end; }
+    .preview-ham span:nth-child(3) { width: 42%; }
+  </style>
 </head>
 
 <body>
@@ -27,13 +77,10 @@
   </div>
 
   <main class="container">
-    <!-- Hero Section -->
     <section class="card heroCard">
       <div class="cardInner">
         <div class="heroContent">
-          <h1 class="h1">
-            <span class="gradientText">Görünüşü Fərdiləşdir</span>
-          </h1>
+          <h1 class="h1"><span class="gradientText">Görünüşü Fərdiləşdir</span></h1>
           <p class="p" style="font-size: 14px; margin-top: 12px;">
             12+ premium tema, 10+ arxa fon və 50+ effekt kombinasiyası ilə səyahətini özəlləşdir. 
             Hər dəyişiklik dərhal tətbiq olunur və avtomatik yadda saxlanır.
@@ -43,6 +90,7 @@
     </section>
 
     <div class="settingsGrid">
+
       <!-- TEMALAR -->
       <section class="card">
         <div class="cardInner">
@@ -50,79 +98,19 @@
             <h2 class="h2">🎨 Rəng Temaları</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Premium rəng palitələri</p>
           </div>
-
           <div class="themeGrid">
-            <button class="themeCard" data-theme="neo">
-              <div class="themePreview" style="background: linear-gradient(135deg, #a855f7, #06b6d4)"></div>
-              <div class="themeName">Cyber Neo</div>
-              <div class="themeDesc">Elektrik Neon</div>
-            </button>
-
-            <button class="themeCard" data-theme="aurora">
-              <div class="themePreview" style="background: linear-gradient(135deg, #10b981, #14b8a6)"></div>
-              <div class="themeName">Emerald</div>
-              <div class="themeDesc">Zümrüd Yaşıl</div>
-            </button>
-
-            <button class="themeCard" data-theme="sunset">
-              <div class="themePreview" style="background: linear-gradient(135deg, #f97316, #fbbf24)"></div>
-              <div class="themeName">Sunset Fire</div>
-              <div class="themeDesc">Günbatan Atəş</div>
-            </button>
-
-            <button class="themeCard" data-theme="ocean">
-              <div class="themePreview" style="background: linear-gradient(135deg, #0284c7, #0ea5e9)"></div>
-              <div class="themeName">Deep Ocean</div>
-              <div class="themeDesc">Dərin Okean</div>
-            </button>
-
-            <button class="themeCard" data-theme="rose">
-              <div class="themePreview" style="background: linear-gradient(135deg, #ec4899, #f472b6)"></div>
-              <div class="themeName">Magenta Rose</div>
-              <div class="themeDesc">Çəhrayı Gül</div>
-            </button>
-
-            <button class="themeCard" data-theme="forest">
-              <div class="themePreview" style="background: linear-gradient(135deg, #16a34a, #22c55e)"></div>
-              <div class="themeName">Jungle</div>
-              <div class="themeDesc">Cəngəl Yaşılı</div>
-            </button>
-
-            <button class="themeCard" data-theme="midnight">
-              <div class="themePreview" style="background: linear-gradient(135deg, #3b82f6, #60a5fa)"></div>
-              <div class="themeName">Royal Night</div>
-              <div class="themeDesc">Kral Gecəsi</div>
-            </button>
-
-            <button class="themeCard" data-theme="lavender">
-              <div class="themePreview" style="background: linear-gradient(135deg, #c026d3, #e879f9)"></div>
-              <div class="themeName">Electric</div>
-              <div class="themeDesc">Elektrik Lavanta</div>
-            </button>
-
-            <button class="themeCard" data-theme="emerald">
-              <div class="themePreview" style="background: linear-gradient(135deg, #059669, #10b981)"></div>
-              <div class="themeName">Toxic</div>
-              <div class="themeDesc">Toksik Zümrüd</div>
-            </button>
-
-            <button class="themeCard" data-theme="crimson">
-              <div class="themePreview" style="background: linear-gradient(135deg, #dc2626, #ef4444)"></div>
-              <div class="themeName">Blood</div>
-              <div class="themeDesc">Qan Qırmızı</div>
-            </button>
-
-            <button class="themeCard" data-theme="pearl">
-              <div class="themePreview" style="background: linear-gradient(135deg, #fafbff, #f0f4ff); border: 1px solid #e0e7ff;"></div>
-              <div class="themeName">Pearl</div>
-              <div class="themeDesc">İnci Açıq</div>
-            </button>
-
-            <button class="themeCard" data-theme="mono">
-              <div class="themePreview" style="background: linear-gradient(135deg, #fafafa, #525252)"></div>
-              <div class="themeName">Absolute</div>
-              <div class="themeDesc">Qara-Ağ</div>
-            </button>
+            <button class="themeCard" data-theme="neo"><div class="themePreview" style="background: linear-gradient(135deg, #a855f7, #06b6d4)"></div><div class="themeName">Cyber Neo</div><div class="themeDesc">Elektrik Neon</div></button>
+            <button class="themeCard" data-theme="aurora"><div class="themePreview" style="background: linear-gradient(135deg, #10b981, #14b8a6)"></div><div class="themeName">Emerald</div><div class="themeDesc">Zümrüd Yaşıl</div></button>
+            <button class="themeCard" data-theme="sunset"><div class="themePreview" style="background: linear-gradient(135deg, #f97316, #fbbf24)"></div><div class="themeName">Sunset Fire</div><div class="themeDesc">Günbatan Atəş</div></button>
+            <button class="themeCard" data-theme="ocean"><div class="themePreview" style="background: linear-gradient(135deg, #0284c7, #0ea5e9)"></div><div class="themeName">Deep Ocean</div><div class="themeDesc">Dərin Okean</div></button>
+            <button class="themeCard" data-theme="rose"><div class="themePreview" style="background: linear-gradient(135deg, #ec4899, #f472b6)"></div><div class="themeName">Magenta Rose</div><div class="themeDesc">Çəhrayı Gül</div></button>
+            <button class="themeCard" data-theme="forest"><div class="themePreview" style="background: linear-gradient(135deg, #16a34a, #22c55e)"></div><div class="themeName">Jungle</div><div class="themeDesc">Cəngəl Yaşılı</div></button>
+            <button class="themeCard" data-theme="midnight"><div class="themePreview" style="background: linear-gradient(135deg, #3b82f6, #60a5fa)"></div><div class="themeName">Royal Night</div><div class="themeDesc">Kral Gecəsi</div></button>
+            <button class="themeCard" data-theme="lavender"><div class="themePreview" style="background: linear-gradient(135deg, #c026d3, #e879f9)"></div><div class="themeName">Electric</div><div class="themeDesc">Elektrik Lavanta</div></button>
+            <button class="themeCard" data-theme="emerald"><div class="themePreview" style="background: linear-gradient(135deg, #059669, #10b981)"></div><div class="themeName">Toxic</div><div class="themeDesc">Toksik Zümrüd</div></button>
+            <button class="themeCard" data-theme="crimson"><div class="themePreview" style="background: linear-gradient(135deg, #dc2626, #ef4444)"></div><div class="themeName">Blood</div><div class="themeDesc">Qan Qırmızı</div></button>
+            <button class="themeCard" data-theme="pearl"><div class="themePreview" style="background: linear-gradient(135deg, #fafbff, #f0f4ff); border: 1px solid #e0e7ff;"></div><div class="themeName">Pearl</div><div class="themeDesc">İnci Açıq</div></button>
+            <button class="themeCard" data-theme="mono"><div class="themePreview" style="background: linear-gradient(135deg, #fafafa, #525252)"></div><div class="themeName">Absolute</div><div class="themeDesc">Qara-Ağ</div></button>
           </div>
         </div>
       </section>
@@ -134,57 +122,17 @@
             <h2 class="h2">🌌 Arxa Fonlar</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Animasiyalı və dinamik</p>
           </div>
-
           <div class="bgGrid">
-            <button class="bgCard" data-bg="stars">
-              <div class="bgPreview">🌌</div>
-              <div class="bgName">Cosmos</div>
-            </button>
-
-            <button class="bgCard" data-bg="aurora">
-              <div class="bgPreview">🌠</div>
-              <div class="bgName">Aurora</div>
-            </button>
-
-            <button class="bgCard" data-bg="orbs">
-              <div class="bgPreview">🔮</div>
-              <div class="bgName">Plasma</div>
-            </button>
-
-            <button class="bgCard" data-bg="grid">
-              <div class="bgPreview">⚡</div>
-              <div class="bgName">Cyber Grid</div>
-            </button>
-
-            <button class="bgCard" data-bg="waves">
-              <div class="bgPreview">🌊</div>
-              <div class="bgName">Ocean</div>
-            </button>
-
-            <button class="bgCard" data-bg="gradient">
-              <div class="bgPreview">🌈</div>
-              <div class="bgName">Rainbow</div>
-            </button>
-
-            <button class="bgCard" data-bg="particles">
-              <div class="bgPreview">✨</div>
-              <div class="bgName">Fireflies</div>
-            </button>
-
-            <button class="bgCard" data-bg="nebula">
-              <div class="bgPreview">🪐</div>
-              <div class="bgName">Nebula</div>
-            </button>
-
-            <button class="bgCard" data-bg="hearts">
-              <div class="bgPreview">💝</div>
-              <div class="bgName">Valentine</div>
-            </button>
-
-            <button class="bgCard" data-bg="minimal">
-              <div class="bgPreview">◯</div>
-              <div class="bgName">Minimal</div>
-            </button>
+            <button class="bgCard" data-bg="stars"><div class="bgPreview">🌌</div><div class="bgName">Cosmos</div></button>
+            <button class="bgCard" data-bg="aurora"><div class="bgPreview">🌠</div><div class="bgName">Aurora</div></button>
+            <button class="bgCard" data-bg="orbs"><div class="bgPreview">🔮</div><div class="bgName">Plasma</div></button>
+            <button class="bgCard" data-bg="grid"><div class="bgPreview">⚡</div><div class="bgName">Cyber Grid</div></button>
+            <button class="bgCard" data-bg="waves"><div class="bgPreview">🌊</div><div class="bgName">Ocean</div></button>
+            <button class="bgCard" data-bg="gradient"><div class="bgPreview">🌈</div><div class="bgName">Rainbow</div></button>
+            <button class="bgCard" data-bg="particles"><div class="bgPreview">✨</div><div class="bgName">Fireflies</div></button>
+            <button class="bgCard" data-bg="nebula"><div class="bgPreview">🪐</div><div class="bgName">Nebula</div></button>
+            <button class="bgCard" data-bg="hearts"><div class="bgPreview">💝</div><div class="bgName">Valentine</div></button>
+            <button class="bgCard" data-bg="minimal"><div class="bgPreview">◯</div><div class="bgName">Minimal</div></button>
           </div>
         </div>
       </section>
@@ -196,12 +144,8 @@
             <h2 class="h2">✨ Effektlər</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Görsel keyfiyyət və performans</p>
           </div>
-
           <div class="row">
-            <div>
-              <b>Blur Intensivliyi</b>
-              <small>Fonun bulanıq effekti</small>
-            </div>
+            <div><b>Blur Intensivliyi</b><small>Fonun bulanıq effekti</small></div>
             <select id="fxSelect" class="select">
               <option value="lite">Yüngül (10px)</option>
               <option value="balanced">Balanslaşdırılmış (16px)</option>
@@ -209,35 +153,17 @@
               <option value="ultra">Ultra (28px)</option>
             </select>
           </div>
-
           <div class="row">
-            <div>
-              <b>Yüksək Kontrast</b>
-              <small>Gözlər üçün rahat</small>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="contrastToggle">
-            </label>
+            <div><b>Yüksək Kontrast</b><small>Gözlər üçün rahat</small></div>
+            <label class="switch"><input type="checkbox" id="contrastToggle"></label>
           </div>
-
           <div class="row">
-            <div>
-              <b>Kompakt Dizayn</b>
-              <small>Kiçik padding və radius</small>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="compactToggle">
-            </label>
+            <div><b>Kompakt Dizayn</b><small>Kiçik padding və radius</small></div>
+            <label class="switch"><input type="checkbox" id="compactToggle"></label>
           </div>
-
           <div class="row">
-            <div>
-              <b>Animasiyaları Azalt</b>
-              <small>Performans optimallaşdırması</small>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="motionToggle">
-            </label>
+            <div><b>Animasiyaları Azalt</b><small>Performans optimallaşdırması</small></div>
+            <label class="switch"><input type="checkbox" id="motionToggle"></label>
           </div>
         </div>
       </section>
@@ -249,36 +175,25 @@
             <h2 class="h2">🎵 Audio Tənzimləmələri</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Fon musiqisi və səslər</p>
           </div>
-
           <div class="row">
-            <div>
-              <b>Fon Musiqisi</b>
-              <small>Avtomatik oynatma</small>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="musicToggle">
-            </label>
+            <div><b>Fon Musiqisi</b><small>Avtomatik oynatma</small></div>
+            <label class="switch"><input type="checkbox" id="musicToggle"></label>
           </div>
-
           <div class="field">
             <div class="label">🔊 Səs Gücü</div>
             <input class="range" id="musicVol" type="range" min="0" max="1" step="0.01">
             <div class="rangeValue" id="volValue">50%</div>
           </div>
-
           <div class="field">
             <div class="label">📁 Mahnı Yolu</div>
             <input class="input" id="musicPath" type="text" placeholder="assets/audio/song.mp3">
           </div>
-
           <div class="btnRow">
             <button class="btn primary" id="testMusic">▶️ Test Oynat</button>
             <button class="btn good" id="saveMusic">💾 Yadda Saxla</button>
           </div>
-
           <div class="note" style="margin-top: 14px;">
-            💡 <b>İpucu:</b> Audio faylları <code>assets/audio/</code> qovluğuna əlavə edin. 
-            MP3, WAV və OGG formatları dəstəklənir.
+            💡 <b>İpucu:</b> Audio faylları <code>assets/audio/</code> qovluğuna əlavə edin. MP3, WAV və OGG formatları dəstəklənir.
           </div>
         </div>
       </section>
@@ -290,16 +205,13 @@
             <h2 class="h2">💾 Data İdarəetməsi</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Export və import</p>
           </div>
-
           <div class="btnRow">
             <button class="btn" id="exportBtn">📤 Export</button>
             <button class="btn" id="importBtn">📥 Import</button>
             <button class="btn bad" id="resetBtn">🗑️ Sıfırla</button>
           </div>
-
           <div class="note" style="margin-top: 14px;">
-            ⚠️ <b>Diqqət:</b> "Sıfırla" düyməsi bütün parametrləri default vəziyyətə qaytarır.
-            Əvvəlcə export edin!
+            ⚠️ <b>Diqqət:</b> "Sıfırla" düyməsi bütün parametrləri default vəziyyətə qaytarır. Əvvəlcə export edin!
           </div>
         </div>
       </aside>
@@ -311,44 +223,32 @@
             <h2 class="h2">📊 Statistika</h2>
             <p class="p" style="font-size: 12px; margin-top: 6px;">Cari konfiqurasiya</p>
           </div>
-
           <div class="statGrid">
-            <div class="statItem">
-              <div class="statLabel">Tema</div>
-              <div class="statValue" id="statTheme">Neo</div>
-            </div>
-            <div class="statItem">
-              <div class="statLabel">Fon</div>
-              <div class="statValue" id="statBg">Orbs</div>
-            </div>
-            <div class="statItem">
-              <div class="statLabel">Blur</div>
-              <div class="statValue" id="statFx">16px</div>
-            </div>
-            <div class="statItem">
-              <div class="statLabel">Səs</div>
-              <div class="statValue" id="statVol">50%</div>
-            </div>
+            <div class="statItem"><div class="statLabel">Tema</div><div class="statValue" id="statTheme">Neo</div></div>
+            <div class="statItem"><div class="statLabel">Fon</div><div class="statValue" id="statBg">Orbs</div></div>
+            <div class="statItem"><div class="statLabel">Blur</div><div class="statValue" id="statFx">16px</div></div>
+            <div class="statItem"><div class="statLabel">Səs</div><div class="statValue" id="statVol">50%</div></div>
           </div>
-
-          <div class="note" style="margin-top: 14px;">
-            ℹ️ Bütün dəyişikliklər avtomatik localStorage-də saxlanır.
-          </div>
+          <div class="note" style="margin-top: 14px;">ℹ️ Bütün dəyişikliklər avtomatik localStorage-də saxlanır.</div>
         </div>
       </aside>
-    </div>
 
-    <!-- NAVİQASİYA AYARLARI -->
+    </div><!-- /settingsGrid -->
+
+    <!-- ═══════════════════════════════════════════════════
+         🧭 NAVİQASİYA AYARLARI
+    ═══════════════════════════════════════════════════ -->
     <section class="card" style="margin-top: 14px;">
       <div class="cardInner">
         <div class="sectionHeader">
           <h2 class="h2">🧭 Naviqasiya Ayarları</h2>
-          <p class="p" style="font-size: 12px; margin-top: 6px;">Alt menyu görünüşü</p>
+          <p class="p" style="font-size: 12px; margin-top: 6px;">Alt menyu görünüşü, stili və mövqeyi</p>
         </div>
 
+        <!-- Düymə yazısı -->
         <div class="row">
           <div>
-            <b>Menyu Düyməsi Yazısı</b>
+            <b>Düymə Yazısı</b>
             <small>Trigger düyməsindəki mətn</small>
           </div>
           <input class="input" id="navLabelInput" type="text"
@@ -356,20 +256,87 @@
             style="width: 110px; padding: 8px 12px; font-size: 13px;">
         </div>
 
-        <div style="margin-top: 14px;">
-          <div class="label" style="margin-bottom: 8px;">👁️ Canlı Önizləmə</div>
-          <div class="bsn-preview">
-            <span style="font-size: 19px;">☰</span>
-            <span id="navLabelPreview" style="font-size: 13px; font-weight: 600;">Menyu</span>
+        <!-- Mövqe -->
+        <div class="row" style="margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <b>Mövqe</b>
+            <small>Düymənin ekrandakı yeri</small>
           </div>
-          <p style="font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.6;">
-            💡 <b>İpucu:</b> Düyməyə klik etdikdə panel aşağıdan qalxır. İkon üzərinə gəldikdə böyüyür, aktiv səhifə işıqlanır.
+          <div style="display: flex; gap: 6px;">
+            <button class="btn nav-pos-btn" data-pos="left">◀ Sol</button>
+            <button class="btn nav-pos-btn" data-pos="center">● Orta</button>
+            <button class="btn nav-pos-btn" data-pos="right">Sağ ▶</button>
+          </div>
+        </div>
+
+        <!-- Stil seçimi -->
+        <div style="margin-top: 16px;">
+          <div class="label" style="margin-bottom: 10px;">🎨 Düymə Stili</div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+
+            <button class="nav-style-card" data-style="pill">
+              <div class="nav-style-preview" style="background: rgba(11,11,19,.92); border: 1px solid rgba(255,255,255,.14); border-radius: 100px;"></div>
+              <div class="nav-style-name">💊 Pill</div>
+              <div class="nav-style-desc">Yuvarlaq, klassik</div>
+            </button>
+
+            <button class="nav-style-card" data-style="glass">
+              <div class="nav-style-preview" style="background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.24); border-radius: 20px;"></div>
+              <div class="nav-style-name">🔮 Glass</div>
+              <div class="nav-style-desc">Şəffaf, müasir</div>
+            </button>
+
+            <button class="nav-style-card" data-style="minimal">
+              <div class="nav-style-preview" style="background: rgba(10,10,18,.78); border: 1px solid rgba(255,255,255,.08); border-radius: 14px;"></div>
+              <div class="nav-style-name">◻ Minimal</div>
+              <div class="nav-style-desc">Sadə, yığcam</div>
+            </button>
+
+            <button class="nav-style-card" data-style="neon">
+              <div class="nav-style-preview" style="background: rgba(8,8,16,.94); border: 1px solid #7c5cff; border-radius: 100px; box-shadow: 0 0 18px rgba(124,92,255,.5);"></div>
+              <div class="nav-style-name">⚡ Neon</div>
+              <div class="nav-style-desc">İşıqlı, enerjik</div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- İkon yazıları -->
+        <div class="row" style="margin-top: 14px;">
+          <div>
+            <b>İkon Yazıları</b>
+            <small>Açıq menyuda ikon altında ad göstər</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="navLabelsToggle">
+          </label>
+        </div>
+
+        <!-- Canlı önizləmə -->
+        <div style="margin-top: 16px;">
+          <div class="label" style="margin-bottom: 10px;">👁️ Canlı Önizləmə</div>
+          <div style="display: flex; justify-content: center; padding: 12px 0;">
+            <div id="navPreviewBtn">
+              <div class="preview-ham">
+                <span style="width: 100%"></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span id="navLabelPreview">Menyu</span>
+            </div>
+          </div>
+          <p style="font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.6; text-align: center;">
+            💡 Stil seçincə önizləmə dərhal yenilənir. Mövqe dəyişikliyi saxlandıqdan sonra aktivləşir.
           </p>
         </div>
 
-        <div class="btnRow" style="margin-top: 14px;">
-          <button class="btn primary" id="saveNavLabel">💾 Yadda Saxla</button>
+        <!-- Saxla -->
+        <div class="btnRow" style="margin-top: 16px;">
+          <button class="btn primary" id="saveNavSettings" style="flex: 1; justify-content: center;">
+            💾 Yadda Saxla və Tətbiq Et
+          </button>
         </div>
+
       </div>
     </section>
 
@@ -381,29 +348,15 @@
           <p class="p" style="font-size: 12px; margin-top: 6px;">Aktiv rənglər və tonlar</p>
         </div>
         <div class="colorPalette">
-          <div class="colorSwatch" style="--c: var(--accent)">
-            <div class="swatchColor"></div>
-            <div class="swatchName">Accent</div>
-          </div>
-          <div class="colorSwatch" style="--c: var(--accent2)">
-            <div class="swatchColor"></div>
-            <div class="swatchName">Accent 2</div>
-          </div>
-          <div class="colorSwatch" style="--c: var(--good)">
-            <div class="swatchColor"></div>
-            <div class="swatchName">Good</div>
-          </div>
-          <div class="colorSwatch" style="--c: var(--warn)">
-            <div class="swatchColor"></div>
-            <div class="swatchName">Warn</div>
-          </div>
-          <div class="colorSwatch" style="--c: var(--bad)">
-            <div class="swatchColor"></div>
-            <div class="swatchName">Bad</div>
-          </div>
+          <div class="colorSwatch" style="--c: var(--accent)"><div class="swatchColor"></div><div class="swatchName">Accent</div></div>
+          <div class="colorSwatch" style="--c: var(--accent2)"><div class="swatchColor"></div><div class="swatchName">Accent 2</div></div>
+          <div class="colorSwatch" style="--c: var(--good)"><div class="swatchColor"></div><div class="swatchName">Good</div></div>
+          <div class="colorSwatch" style="--c: var(--warn)"><div class="swatchColor"></div><div class="swatchName">Warn</div></div>
+          <div class="colorSwatch" style="--c: var(--bad)"><div class="swatchColor"></div><div class="swatchName">Bad</div></div>
         </div>
       </div>
     </section>
+
   </main>
 
   <div id="toast" class="toast" aria-live="polite"></div>
@@ -411,94 +364,63 @@
   <script src="assets/js/bottomnav.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // ── Nav label ayarı ───────────────────────────────────
-      const navLabelInput   = document.getElementById('navLabelInput');
-      const navLabelPreview = document.getElementById('navLabelPreview');
-      const saveNavLabel    = document.getElementById('saveNavLabel');
 
-      // Mövcud dəyəri yüklə
-      const currentSettings = App.getSettings();
-      const currentLabel = currentSettings.navLabel || 'Menyu';
-      navLabelInput.value   = currentLabel;
-      navLabelPreview.textContent = currentLabel;
-
-      navLabelInput.addEventListener('input', () => {
-        navLabelPreview.textContent = navLabelInput.value || 'Menyu';
-      });
-
-      saveNavLabel.addEventListener('click', () => {
-        App.setSettings({ navLabel: navLabelInput.value || 'Menyu' });
-        App.toast('🧭 Nav ayarı saxlandı — yenilə üçün səhifəni refresh et');
-      });
-
-      // ── Mövcud settings init ──────────────────────────────
+      // ════════════════════════════════════════════
+      // ƏSAS AYARLAR
+      // ════════════════════════════════════════════
       const s = App.getSettings();
 
-      // Elements
-      const themeCards = document.querySelectorAll('[data-theme]');
-      const bgCards = document.querySelectorAll('[data-bg]');
-      const fxSelect = document.getElementById('fxSelect');
+      const themeCards     = document.querySelectorAll('[data-theme]');
+      const bgCards        = document.querySelectorAll('[data-bg]');
+      const fxSelect       = document.getElementById('fxSelect');
       const contrastToggle = document.getElementById('contrastToggle');
-      const compactToggle = document.getElementById('compactToggle');
-      const motionToggle = document.getElementById('motionToggle');
-      const musicToggle = document.getElementById('musicToggle');
-      const musicVol = document.getElementById('musicVol');
-      const musicPath = document.getElementById('musicPath');
-      const testMusic = document.getElementById('testMusic');
-      const saveMusic = document.getElementById('saveMusic');
-      const exportBtn = document.getElementById('exportBtn');
-      const importBtn = document.getElementById('importBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const volValue = document.getElementById('volValue');
+      const compactToggle  = document.getElementById('compactToggle');
+      const motionToggle   = document.getElementById('motionToggle');
+      const musicToggle    = document.getElementById('musicToggle');
+      const musicVol       = document.getElementById('musicVol');
+      const musicPath      = document.getElementById('musicPath');
+      const testMusic      = document.getElementById('testMusic');
+      const saveMusic      = document.getElementById('saveMusic');
+      const exportBtn      = document.getElementById('exportBtn');
+      const importBtn      = document.getElementById('importBtn');
+      const resetBtn       = document.getElementById('resetBtn');
+      const volValue       = document.getElementById('volValue');
 
-      // Initialize
-      fxSelect.value = s.fx || 'balanced';
+      fxSelect.value         = s.fx || 'balanced';
       contrastToggle.checked = s.contrast === 1;
-      compactToggle.checked = s.compact === 1;
-      motionToggle.checked = s.reducedMotion === 1;
-      musicToggle.checked = s.music === 1;
-      musicVol.value = s.musicVol || 0.5;
-      musicPath.value = s.song || 'assets/audio/bg-music.mp3';
-      volValue.textContent = Math.round((s.musicVol || 0.5) * 100) + '%';
+      compactToggle.checked  = s.compact === 1;
+      motionToggle.checked   = s.reducedMotion === 1;
+      musicToggle.checked    = s.music === 1;
+      musicVol.value         = s.musicVol || 0.5;
+      musicPath.value        = s.song || 'assets/audio/bg-music.mp3';
+      volValue.textContent   = Math.round((s.musicVol || 0.5) * 100) + '%';
 
-      // Update active states
       function updateActive() {
-        themeCards.forEach(card => {
-          card.classList.toggle('active', card.dataset.theme === s.theme);
-        });
-        bgCards.forEach(card => {
-          card.classList.toggle('active', card.dataset.bg === s.bg);
-        });
+        themeCards.forEach(c => c.classList.toggle('active', c.dataset.theme === s.theme));
+        bgCards.forEach(c => c.classList.toggle('active', c.dataset.bg === s.bg));
         updateStats();
       }
 
       function updateStats() {
         document.getElementById('statTheme').textContent = s.theme || 'Neo';
-        document.getElementById('statBg').textContent = s.bg || 'Orbs';
+        document.getElementById('statBg').textContent    = s.bg    || 'Orbs';
         const fxMap = { lite: '10px', balanced: '16px', full: '22px', ultra: '28px' };
-        document.getElementById('statFx').textContent = fxMap[s.fx] || '16px';
+        document.getElementById('statFx').textContent  = fxMap[s.fx] || '16px';
         document.getElementById('statVol').textContent = Math.round((s.musicVol || 0.5) * 100) + '%';
       }
 
-      // Theme selection
-      themeCards.forEach(card => {
-        card.addEventListener('click', () => {
-          App.setSettings({ theme: card.dataset.theme });
-          updateActive();
-          App.toast(`🎨 ${card.dataset.theme.charAt(0).toUpperCase() + card.dataset.theme.slice(1)} temas aktiv edildi`);
-        });
-      });
+      themeCards.forEach(card => card.addEventListener('click', () => {
+        App.setSettings({ theme: card.dataset.theme });
+        updateActive();
+        App.toast(`🎨 ${card.dataset.theme.charAt(0).toUpperCase() + card.dataset.theme.slice(1)} temas aktiv edildi`);
+      }));
 
-      // Background selection
-      bgCards.forEach(card => {
-        card.addEventListener('click', () => {
-          App.setSettings({ bg: card.dataset.bg });
-          updateActive();
-          App.toast(`🌌 ${card.querySelector('.bgName').textContent} fon aktiv edildi`);
-        });
-      });
+      bgCards.forEach(card => card.addEventListener('click', () => {
+        App.setSettings({ bg: card.dataset.bg });
+        updateActive();
+        App.toast(`🌌 ${card.querySelector('.bgName').textContent} fon aktiv edildi`);
+      }));
 
-      // Effects
       fxSelect.addEventListener('change', () => {
         App.setSettings({ fx: fxSelect.value });
         updateStats();
@@ -526,7 +448,6 @@
         App.toast(val ? '⚡ Animasiyalar azaldıldı' : '✨ Tam animasiyalar');
       });
 
-      // Music
       musicToggle.addEventListener('change', () => {
         App.setSettings({ music: musicToggle.checked ? 1 : 0 });
         App.toast(musicToggle.checked ? '🎵 Musiqi aktiv' : '🔇 Musiqi söndürüldü');
@@ -550,13 +471,10 @@
         App.toast('💾 Mahnı yolu yadda saxlandı');
       });
 
-      // Data management
       exportBtn.addEventListener('click', () => {
-        const data = JSON.stringify(App.getSettings(), null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
+        const blob = new Blob([JSON.stringify(App.getSettings(), null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = 'settings-backup.json';
         a.click();
         App.toast('📤 Parametrlər export edildi');
@@ -564,20 +482,13 @@
 
       importBtn.addEventListener('click', () => {
         const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
+        input.type = 'file'; input.accept = '.json';
         input.onchange = (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
+          const file = e.target.files[0]; if (!file) return;
           const reader = new FileReader();
-          reader.onload = (event) => {
-            try {
-              const imported = JSON.parse(event.target.result);
-              App.setSettings(imported);
-              location.reload();
-            } catch {
-              App.toast('❌ Səhv fayl formatı');
-            }
+          reader.onload = (ev) => {
+            try { App.setSettings(JSON.parse(ev.target.result)); location.reload(); }
+            catch { App.toast('❌ Səhv fayl formatı'); }
           };
           reader.readAsText(file);
         };
@@ -591,6 +502,88 @@
       });
 
       updateActive();
+
+      // ════════════════════════════════════════════
+      // 🧭 NAVİQASİYA AYARLARI
+      // ════════════════════════════════════════════
+
+      const navLabelInput   = document.getElementById('navLabelInput');
+      const navLabelPreview = document.getElementById('navLabelPreview');
+      const navPreviewBtn   = document.getElementById('navPreviewBtn');
+      const navLabelsToggle = document.getElementById('navLabelsToggle');
+      const saveNavBtn      = document.getElementById('saveNavSettings');
+      const styleCards      = document.querySelectorAll('.nav-style-card');
+      const posBtns         = document.querySelectorAll('.nav-pos-btn');
+
+      const NAV_STYLE_CSS = {
+        pill:    'background:rgba(11,11,19,.92);border:1px solid rgba(255,255,255,.14);border-radius:100px;box-shadow:0 8px 36px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1)',
+        glass:   'background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.24);border-radius:20px;box-shadow:0 8px 44px rgba(0,0,0,.45)',
+        minimal: 'background:rgba(10,10,18,.78);border:1px solid rgba(255,255,255,.08);border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.4)',
+        neon:    'background:rgba(8,8,16,.94);border:1px solid #7c5cff;border-radius:100px;box-shadow:0 0 22px rgba(124,92,255,.45),0 0 65px rgba(124,92,255,.18)'
+      };
+
+      function refreshStyleCards() {
+        const cur = App.getSettings().navStyle || 'pill';
+        styleCards.forEach(c => c.classList.toggle('active', c.dataset.style === cur));
+      }
+
+      function refreshPosBtns() {
+        const cur = App.getSettings().navPos || 'center';
+        posBtns.forEach(b => b.classList.toggle('active', b.dataset.pos === cur));
+      }
+
+      function refreshPreview() {
+        const ns    = App.getSettings().navStyle || 'pill';
+        const label = navLabelInput.value || 'Menyu';
+        navLabelPreview.textContent = label;
+        navPreviewBtn.style.cssText =
+          'display:inline-flex;align-items:center;gap:11px;padding:14px 28px;' +
+          'cursor:default;pointer-events:none;color:#fff;font-size:13px;font-weight:700;letter-spacing:.05em;' +
+          'transition:all .35s cubic-bezier(.34,1.56,.64,1);' +
+          (NAV_STYLE_CSS[ns] || NAV_STYLE_CSS.pill);
+      }
+
+      // Cari ayarlarla init
+      const navCur = App.getSettings();
+      navLabelInput.value     = navCur.navLabel || 'Menyu';
+      navLabelsToggle.checked = navCur.navLabelsVisible !== false;
+      refreshStyleCards();
+      refreshPosBtns();
+      refreshPreview();
+
+      navLabelInput.addEventListener('input', refreshPreview);
+
+      styleCards.forEach(c => c.addEventListener('click', function () {
+        App.setSettings({ navStyle: this.dataset.style });
+        refreshStyleCards();
+        refreshPreview();
+        App.toast('🎨 ' + this.querySelector('.nav-style-name').textContent + ' stili seçildi');
+      }));
+
+      posBtns.forEach(b => b.addEventListener('click', function () {
+        App.setSettings({ navPos: this.dataset.pos });
+        refreshPosBtns();
+        const names = { left: 'Sol', center: 'Orta', right: 'Sağ' };
+        App.toast('📍 Mövqe: ' + (names[this.dataset.pos] || this.dataset.pos));
+      }));
+
+      navLabelsToggle.addEventListener('change', function () {
+        App.setSettings({ navLabelsVisible: this.checked });
+        App.toast(this.checked ? '🏷️ İkon yazıları göstərilir' : '🏷️ İkon yazıları gizlədildi');
+      });
+
+      saveNavBtn.addEventListener('click', () => {
+        App.setSettings({
+          navLabel:         navLabelInput.value || 'Menyu',
+          navLabelsVisible: navLabelsToggle.checked,
+        });
+        // Refresh olmadan anında tətbiq et
+        if (window.App && typeof window.App.navRebuild === 'function') {
+          window.App.navRebuild();
+        }
+        App.toast('✅ Nav ayarları saxlandı və tətbiq edildi!');
+      });
+
     });
   </script>
 </body>
