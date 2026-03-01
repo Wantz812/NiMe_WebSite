@@ -110,6 +110,7 @@ body{padding-bottom:86px!important}
     { icon: '⏳', label: 'Kapsul',   href: 'capsule.html' },
     { icon: '💑', label: 'Birlikdə', href: 'couple.html' },
     { icon: '🕹️', label: 'Arcade',   href: 'arcade.html' },
+    { icon: '🎵', label: 'Musics',  href: 'music.html' },
     { icon: '⚙️', label: 'Ayarlar',  href: 'settings.html' },
   ];
 
