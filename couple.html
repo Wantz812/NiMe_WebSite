@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>💑 Birlikdə — İkimizin Yeri</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💑</text></svg>">
+  <link rel="stylesheet" href="assets/css/app.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════════════
+   COUPLE PAGE — FULL STYLES
+   ══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pink: #ff6b9d;
+  --pink2: #ff4d8d;
+  --purple: #a855f7;
+  --purple2: #7c3aed;
+  --accent: #ff6b9d;
+  --accent2: #a855f7;
+  --bg0: #0d0014;
+  --bg1: #1a0028;
+  --bg2: rgba(255,255,255,0.04);
+  --stroke: rgba(255,255,255,0.10);
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.60);
+  --radius: 20px;
+  --font: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg0);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* Background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle 800px at 20% 30%, rgba(255,107,157,.25), transparent 65%),
+    radial-gradient(circle 700px at 80% 60%, rgba(168,85,247,.20), transparent 65%),
+    radial-gradient(circle 600px at 50% 90%, rgba(255,77,141,.15), transparent 60%),
+    linear-gradient(180deg, #0d0014, #1a0028);
+  z-index: -1;
+  animation: bgPulse 12s ease-in-out infinite alternate;
+}
+@keyframes bgPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.15); } }
+
+/* Floating hearts bg */
+.hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.heart-particle {
+  position: absolute; bottom: -20px; font-size: 18px;
+  animation: floatUp linear infinite; opacity: 0;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-110vh) rotate(360deg) scale(1.2); opacity: 0; }
+}
+
+/* ══ SETUP OVERLAY ══ */
+.setup-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(13,0,20,0.95); backdrop-filter: blur(24px); padding: 20px;
+}
+.setup-box {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,107,157,0.30); border-radius: 28px;
+  padding: 36px 28px; width: min(400px, 100%); text-align: center;
+  box-shadow: 0 0 80px rgba(255,107,157,0.15), 0 40px 80px rgba(0,0,0,0.5);
+  animation: setupIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes setupIn { from { transform: scale(0.85) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+.setup-box .emoji { font-size: 52px; margin-bottom: 12px; display: block; animation: heartBeat 1.5s ease-in-out infinite; }
+@keyframes heartBeat { 0%,100% { transform: scale(1); } 20% { transform: scale(1.15); } 40% { transform: scale(1); } 60% { transform: scale(1.08); } }
+.setup-box h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.setup-box p  { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+.who-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.who-card {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.10);
+  border-radius: 20px; padding: 20px 12px; cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.who-card:hover { transform: translateY(-4px) scale(1.03); border-color: rgba(255,107,157,0.5); background: rgba(255,107,157,0.10); }
+.who-card.selected { border-color: var(--pink); background: rgba(255,107,157,0.15); box-shadow: 0 0 30px rgba(255,107,157,0.25); transform: scale(1.04); }
+.who-card .who-avatar { font-size: 40px; margin-bottom: 8px; display: block; }
+.who-card .who-name   { font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+.who-card .who-role   { font-size: 11px; color: var(--muted); }
+.setup-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  border: none; border-radius: 16px; color: #fff;
+  font-family: var(--font); font-size: 15px; font-weight: 800;
+  cursor: pointer; transition: all 0.25s ease;
+  box-shadow: 0 8px 30px rgba(255,107,157,0.35);
+}
+.setup-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,107,157,0.45); }
+.setup-btn:active { transform: scale(0.97); }
+
+/* ══ MAIN LAYOUT ══ */
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 680px; margin: 0 auto; }
+
+/* ══ HEADER ══ */
+.chat-header {
+  flex-shrink: 0;
+  background: rgba(13,0,20,0.85); backdrop-filter: blur(30px);
+  border-bottom: 1px solid rgba(255,107,157,0.15);
+  padding: 12px 16px 10px; z-index: 10;
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.header-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.couple-avatar {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,107,157,0.3), rgba(168,85,247,0.3));
+  border: 1px solid rgba(255,107,157,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 15px rgba(255,107,157,0.20);
+}
+.header-text { min-width: 0; }
+.header-title  { font-size: 16px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-status { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.online-dot        { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; flex-shrink: 0; }
+.online-dot.offline { background: #6b7280; box-shadow: none; }
+.typing-text { font-style: italic; color: var(--pink); }
+.header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.hbtn {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: rgba(255,255,255,0.07); border: 1px solid var(--stroke);
+  color: var(--text); font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; -webkit-tap-highlight-color: transparent;
+}
+.hbtn:hover  { background: rgba(255,107,157,0.15); border-color: rgba(255,107,157,0.35); }
+.hbtn:active { transform: scale(0.90); }
+.hbtn.active { background: rgba(255,107,157,0.20); border-color: rgba(255,107,157,0.45); color: var(--pink); }
+
+/* Search bar */
+.search-bar { margin-top: 10px; display: none; }
+.search-bar.visible { display: block; }
+.search-input {
+  width: 100%; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,107,157,0.25); border-radius: 12px;
+  padding: 9px 14px; color: #fff; font-family: var(--font);
+  font-size: 13px; outline: none; transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--pink); }
+.search-input::placeholder { color: var(--muted); }
+
+/* Mood strip */
+.mood-strip {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.mood-strip::-webkit-scrollbar { display: none; }
+.mood-btn {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
+  border-radius: 100px; padding: 5px 12px; font-size: 12px;
+  color: var(--muted); cursor: pointer; transition: all 0.2s ease;
+  white-space: nowrap; -webkit-tap-highlight-color: transparent;
+}
+.mood-btn:hover { background: rgba(255,107,157,0.12); color: var(--pink); border-color: rgba(255,107,157,0.3); }
+.mood-btn.active { background: rgba(255,107,157,0.20); color: var(--pink); border-color: var(--pink); font-weight: 700; }
+
+/* ══ MESSAGES AREA ══ */
+.msgs-wrap {
+  flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+  display: flex; flex-direction: column; gap: 4px;
+  scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+}
+.msgs-wrap::-webkit-scrollbar { width: 3px; }
+.msgs-wrap::-webkit-scrollbar-track { background: transparent; }
+.msgs-wrap::-webkit-scrollbar-thumb { background: rgba(255,107,157,0.3); border-radius: 4px; }
+
+/* Date divider */
+.date-divider { text-align: center; margin: 10px 0 6px; font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.date-divider span { background: rgba(255,255,255,0.07); border: 1px solid var(--stroke); padding: 4px 12px; border-radius: 100px; }
+
+/* Message */
+.msg {
+  display: flex; flex-direction: column; max-width: 80%;
+  animation: msgIn 0.3s cubic-bezier(0.34,1.56,0.64,1); position: relative;
+}
+@keyframes msgIn { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.msg.mine   { align-self: flex-end;   align-items: flex-end; }
+.msg.theirs { align-self: flex-start; align-items: flex-start; }
+
+.msg-bubble {
+  padding: 10px 14px; border-radius: 20px;
+  font-size: 14px; line-height: 1.5; word-break: break-word;
+  position: relative; cursor: pointer; transition: transform 0.15s ease;
+}
+.msg-bubble:active { transform: scale(0.97); }
+.msg.mine   .msg-bubble { background: linear-gradient(135deg, var(--pink2), #c93b7a); color: #fff; border-bottom-right-radius: 6px; box-shadow: 0 4px 20px rgba(255,77,141,0.30); }
+.msg.theirs .msg-bubble { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12); border-bottom-left-radius: 6px; color: var(--text); }
+
+/* Consecutive */
+.msg.mine   + .msg.mine   { margin-top: -2px; }
+.msg.mine   + .msg.mine   .msg-bubble { border-top-right-radius: 8px; }
+.msg.theirs + .msg.theirs { margin-top: -2px; }
+.msg.theirs + .msg.theirs .msg-bubble { border-top-left-radius: 8px; }
+
+/* Starred bubble glow */
+.msg-bubble.is-starred { box-shadow: 0 0 0 2px gold, 0 4px 20px rgba(255,200,0,0.25) !important; }
+
+.msg-meta { display: flex; align-items: center; gap: 4px; margin-top: 4px; padding: 0 4px; font-size: 10px; color: var(--muted); }
+.msg-read      { font-size: 12px; }
+.msg-read.seen { color: var(--pink); }
+
+/* Star badge on message */
+.msg-star-badge { font-size: 11px; margin-left: 2px; line-height: 1; }
+
+/* Reactions */
+.msg-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.msg-reaction {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px; padding: 3px 8px; font-size: 13px;
+  cursor: pointer; transition: all 0.2s ease;
+  display: flex; align-items: center; gap: 3px;
+}
+.msg-reaction span       { font-size: 10px; color: var(--muted); font-weight: 700; }
+.msg-reaction:hover      { transform: scale(1.1); background: rgba(255,107,157,0.15); }
+.msg-reaction.mine-react { background: rgba(255,107,157,0.20); border-color: rgba(255,107,157,0.4); }
+
+/* Reaction picker */
+.reaction-picker {
+  position: fixed; z-index: 500;
+  background: rgba(20,5,32,0.97); backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,107,157,0.25); border-radius: 20px;
+  padding: 10px 12px; display: none; gap: 6px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: pickerIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.reaction-picker.open { display: flex; }
+@keyframes pickerIn { from { transform: scale(0.85) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+.react-opt { font-size: 24px; cursor: pointer; padding: 6px; border-radius: 10px; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1); }
+.react-opt:hover { transform: scale(1.35); }
+
+/* Empty state */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  color: var(--muted); text-align: center; padding: 40px 20px;
+}
+.empty-state .big-emoji { font-size: 64px; animation: heartBeat 2s ease-in-out infinite; }
+.empty-state h3 { font-size: 18px; font-weight: 800; color: var(--text); }
+.empty-state p  { font-size: 13px; line-height: 1.5; max-width: 220px; }
+
+/* ══ STAR FILTER BAR ══ */
+.star-filter-bar {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.star-filter-bar::-webkit-scrollbar { display: none; }
+.sf-btn {
+  flex-shrink: 0;
+  padding: 5px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.5); font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  font-family: var(--font);
+}
+.sf-btn:hover { background: rgba(255,107,157,0.12); color: var(--pink); border-color: rgba(255,107,157,0.3); }
+.sf-btn.active { background: rgba(255,200,0,0.18); border-color: rgba(255,200,0,0.5); color: gold; }
+.sf-count { font-size: 11px; color: rgba(255,255,255,0.28); margin-left: auto; white-space: nowrap; }
+
+/* ══ QUICK ACTIONS BAR ══ */
+.quick-bar {
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px 4px; overflow-x: auto; scrollbar-width: none;
+}
+.quick-bar::-webkit-scrollbar { display: none; }
+.quick-pill {
+  flex-shrink: 0; background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
+  border-radius: 100px; padding: 6px 14px; font-size: 12px;
+  color: var(--muted); cursor: pointer; white-space: nowrap;
+  transition: all 0.2s ease; -webkit-tap-highlight-color: transparent;
+}
+.quick-pill:hover { background: rgba(255,107,157,0.12); color: var(--pink); border-color: rgba(255,107,157,0.3); }
+
+/* ══ INPUT AREA ══ */
+.input-area {
+  flex-shrink: 0;
+  background: rgba(13,0,20,0.90); backdrop-filter: blur(30px);
+  border-top: 1px solid rgba(255,107,157,0.12);
+  padding: 10px 14px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+}
+.input-row  { display: flex; align-items: flex-end; gap: 8px; }
+.input-wrap {
+  flex: 1; background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
+  padding: 10px 14px; display: flex; align-items: flex-end; gap: 8px;
+  transition: border-color 0.2s ease; min-height: 44px;
+}
+.input-wrap:focus-within { border-color: rgba(255,107,157,0.45); }
+.msg-input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--font); font-size: 14px;
+  resize: none; max-height: 120px; overflow-y: auto; line-height: 1.4; padding: 0;
+}
+.msg-input::placeholder { color: var(--muted); }
+.msg-input::-webkit-scrollbar { width: 2px; }
+.msg-input::-webkit-scrollbar-thumb { background: rgba(255,107,157,0.3); }
+.emoji-btn {
+  background: none; border: none; color: var(--muted); font-size: 20px;
+  cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s, transform 0.2s;
+  flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+}
+.emoji-btn:hover { color: var(--pink); transform: scale(1.2); }
+.send-btn {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  border: none; border-radius: 14px; color: #fff; font-size: 18px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 4px 20px rgba(255,107,157,0.35); -webkit-tap-highlight-color: transparent;
+}
+.send-btn:hover    { transform: scale(1.08); box-shadow: 0 6px 28px rgba(255,107,157,0.50); }
+.send-btn:active   { transform: scale(0.90); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ══ EMOJI PANEL ══ */
+.emoji-panel {
+  flex-shrink: 0; display: none; flex-direction: column;
+  background: rgba(20,5,32,0.97); backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255,107,157,0.15); padding: 12px 14px; max-height: 200px;
+}
+.emoji-panel.open { display: flex; }
+.emoji-cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; padding-bottom: 4px; }
+.emoji-cats::-webkit-scrollbar { display: none; }
+.emoji-cat {
+  flex-shrink: 0; padding: 5px 12px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
+  border-radius: 100px; font-size: 13px; cursor: pointer; transition: all 0.2s; color: var(--muted);
+}
+.emoji-cat.active { background: rgba(255,107,157,0.20); border-color: var(--pink); color: var(--pink); }
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 2px; overflow-y: auto; flex: 1; }
+.emoji-grid::-webkit-scrollbar { width: 2px; }
+.emoji-grid::-webkit-scrollbar-thumb { background: rgba(255,107,157,0.3); }
+.e-opt {
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; cursor: pointer; border-radius: 10px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.e-opt:hover { transform: scale(1.25); background: rgba(255,255,255,0.08); }
+
+/* ══ HEART ANIMATION ══ */
+.heart-burst {
+  position: fixed; z-index: 999; pointer-events: none; font-size: 28px;
+  animation: heartBurst 0.9s cubic-bezier(0.2,0,0.8,1) forwards;
+}
+@keyframes heartBurst {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+  60%  { transform: translate(-50%,-150%) scale(1.5); opacity: 1; }
+  100% { transform: translate(-50%,-220%) scale(0.8); opacity: 0; }
+}
+
+/* ══ NUDGE ══ */
+@keyframes nudgeShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+.nudge-animate { animation: nudgeShake 0.5s ease; }
+
+/* ══ TOAST ══ */
+.toast {
+  position: fixed; bottom: calc(90px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%) translateY(10px);
+  background: rgba(20,5,32,0.95); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,107,157,0.3); border-radius: 14px;
+  padding: 10px 18px; font-size: 13px; font-weight: 700; color: #fff;
+  z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+  white-space: nowrap; max-width: calc(100% - 32px);
+  text-overflow: ellipsis; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ══ DELETE MODAL — WhatsApp Style ══ */
+.delete-modal {
+  display: none; position: fixed; inset: 0; z-index: 950;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.delete-modal.open { display: flex; }
+.delete-modal-box {
+  background: rgba(22,6,36,0.98);
+  border: 1px solid rgba(255,107,157,0.25); border-radius: 24px;
+  padding: 22px 20px 18px; width: min(320px,100%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  animation: setupIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.delete-modal-box h3 { font-size: 16px; font-weight: 900; margin-bottom: 6px; }
+.delete-modal-box p  { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+.delete-opts { display: flex; flex-direction: column; gap: 8px; }
+.del-opt {
+  padding: 12px 16px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05); color: var(--text);
+  font-family: var(--font); font-size: 13px; font-weight: 700;
+  cursor: pointer; text-align: left; transition: all 0.18s;
+}
+.del-opt:hover     { background: rgba(255,80,80,0.18); border-color: rgba(255,80,80,0.35); }
+.del-opt.del-all   { color: #ff6b6b; border-color: rgba(255,80,80,0.2); background: rgba(255,80,80,0.07); }
+.del-opt.del-all:hover { background: rgba(255,80,80,0.22); border-color: rgba(255,80,80,0.45); }
+.del-opt.del-cancel { color: rgba(255,255,255,0.5); }
+.del-opt.del-cancel:hover { background: rgba(255,255,255,0.08); }
+
+/* ══ SETTINGS PANEL ══ */
+.settings-panel { position: fixed; inset: 0; z-index: 800; display: flex; align-items: flex-end; pointer-events: none; }
+.settings-panel.open { pointer-events: all; }
+.settings-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease; }
+.settings-panel.open .settings-overlay { opacity: 1; }
+.settings-sheet {
+  position: relative; z-index: 1; width: 100%;
+  background: rgba(16,4,26,0.98); backdrop-filter: blur(40px);
+  border-top: 1px solid rgba(255,107,157,0.2); border-radius: 26px 26px 0 0;
+  padding: 20px 20px max(24px, env(safe-area-inset-bottom, 24px));
+  max-height: 75vh; overflow-y: auto;
+  transform: translateY(100%); transition: transform 0.44s cubic-bezier(0.32,0.72,0,1);
+  max-width: 680px; margin: 0 auto; left: 0; right: 0;
+}
+.settings-panel.open .settings-sheet { transform: translateY(0); }
+.settings-grip  { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; margin: 0 auto 18px; }
+.settings-title { font-size: 17px; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.sett-section { margin-bottom: 16px; }
+.sett-section-title { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.sett-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--stroke); border-radius: 14px; margin-bottom: 6px;
+}
+.sett-row-info b     { display: block; font-size: 13px; font-weight: 700; }
+.sett-row-info small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.toggle {
+  width: 44px; height: 26px; background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 100px;
+  cursor: pointer; position: relative; transition: all 0.25s ease; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; width: 20px; height: 20px; background: rgba(255,255,255,0.7);
+  border-radius: 50%; position: absolute; top: 2px; left: 2px;
+  transition: left 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+}
+.toggle.on { background: linear-gradient(135deg, var(--pink), var(--purple)); border-color: transparent; }
+.toggle.on::after { left: 22px; background: #fff; }
+.sett-btn {
+  width: 100%; padding: 12px; border-radius: 14px;
+  border: 1px solid rgba(255,107,157,0.25); background: rgba(255,107,157,0.08);
+  color: var(--pink); font-family: var(--font); font-size: 13px; font-weight: 800;
+  cursor: pointer; transition: all 0.2s ease; margin-top: 4px;
+}
+.sett-btn:hover { background: rgba(255,107,157,0.15); }
+.sett-btn.danger { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #f87171; }
+.sett-btn.danger:hover { background: rgba(239,68,68,0.15); }
+
+/* ══ DAILY QUOTE CARD ══ */
+.quote-card {
+  margin: 0 14px 10px;
+  background: rgba(255,107,157,0.08); border: 1px solid rgba(255,107,157,0.20);
+  border-radius: 16px; padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.quote-card:hover { background: rgba(255,107,157,0.13); }
+.quote-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.quote-text { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
+.quote-text strong { color: var(--pink); font-size: 13px; display: block; margin-bottom: 2px; }
+
+/* ══ HEART COUNTER ══ */
+.heart-counter {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,107,157,0.10); border: 1px solid rgba(255,107,157,0.20);
+  border-radius: 100px; padding: 5px 10px; font-size: 13px;
+  cursor: pointer; transition: all 0.2s ease; -webkit-tap-highlight-color: transparent;
+}
+.heart-counter:hover { background: rgba(255,107,157,0.20); transform: scale(1.05); }
+.heart-counter .hc-count { font-weight: 800; font-size: 12px; color: var(--pink); }
+
+/* ══ SCROLL BTN ══ */
+.scroll-btn {
+  position: absolute; bottom: 160px; right: 16px;
+  width: 38px; height: 38px;
+  background: rgba(20,5,32,0.95); border: 1px solid rgba(255,107,157,0.35);
+  border-radius: 50%; color: var(--pink); font-size: 18px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: all 0.2s ease;
+  opacity: 0; pointer-events: none; z-index: 20;
+}
+.scroll-btn.visible { opacity: 1; pointer-events: all; }
+.scroll-btn:hover { transform: scale(1.1); }
+.msgs-container { position: relative; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Search highlight */
+.msg-bubble.highlighted { box-shadow: 0 0 0 2px var(--pink) !important; }
+
+@media (min-width: 680px) {
+  #app { border-left: 1px solid rgba(255,107,157,0.10); border-right: 1px solid rgba(255,107,157,0.10); }
+}
+</style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- ══ SETUP OVERLAY ══ -->
+<div class="setup-overlay" id="setupOverlay" style="display:none">
+  <div class="setup-box">
+    <span class="emoji">💑</span>
+    <h2>Sən kimsən?</h2>
+    <p>Bu cihazda yadda qalacaq</p>
+    <div class="who-grid">
+      <div class="who-card" onclick="selectUser('nihad')" id="card-nihad">
+        <span class="who-avatar">👨‍💻</span>
+        <div class="who-name">Nihad</div>
+        <div class="who-role">Saytın yaradıcısı ✨</div>
+      </div>
+      <div class="who-card" onclick="selectUser('meryem')" id="card-meryem">
+        <span class="who-avatar">🌸</span>
+        <div class="who-name">Məryəm</div>
+        <div class="who-role">Ürəyin sahibi 💝</div>
+      </div>
+    </div>
+    <button class="setup-btn" onclick="confirmUser()">Başla 💫</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-top">
+      <div class="header-info">
+        <div class="couple-avatar">💑</div>
+        <div class="header-text">
+          <div class="header-title">İkimizin Yeri</div>
+          <div class="header-status" id="headerStatus">
+            <span class="online-dot offline" id="partnerDot"></span>
+            <span id="partnerStatusText">Yüklənir...</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="heart-counter" onclick="sendHeart()" id="heartCounter" title="Ürək göndər">
+          ❤️ <span class="hc-count" id="heartCount">0</span>
+        </div>
+        <button class="hbtn" onclick="sendNudge()" title="Diqqət çək 👋" id="nudgeBtn">👋</button>
+        <button class="hbtn" id="searchToggle" onclick="toggleSearch()" title="Axtar">🔍</button>
+        <button class="hbtn" onclick="openSettings()" title="Ayarlar">⚙️</button>
+      </div>
+    </div>
+
+    <div class="search-bar" id="searchBar">
+      <input class="search-input" id="searchInput" placeholder="Mesajlarda axtar..." oninput="doSearch(this.value)">
+    </div>
+
+    <div class="mood-strip" id="moodStrip"></div>
+  </div>
+
+  <!-- Messages container -->
+  <div class="msgs-container">
+    <div class="quote-card" id="quoteCard" onclick="nextQuote()">
+      <span class="quote-icon">💬</span>
+      <div class="quote-text">
+        <strong id="quoteTitle">Günün Sözü</strong>
+        <span id="quoteText">Yüklənir...</span>
+      </div>
+    </div>
+
+    <!-- Star filter bar -->
+    <div class="star-filter-bar">
+      <button class="sf-btn active" id="sfAll"     onclick="setStarFilter('all')">💬 Hamısı</button>
+      <button class="sf-btn"        id="sfStarred" onclick="setStarFilter('starred')">⭐ Ulduzlular</button>
+      <span class="sf-count" id="sfCount"></span>
+    </div>
+
+    <div class="msgs-wrap" id="msgsWrap">
+      <div class="empty-state" id="emptyState">
+        <span class="big-emoji">💕</span>
+        <h3>Hər şey buradan başlayır</h3>
+        <p>Sevgilinizlə gözəl anlar paylaşın</p>
+      </div>
+    </div>
+
+    <button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom()">↓</button>
+  </div>
+
+  <div class="quick-bar" id="quickBar"></div>
+
+  <div class="input-area">
+    <div class="input-row">
+      <div class="input-wrap">
+        <textarea class="msg-input" id="msgInput" placeholder="Bir şey yaz..." rows="1"
+          onkeydown="onKey(event)" oninput="onInputChange()"></textarea>
+        <button class="emoji-btn" onclick="toggleEmojiPanel()" title="Emoji">😊</button>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>➤</button>
+    </div>
+  </div>
+
+  <div class="emoji-panel" id="emojiPanel">
+    <div class="emoji-cats" id="emojiCats"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
+
+</div>
+
+<!-- Reaction picker -->
+<div class="reaction-picker" id="reactionPicker">
+  <span class="react-opt" onclick="addReaction(event,'❤️')">❤️</span>
+  <span class="react-opt" onclick="addReaction(event,'😂')">😂</span>
+  <span class="react-opt" onclick="addReaction(event,'😍')">😍</span>
+  <span class="react-opt" onclick="addReaction(event,'😢')">😢</span>
+  <span class="react-opt" onclick="addReaction(event,'👍')">👍</span>
+  <span class="react-opt" onclick="addReaction(event,'🔥')">🔥</span>
+  <span class="react-opt" onclick="addReaction(event,'💯')">💯</span>
+  <span class="react-opt" onclick="addReaction(event,'✨')">✨</span>
+</div>
+
+<!-- ══ DELETE MODAL — WhatsApp Style ══ -->
+<div class="delete-modal" id="deleteModal">
+  <div class="delete-modal-box">
+    <h3>🗑️ Mesajı Sil</h3>
+    <p>Bu mesajı necə silmək istəyirsən?</p>
+    <div class="delete-opts">
+      <button class="del-opt del-cancel" onclick="closeDeleteModal()">Ləğv et</button>
+      <button class="del-opt" onclick="confirmDelete('me')">🙈 Yalnız məndən sil</button>
+      <button class="del-opt del-all" onclick="confirmDelete('all')">🗑️ Hamıdan sil (hər iki tərəf)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-overlay" onclick="closeSettings()"></div>
+  <div class="settings-sheet" id="settingsSheet">
+    <div class="settings-grip"></div>
+    <div class="settings-title">⚙️ Ayarlar</div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">Bildirişlər</div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>🔊 Səslər</b><small>Mesaj göndərmə/alma səsi</small></div>
+        <div class="toggle" id="toggleSound" onclick="toggleSetting('sound')"></div>
+      </div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>⌨️ Yazır bildirişi</b><small>Digər tərəf yazdığını göstər</small></div>
+        <div class="toggle" id="toggleTyping" onclick="toggleSetting('typing')"></div>
+      </div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>👁 Oxundu bildirişi</b><small>Mesajın oxunduğunu göstər</small></div>
+        <div class="toggle" id="toggleRead" onclick="toggleSetting('readReceipt')"></div>
+      </div>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">Hesab</div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b id="myNameDisplay">—</b><small>Aktiv istifadəçi</small></div>
+        <span style="font-size:20px" id="myAvatarDisplay">—</span>
+      </div>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">Statistika</div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>💬 Ümumi mesaj</b><small>Bu söhbətdəki cəmi</small></div>
+        <span style="font-weight:800;color:var(--pink)" id="statsTotal">0</span>
+      </div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>⭐ Ulduzlular</b><small>Ulduzlanmış mesajlar</small></div>
+        <span style="font-weight:800;color:gold" id="statsStarred">0</span>
+      </div>
+      <div class="sett-row">
+        <div class="sett-row-info"><b>❤️ Ürəklər</b><small>Qarşılıqlı göndərilən</small></div>
+        <span style="font-weight:800;color:var(--pink)" id="statsHearts">0</span>
+      </div>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">Əməliyyatlar</div>
+      <button class="sett-btn" onclick="switchUser()">🔄 İstifadəçini dəyiş</button>
+      <button class="sett-btn danger" onclick="clearMyMessages()" style="margin-top:6px">🗑 Mesajlarımı sil</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<!-- app.js BSN nav-ı qurur, bottomnav.js-ə ehtiyac yoxdur -->
+<script src="assets/js/app.js"></script>
+
+<script>
+'use strict';
+
+/* ── Firebase ── */
+const FIREBASE_CFG = {
+  apiKey:      "AIzaSyBBgzimxxvNUWZTq3oFfW2pRIHwdT5eKic",
+  databaseURL: "https://nimewebsite-default-rtdb.firebaseio.com"
+};
+
+/* ── State ── */
+let db = null, ME = null, PARTNER = null, selectedUser = null;
+let typingTimer = null, reactionTarget = null;
+let emojiCatActive = 0;
+let settings = { sound: true, typing: true, readReceipt: true };
+let messageCount = 0, heartTotal = 0, quoteIdx = 0;
+let starFilter = 'all';          // 'all' | 'starred'
+let pendingDeleteId = null;      // mesaj ID silmə üçün
+let allMessages = [];            // cari mesaj siyahısı
+
+/* localStorage-da ulduzlar və "yalnız məndən silindi" saxlanır */
+const STARS_KEY   = 'couple_stars_v1';
+const DELETED_KEY = 'couple_deleted_me_v1';   // "yalnız məndən" silinmiş ID-lər
+
+function getStars()        { try { return JSON.parse(localStorage.getItem(STARS_KEY)   || '[]'); } catch { return []; } }
+function saveStars(a)      { localStorage.setItem(STARS_KEY,   JSON.stringify(a)); }
+function getDeletedMe()    { try { return JSON.parse(localStorage.getItem(DELETED_KEY) || '[]'); } catch { return []; } }
+function saveDeletedMe(a)  { localStorage.setItem(DELETED_KEY, JSON.stringify(a)); }
+
+const NAMES   = { nihad: 'Nihad', meryem: 'Məryəm' };
+const AVATARS = { nihad: '👨‍💻', meryem: '🌸' };
+
+const QUOTES = [
+  { t: "Günün Sözü",  q: "Sevgi çiçək kimi — hər gün sulamaq lazımdır. 🌸" },
+  { t: "Xatırlatma",  q: "Birlikdə keçirilən hər an qiymətlidir. 💫" },
+  { t: "Sevgi Notu",  q: "Ən gözəl anlar sadəlikdə gizlənir. 🌙" },
+  { t: "Günün Sözü",  q: "Sənin gülüşün günümü işıqlandırır. ☀️" },
+  { t: "İlham",       q: "Sevgi söz deyil, hər gün edilən seçimdir. 💖" },
+  { t: "Xatırlatma",  q: "Bir-birinizə diqqət vermək — ən gözəl hədiyyədir. 🎁" },
+  { t: "Sevgi Notu",  q: "İkimizin hər günü bir hekayədir. 📖" },
+];
+
+const MOODS = [
+  {e:'😊',l:'Xoşbəxt'},{e:'😍',l:'Aşiq'},{e:'🥰',l:'Sevinc'},
+  {e:'😢',l:'Kədərli'},{e:'😴',l:'Yuxulu'},{e:'🤩',l:'Heyran'},
+  {e:'😤',l:'Narazı'},{e:'🤗',l:'Qucaqlaşmaq'},
+  {e:'💪',l:'Güclü'},{e:'🌙',l:'Gecə'},
+];
+
+const QUICK = [
+  '❤️ Seni seviyorum','😘 Öpüşcük','🤗 Sarılmaq istəyirəm',
+  '✈️ Görüşmək istəyirəm','😴 Yatacağam','☕ Çay içirsən?',
+  '📞 Zəng et','🍕 Ac oldum','😂 Güldüm','💕 Çox gözəlsən',
+];
+
+const EMOJI_CATS = [
+  { l: '❤️ Sevgi',   emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💕','💞','💓','💗','💖','💘','💝','💟','❣️','💏','💑','👫','🥰','😍','😘','💋','💌','💍','🌹','🌷'] },
+  { l: '😊 Üz',     emojis: ['😀','😁','😂','🤣','😃','😄','😅','😆','😊','😇','🙂','🤗','🤩','😘','😗','😚','😙','😋','😛','😜','🤪','😝','🤑','🤭','🤫','🤔','🙄','😏'] },
+  { l: '🌸 Təbiət', emojis: ['🌸','🌺','🌻','🌹','🌷','🌼','💐','🍀','🌿','🌱','🌲','🌳','🌴','🎋','🌾','🍁','🍂','🍃','🌙','⭐','🌟','💫','✨','🌈','☀️','🌤','🌙','⛄'] },
+  { l: '🎉 Əyləncə', emojis: ['🎉','🎊','🎈','🎁','🎀','🎂','🎆','🎇','🧨','✨','🎮','🎯','🎳','🎪','🎭','🎬','🎤','🎧','🎵','🎶','🎸','🎹','🎺','🥁','🎻','🏆','🥇','🎖'] },
+  { l: '🍕 Yemək',  emojis: ['🍕','🍔','🍟','🌭','🍿','🧂','🥚','🍳','🥞','🧇','🥓','🥩','🍗','🍖','🌮','🌯','🥙','🧆','🥚','🍳','🍣','🍜','🍝','🍛','🍚','🍱','🍤','🍩'] },
+  { l: '💪 Aktiv',  emojis: ['💪','🏃','🚶','🧘','🏋️','⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🏸','🥊','🤸','🏊','🚴','🧗','🤺','🏇','⛷️','🏂','🏄','🧜','🤼','🤼'] },
+];
+
+/* ══ INIT ══ */
+(function boot() {
+  loadSettings();
+  ME = localStorage.getItem('couple_user');
+  if (ME) {
+    PARTNER = ME === 'nihad' ? 'meryem' : 'nihad';
+    showApp();
+    initFirebase();
+  } else {
+    document.getElementById('setupOverlay').style.display = 'flex';
+  }
+  buildFloatingHearts();
+  initDailyQuote();
+})();
+
+function showApp() {
+  document.getElementById('setupOverlay').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  buildMoods();
+  buildQuickReplies();
+  buildEmojiPanel();
+  updateSettingsUI();
+}
+
+/* ══ SETUP ══ */
+function selectUser(u) {
+  selectedUser = u;
+  document.querySelectorAll('.who-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + u).classList.add('selected');
+}
+function confirmUser() {
+  if (!selectedUser) { showToast('⚠️ Birini seç'); return; }
+  ME = selectedUser;
+  PARTNER = ME === 'nihad' ? 'meryem' : 'nihad';
+  localStorage.setItem('couple_user', ME);
+  showApp();
+  initFirebase();
+}
+function switchUser() {
+  closeSettings();
+  localStorage.removeItem('couple_user');
+  location.reload();
+}
+
+/* ══ FIREBASE ══ */
+function initFirebase() {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CFG);
+    db = firebase.database();
+    listenMessages();
+    listenTyping();
+    listenOnline();
+    listenHearts();
+    listenNudge();
+    listenMood();
+    setMyOnline(true);
+    window.addEventListener('beforeunload', () => setMyOnline(false));
+    document.addEventListener('visibilitychange', () => setMyOnline(!document.hidden));
+    showToast('🔗 Bağlantı quruldu');
+  } catch(e) {
+    showToast('❌ Bağlantı xətası');
+    console.error(e);
+  }
+}
+function dbOn(path, cb)    { db.ref(path).on('value', snap => cb(snap)); }
+function dbSet(path, val)  { return db.ref(path).set(val); }
+function dbPush(path, val) { return db.ref(path).push(val); }
+
+/* ══ MESSAGES ══ */
+function listenMessages() {
+  dbOn('couple/messages', snap => {
+    const msgs = [];
+    snap.forEach(c => msgs.push({ id: c.key, ...c.val() }));
+    allMessages = msgs;
+    renderMessages();
+    messageCount = msgs.length;
+    document.getElementById('statsTotal').textContent = messageCount;
+    // Mark as read
+    if (settings.readReceipt) {
+      msgs.forEach(m => {
+        if (m.sender !== ME && (!m.readBy || !m.readBy[ME])) {
+          dbSet(`couple/messages/${m.id}/readBy/${ME}`, Date.now());
+        }
+      });
+    }
+  });
+}
+
+function renderMessages() {
+  const wrap    = document.getElementById('msgsWrap');
+  const empty   = document.getElementById('emptyState');
+  const stars   = getStars();
+  const delMe   = getDeletedMe();
+  const wasBot  = isAtBottom();
+
+  // Filter: deletedForAll (Firebase-dən gəlir), deletedForMe (local), starFilter
+  let visible = allMessages.filter(m => {
+    if (m.deletedForAll) return false;
+    if (delMe.includes(m.id)) return false;
+    if (starFilter === 'starred' && !stars.includes(m.id)) return false;
+    return true;
+  });
+
+  // Starred count
+  const starCount = allMessages.filter(m => !m.deletedForAll && !delMe.includes(m.id) && stars.includes(m.id)).length;
+  document.getElementById('sfCount').textContent    = starFilter === 'starred' ? `${starCount} mesaj` : `${visible.length} mesaj`;
+  document.getElementById('statsStarred').textContent = starCount;
+
+  if (!visible.length) {
+    empty.style.display = 'flex';
+    wrap.innerHTML = '';
+    wrap.appendChild(empty);
+    return;
+  }
+  empty.style.display = 'none';
+
+  let html = '', lastDate = '';
+  visible.forEach((m, i) => {
+    const mine     = m.sender === ME;
+    const isStarred = stars.includes(m.id);
+    const dt       = new Date(m.ts || Date.now());
+    const dateStr  = formatDate(dt);
+    const timeStr  = dt.toLocaleTimeString('az', { hour: '2-digit', minute: '2-digit' });
+    const isSeen   = m.readBy && m.readBy[PARTNER] && mine;
+    const prev     = visible[i - 1];
+    const consec   = prev && prev.sender === m.sender;
+
+    if (dateStr !== lastDate) {
+      html += `<div class="date-divider"><span>${dateStr}</span></div>`;
+      lastDate = dateStr;
+    }
+
+    // Reactions
+    let reactHtml = '';
+    if (m.reactions) {
+      const grouped = {};
+      Object.values(m.reactions).forEach(r => {
+        if (!grouped[r.emoji]) grouped[r.emoji] = { count: 0, mine: false };
+        grouped[r.emoji].count++;
+        if (r.user === ME) grouped[r.emoji].mine = true;
+      });
+      const parts = Object.entries(grouped).map(([e, d]) =>
+        `<span class="msg-reaction${d.mine ? ' mine-react' : ''}"
+          onclick="toggleReaction('${m.id}','${e}')">
+          ${e}<span>${d.count > 1 ? d.count : ''}</span>
+        </span>`
+      ).join('');
+      if (parts) reactHtml = `<div class="msg-reactions">${parts}</div>`;
+    }
+
+    html += `
+      <div class="msg ${mine ? 'mine' : 'theirs'}" id="msg-${m.id}" data-id="${m.id}" data-ts="${m.ts}">
+        <div class="msg-bubble${consec ? ' consec' : ''}${isStarred ? ' is-starred' : ''}"
+             onclick="onBubbleClick(event,'${m.id}')"
+             oncontextmenu="onLongPress(event,'${m.id}');return false;"
+             ontouchstart="startLongPress(event,'${m.id}')"
+             ontouchend="cancelLongPress()">
+          ${escapeHtml(m.text || '')}
+        </div>
+        ${reactHtml}
+        <div class="msg-meta">
+          <span class="msg-time">${timeStr}</span>
+          <span class="msg-star ${isStarred ? 'starred' : ''}"
+                onclick="toggleStar('${m.id}')"
+                style="cursor:pointer;font-size:13px;opacity:${isStarred?1:.35};transition:opacity .2s,transform .2s;display:inline-block;"
+                title="${isStarred ? 'Ulduzu götür' : 'Ulduzla'}"
+                onmouseover="this.style.opacity=1;this.style.transform='scale(1.3)'"
+                onmouseout="this.style.opacity='${isStarred?1:.35}';this.style.transform='scale(1)'"
+          >${isStarred ? '⭐' : '☆'}</span>
+          <button class="msg-del-btn"
+                  onclick="openDeleteModal('${m.id}')"
+                  style="background:none;border:none;color:rgba(255,255,255,.25);font-size:12px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity .18s;"
+                  onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"
+                  title="Sil">🗑</button>
+          ${mine ? `<span class="msg-read ${isSeen ? 'seen' : ''}">✓${isSeen ? '✓' : ''}</span>` : ''}
+        </div>
+      </div>`;
+  });
+
+  wrap.innerHTML = html;
+  wrap.appendChild(empty);
+  if (wasBot) scrollToBottom();
+
+  // Hover on whole bubble shows delete button
+  wrap.querySelectorAll('.msg').forEach(el => {
+    const btn = el.querySelector('.msg-del-btn');
+    if (!btn) return;
+    el.addEventListener('mouseenter', () => btn.style.opacity = '1');
+    el.addEventListener('mouseleave', () => btn.style.opacity = '0');
+  });
+}
+
+function sendMessage() {
+  const inp  = document.getElementById('msgInput');
+  const text = inp.value.trim();
+  if (!text || !db) return;
+  dbPush('couple/messages', { sender: ME, text, ts: Date.now(), readBy: {} });
+  inp.value = '';
+  inp.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+  clearTyping();
+  if (settings.sound) playSendSound();
+  scrollToBottom();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+/* ══ STAR / UNSTAR ══ */
+function toggleStar(msgId) {
+  const stars = getStars();
+  const idx   = stars.indexOf(msgId);
+  if (idx === -1) {
+    stars.push(msgId);
+    showToast('⭐ Mesaj ulduzlandı!');
+    spawnHeartAt(window.innerWidth / 2, window.innerHeight / 2, '⭐');
+  } else {
+    stars.splice(idx, 1);
+    showToast('☆ Ulduzu götürüldü');
+  }
+  saveStars(stars);
+  renderMessages();
+}
+
+/* ══ STAR FILTER ══ */
+function setStarFilter(mode) {
+  starFilter = mode;
+  document.getElementById('sfAll').classList.toggle('active',     mode === 'all');
+  document.getElementById('sfStarred').classList.toggle('active', mode === 'starred');
+  renderMessages();
+}
+
+/* ══ DELETE — WhatsApp Style ══ */
+function openDeleteModal(msgId) {
+  pendingDeleteId = msgId;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal() {
+  pendingDeleteId = null;
+  document.getElementById('deleteModal').classList.remove('open');
+}
+function confirmDelete(mode) {
+  if (!pendingDeleteId) { closeDeleteModal(); return; }
+  const id = pendingDeleteId;
+
+  if (mode === 'me') {
+    // Yalnız bu cihazda (localStorage)
+    const delMe = getDeletedMe();
+    if (!delMe.includes(id)) { delMe.push(id); saveDeletedMe(delMe); }
+    // Ulduzlardan da çıxart
+    const stars = getStars();
+    const si = stars.indexOf(id);
+    if (si !== -1) { stars.splice(si, 1); saveStars(stars); }
+    showToast('🙈 Yalnız sən üçün silindi');
+    renderMessages();
+  } else {
+    // Hamıdan sil — Firebase-dən sil
+    if (db) {
+      dbSet(`couple/messages/${id}/deletedForAll`, true);
+      // Reaksiyaları da sil
+      dbSet(`couple/messages/${id}/text`, '🗑 Bu mesaj silindi');
+    }
+    // Localdan da çıxart
+    const delMe = getDeletedMe();
+    if (!delMe.includes(id)) { delMe.push(id); saveDeletedMe(delMe); }
+    const stars = getStars();
+    const si = stars.indexOf(id);
+    if (si !== -1) { stars.splice(si, 1); saveStars(stars); }
+    showToast('🗑️ Hamıdan silindi');
+    renderMessages();
+  }
+  closeDeleteModal();
+}
+
+// Modal kənar click ilə bağla
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+/* ══ REACTIONS ══ */
+let longPressTimer = null;
+function startLongPress(e, msgId) { longPressTimer = setTimeout(() => showReactionPicker(e.touches[0], msgId), 500); }
+function cancelLongPress()        { clearTimeout(longPressTimer); }
+function onBubbleClick(e, msgId)  { clearTimeout(longPressTimer); }
+function onLongPress(e, msgId)    { showReactionPicker(e, msgId); }
+
+function showReactionPicker(e, msgId) {
+  reactionTarget = msgId;
+  const picker = document.getElementById('reactionPicker');
+  picker.classList.add('open');
+  const x = Math.min(e.clientX || e.pageX, window.innerWidth - 200);
+  const y = Math.max((e.clientY || e.pageY) - 70, 10);
+  picker.style.left = x + 'px';
+  picker.style.top  = y + 'px';
+  document.addEventListener('click', closeReactionPicker, { once: true });
+}
+function closeReactionPicker() { document.getElementById('reactionPicker').classList.remove('open'); }
+function addReaction(e, emoji) {
+  e.stopPropagation();
+  if (!reactionTarget || !db) return;
+  toggleReaction(reactionTarget, emoji);
+  closeReactionPicker();
+}
+function toggleReaction(msgId, emoji) {
+  if (!db) return;
+  const path = `couple/messages/${msgId}/reactions`;
+  db.ref(path).once('value', snap => {
+    const data     = snap.val() || {};
+    const existing = Object.entries(data).find(([k, v]) => v.user === ME && v.emoji === emoji);
+    if (existing) { db.ref(`${path}/${existing[0]}`).remove(); }
+    else { db.ref(path).push({ user: ME, emoji, ts: Date.now() }); spawnHeartAt(window.innerWidth/2, window.innerHeight/2, emoji); }
+  });
+}
+
+/* ══ TYPING ══ */
+function listenTyping() {
+  if (!settings.typing) return;
+  dbOn(`couple/typing/${PARTNER}`, snap => {
+    const ts = snap.val();
+    const el = document.getElementById('partnerStatusText');
+    if (ts && (Date.now() - ts < 4000)) { el.innerHTML = `<span class="typing-text">yazır...</span>`; }
+    else { updateOnlineStatus(); }
+  });
+}
+function onInputChange() {
+  const inp = document.getElementById('msgInput');
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 120) + 'px';
+  document.getElementById('sendBtn').disabled = !inp.value.trim();
+  if (db && settings.typing) {
+    dbSet(`couple/typing/${ME}`, Date.now());
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(clearTyping, 3000);
+  }
+}
+function clearTyping() { if (db) dbSet(`couple/typing/${ME}`, null); }
+
+/* ══ ONLINE ══ */
+function setMyOnline(online) { if (!db) return; dbSet(`couple/online/${ME}`, online ? Date.now() : false); }
+function listenOnline() { dbOn(`couple/online/${PARTNER}`, snap => updateOnlineStatus(snap.val())); }
+function updateOnlineStatus(val) {
+  const dot  = document.getElementById('partnerDot');
+  const text = document.getElementById('partnerStatusText');
+  if (val && (Date.now() - val < 30000)) {
+    dot.className    = 'online-dot';
+    text.textContent = `${NAMES[PARTNER]} onlayndır`;
+  } else {
+    dot.className    = 'online-dot offline';
+    text.textContent = val ? `${NAMES[PARTNER]} • az əvvəl` : `${NAMES[PARTNER]}`;
+  }
+}
+
+/* ══ HEARTS ══ */
+function sendHeart() {
+  if (!db) return;
+  db.ref('couple/hearts').transaction(cur => (cur || 0) + 1);
+  spawnHeartAt(window.innerWidth / 2, 80, '❤️');
+  if (settings.sound) playHeartSound();
+}
+function listenHearts() {
+  dbOn('couple/hearts', snap => {
+    heartTotal = snap.val() || 0;
+    document.getElementById('heartCount').textContent  = heartTotal;
+    document.getElementById('statsHearts').textContent = heartTotal;
+  });
+}
+
+/* ══ NUDGE ══ */
+function sendNudge() {
+  if (!db) return;
+  dbSet('couple/nudge', { from: ME, ts: Date.now() });
+  showToast(`👋 ${NAMES[PARTNER]}-ə zəng edildi!`);
+  const btn = document.getElementById('nudgeBtn');
+  btn.classList.add('nudge-animate');
+  setTimeout(() => btn.classList.remove('nudge-animate'), 600);
+}
+function listenNudge() {
+  let lastTs = 0;
+  dbOn('couple/nudge', snap => {
+    const data = snap.val();
+    if (!data) return;
+    if (data.from === PARTNER && data.ts > lastTs + 2000) {
+      lastTs = data.ts;
+      document.getElementById('app').classList.add('nudge-animate');
+      setTimeout(() => document.getElementById('app').classList.remove('nudge-animate'), 600);
+      showToast(`👋 ${NAMES[PARTNER]} sizi çağırır!`);
+      if (settings.sound) playNudgeSound();
+    }
+  });
+}
+
+/* ══ MOOD ══ */
+function listenMood() {
+  dbOn(`couple/mood/${ME}`, snap => {
+    const m = snap.val();
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('active', b.dataset.mood === m));
+  });
+}
+function setMood(emoji) {
+  if (!db) return;
+  dbSet(`couple/mood/${ME}`, emoji);
+  showToast(`Rəhv: ${emoji} seçildi`);
+}
+function buildMoods() {
+  document.getElementById('moodStrip').innerHTML = MOODS.map(m =>
+    `<div class="mood-btn" data-mood="${m.e}" onclick="setMood('${m.e}')">${m.e} ${m.l}</div>`
+  ).join('');
+}
+
+/* ══ UI ══ */
+function buildQuickReplies() {
+  document.getElementById('quickBar').innerHTML = QUICK.map(q =>
+    `<div class="quick-pill" onclick="sendQuick('${q.replace(/'/g,"\\'")}') ">${q}</div>`
+  ).join('');
+}
+function sendQuick(text) {
+  document.getElementById('msgInput').value = text;
+  onInputChange();
+  sendMessage();
+}
+function buildEmojiPanel() {
+  document.getElementById('emojiCats').innerHTML = EMOJI_CATS.map((c, i) =>
+    `<div class="emoji-cat${i === 0 ? ' active' : ''}" onclick="showEmojiCat(${i})">${c.l}</div>`
+  ).join('');
+  showEmojiCat(0);
+}
+function showEmojiCat(idx) {
+  emojiCatActive = idx;
+  document.querySelectorAll('.emoji-cat').forEach((c, i) => c.classList.toggle('active', i === idx));
+  document.getElementById('emojiGrid').innerHTML = EMOJI_CATS[idx].emojis.map(e =>
+    `<div class="e-opt" onclick="insertEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+function insertEmoji(e) {
+  const inp   = document.getElementById('msgInput');
+  const start = inp.selectionStart;
+  inp.value   = inp.value.slice(0, start) + e + inp.value.slice(inp.selectionEnd);
+  inp.setSelectionRange(start + e.length, start + e.length);
+  inp.focus();
+  onInputChange();
+}
+function toggleEmojiPanel() { document.getElementById('emojiPanel').classList.toggle('open'); }
+
+function initDailyQuote() { quoteIdx = new Date().getDate() % QUOTES.length; updateQuote(); }
+function nextQuote()       { quoteIdx = (quoteIdx + 1) % QUOTES.length; updateQuote(); }
+function updateQuote() {
+  const q = QUOTES[quoteIdx];
+  document.getElementById('quoteTitle').textContent = q.t;
+  document.getElementById('quoteText').textContent  = q.q;
+}
+function buildFloatingHearts() {
+  const bg = document.getElementById('heartsBg');
+  const hearts = ['❤️','💕','💖','💗','💘','✨','🌸'];
+  for (let i = 0; i < 10; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart-particle';
+    h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    h.style.left = Math.random() * 100 + '%';
+    h.style.animationDuration = (12 + Math.random() * 15) + 's';
+    h.style.animationDelay    = (Math.random() * 12) + 's';
+    h.style.fontSize = (12 + Math.random() * 16) + 'px';
+    bg.appendChild(h);
+  }
+}
+
+/* ══ SETTINGS ══ */
+function loadSettings() {
+  try { Object.assign(settings, JSON.parse(localStorage.getItem('couple_settings') || '{}')); } catch {}
+}
+function saveSettings() { localStorage.setItem('couple_settings', JSON.stringify(settings)); }
+function toggleSetting(key) { settings[key] = !settings[key]; saveSettings(); updateSettingsUI(); }
+function updateSettingsUI() {
+  setToggle('toggleSound',  settings.sound);
+  setToggle('toggleTyping', settings.typing);
+  setToggle('toggleRead',   settings.readReceipt);
+  if (ME) {
+    const nd = document.getElementById('myNameDisplay');
+    const ad = document.getElementById('myAvatarDisplay');
+    if (nd) nd.textContent = NAMES[ME]   || ME;
+    if (ad) ad.textContent = AVATARS[ME] || '👤';
+  }
+}
+function setToggle(id, on) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'toggle' + (on ? ' on' : '');
+}
+function openSettings()  { updateSettingsUI(); document.getElementById('settingsPanel').classList.add('open'); }
+function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); }
+function clearMyMessages() {
+  if (!confirm('Öz mesajlarınızı silmək istəyirsiniz?')) return;
+  if (!db) return;
+  db.ref('couple/messages').once('value', snap => {
+    snap.forEach(c => { if (c.val().sender === ME) c.ref.remove(); });
+  });
+  closeSettings();
+  showToast('🗑 Mesajlar silindi');
+}
+
+/* ══ SEARCH ══ */
+function toggleSearch() {
+  const bar = document.getElementById('searchBar');
+  const btn = document.getElementById('searchToggle');
+  const vis = bar.classList.toggle('visible');
+  btn.classList.toggle('active', vis);
+  if (vis) document.getElementById('searchInput').focus();
+  else { document.getElementById('searchInput').value = ''; clearSearch(); }
+}
+function doSearch(q) {
+  const term = q.toLowerCase();
+  document.querySelectorAll('.msg').forEach(m => {
+    const b = m.querySelector('.msg-bubble');
+    if (!b) return;
+    if (term && !b.textContent.toLowerCase().includes(term)) { m.style.opacity = '0.2'; b.classList.remove('highlighted'); }
+    else { m.style.opacity = '1'; b.classList.toggle('highlighted', !!term); }
+  });
+}
+function clearSearch() {
+  document.querySelectorAll('.msg').forEach(m => {
+    m.style.opacity = '1';
+    const b = m.querySelector('.msg-bubble');
+    if (b) b.classList.remove('highlighted');
+  });
+}
+
+/* ══ SCROLL ══ */
+function scrollToBottom() {
+  const w = document.getElementById('msgsWrap');
+  w.scrollTop = w.scrollHeight;
+  document.getElementById('scrollBtn').classList.remove('visible');
+}
+function isAtBottom() {
+  const w = document.getElementById('msgsWrap');
+  return w.scrollHeight - w.scrollTop - w.clientHeight < 80;
+}
+document.getElementById('msgsWrap').addEventListener('scroll', function() {
+  document.getElementById('scrollBtn').classList.toggle('visible', !isAtBottom());
+});
+
+/* ══ KEYBOARD ══ */
+function onKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+/* ══ FX ══ */
+function spawnHeartAt(x, y, emoji = '❤️') {
+  const h = document.createElement('div');
+  h.className = 'heart-burst';
+  h.textContent = emoji;
+  h.style.left = x + 'px';
+  h.style.top  = y + 'px';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 1000);
+}
+
+/* ══ SOUNDS ══ */
+function playTone(freq, dur, type = 'sine', vol = 0.1) {
+  try {
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq; osc.type = type;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch {}
+}
+function playSendSound()  { playTone(880, 0.12, 'sine', 0.08); }
+function playHeartSound() { playTone(660, 0.18, 'sine', 0.10); setTimeout(() => playTone(880, 0.12), 100); }
+function playNudgeSound() { [440,550,660].forEach((f,i) => setTimeout(() => playTone(f, 0.15), i * 80)); }
+
+/* ══ TOAST ══ */
+function showToast(msg, dur = 2500) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+/* ══ HELPERS ══ */
+function formatDate(d) {
+  const today = new Date();
+  const yest  = new Date(today); yest.setDate(yest.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Bu gün';
+  if (d.toDateString() === yest.toDateString())  return 'Dünən';
+  return d.toLocaleDateString('az', { day: 'numeric', month: 'long' });
+}
+
+// Emoji panel-i bayırda click-lə bağla
+document.addEventListener('click', e => {
+  const panel = document.getElementById('emojiPanel');
+  if (panel.classList.contains('open') && !e.target.closest('.emoji-panel') && !e.target.closest('.emoji-btn')) {
+    panel.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
