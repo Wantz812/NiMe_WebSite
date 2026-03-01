@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="az">
 <head>
   <meta charset="utf-8" />
@@ -6,27 +6,355 @@
   <title>✨ Başlanğıc — Sənə Özel Gift Site</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
   <link rel="stylesheet" href="assets/css/app.css">
-  <link rel="stylesheet" href="assets/css/bottomnav.css">
-  <script defer src="assets/js/app.js"></script>
+  <script src="assets/js/app.js"></script>
   <style>
     body { -webkit-text-size-adjust: 100%; }
-    .container { padding: 12px; max-width: 100%; }
-    .h1 { font-size: 26px; line-height: 1.3; }
-    .h2 { font-size: 19px; }
-    .p { font-size: 14px; line-height: 1.6; }
-    .statValue { font-size: 22px; }
-    .statLabel { font-size: 10px; }
-    .secretMessage {
-      display: none;
-      padding: 16px;
-      border-radius: 16px;
-      margin-top: 16px;
-      background: linear-gradient(135deg, rgba(255,105,180,0.15), rgba(138,43,226,0.15));
-      border: 2px dashed rgba(255,105,180,0.4);
-      animation: fadeIn 0.5s;
+    .container { padding: 14px; max-width: 640px; margin: 0 auto; width: 100%; }
+
+    /* ── HERO ── */
+    .hero-card {
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      padding: 28px 24px 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
     }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    @media (max-width: 640px) { .grid.two { grid-template-columns: 1fr !important; } }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb,124,92,255),.35), transparent 70%);
+      pointer-events: none;
+      animation: heroPulse 8s ease-in-out infinite alternate;
+    }
+    @keyframes heroPulse {
+      0%   { transform: scale(1) translate(0,0); }
+      100% { transform: scale(1.2) translate(-20px, 20px); }
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .hero-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--accent); border-radius: 2px; display: block; }
+    .hero-title {
+      font-size: 30px; font-weight: 900; line-height: 1.2;
+      margin: 0 0 12px; letter-spacing: -.3px;
+    }
+    .hero-sub {
+      font-size: 14px; color: rgba(255,255,255,.6); line-height: 1.6;
+      min-height: 22px;
+    }
+
+    /* ── TIMER — premium ── */
+    .timer-section { margin-top: 16px; }
+    .timer-label {
+      font-size: 10px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .timer-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.08); }
+    .timer-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 8px;
+    }
+    .timer-cell {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 14px 6px 10px;
+      text-align: center; position: relative; overflow: hidden;
+      transition: border-color .3s ease;
+    }
+    .timer-cell::after {
+      content: '';
+      position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 40%; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      opacity: .6;
+    }
+    .timer-val {
+      font-size: 28px; font-weight: 900; line-height: 1;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, #fff 60%, rgba(255,255,255,.5));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: block;
+    }
+    .timer-lbl {
+      font-size: 9px; font-weight: 800; letter-spacing: .12em;
+      color: rgba(255,255,255,.3); margin-top: 5px; display: block;
+      text-transform: uppercase;
+    }
+
+    /* ── PHOTOS — immersive gallery ── */
+    .gallery-section { margin-top: 16px; }
+    .gallery-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    }
+    .gallery-title { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.7); }
+    .gallery-nav { display: flex; gap: 6px; }
+    .gnav-btn {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.7); cursor: pointer; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s ease;
+    }
+    .gnav-btn:hover { background: rgba(255,255,255,.13); color: #fff; }
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+    }
+    .gallery-item {
+      aspect-ratio: 1; border-radius: 14px; overflow: hidden;
+      background: rgba(255,255,255,.05);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      cursor: pointer;
+    }
+    .gallery-item:hover { transform: scale(1.04); }
+    .gallery-item:first-child { border-radius: 20px; }
+    .gallery-item img { width:100%;height:100%;object-fit:cover;display:block; }
+
+    /* ── LOVE CARDS swipe ── */
+    .swipe-section { margin-top: 16px; }
+    .swipe-header  { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+    .swipe-title   { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.7); }
+    .swipe-dots    { display:flex;gap:4px; }
+    .sdot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s; }
+    .sdot.on { width:14px;border-radius:3px;background:var(--accent); }
+
+    .swipe-track {
+      display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;
+    }
+    .swipe-track::-webkit-scrollbar { display:none; }
+    .love-card {
+      flex-shrink:0;width:calc(100% - 20px);scroll-snap-align:start;
+      border-radius:22px;padding:22px 20px 18px;min-height:130px;
+      position:relative;overflow:hidden;cursor:pointer;
+      display:flex;flex-direction:column;justify-content:space-between;
+      transition:transform .2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2); /* daha yumşaq kölgə */
+    }
+    .love-card:active { transform:scale(.98); }
+    .lc-orb { position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none;opacity:.25;animation:orbF 8s ease-in-out infinite; }
+    @keyframes orbF { 0%,100%{transform:scale(1)}50%{transform:scale(1.12) translate(6px,-8px)} }
+    .lc-q {
+      position:relative;z-index:2;font-size:14px;font-weight:700;
+      color:#fff;line-height:1.55;text-shadow:0 2px 10px rgba(0,0,0,.3);
+    }
+    .lc-q::before { content:'"';font-size:42px;line-height:.7;color:rgba(255,255,255,.12);display:block;margin-bottom:5px;font-family:Georgia,serif; }
+    .lc-from { position:relative;z-index:2;font-size:10px;color:rgba(255,255,255,.45);font-weight:700;letter-spacing:.5px;margin-top:10px;text-transform:uppercase; }
+
+    /* ── COUPLE CARD ── */
+    .couple-banner {
+      margin-top: 16px;
+      border-radius: 22px; overflow: hidden;
+      position: relative; min-height: 100px;
+      cursor: pointer; text-decoration: none; display: block;
+      background: linear-gradient(145deg, #1a0030, #4a0080, #7c00cc);
+      box-shadow: 0 12px 40px rgba(124,0,204,.4);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+    }
+    .couple-banner:hover { transform: translateY(-4px); box-shadow: 0 18px 50px rgba(124,0,204,.55); }
+    .couple-banner:active { transform: scale(.98); }
+    .cb-orb {
+      position:absolute;border-radius:50%;filter:blur(55px);pointer-events:none;
+      width:200px;height:200px;background:#ff6b9d;opacity:.4;
+      top:-60px;right:-60px;animation:orbF 9s ease-in-out infinite;
+    }
+    .cb-content {
+      position:relative;z-index:2;padding:20px 20px;
+      display:flex;align-items:center;gap:14px;
+    }
+    .cb-icon { font-size:38px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4));flex-shrink:0; }
+    .cb-text {}
+    .cb-label { font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px; }
+    .cb-title { font-size:18px;font-weight:900;color:#fff; }
+    .cb-sub   { font-size:12px;color:rgba(255,255,255,.5);margin-top:2px; }
+    .cb-arrow { margin-left:auto;flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-size:13px; }
+
+    /* ── MUSIC CARD ── */
+    .music-banner {
+      margin-top: 10px;
+      border-radius: 22px; overflow: hidden;
+      position: relative; min-height: 90px;
+      cursor: pointer; text-decoration: none; display: block;
+      background: linear-gradient(145deg, #001a33, #003d7a, #0066cc);
+      box-shadow: 0 12px 40px rgba(0,102,204,.35);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .music-banner:hover { transform: translateY(-4px); }
+    .mb-orb { position:absolute;border-radius:50%;filter:blur(55px);pointer-events:none;width:180px;height:180px;background:#06b6d4;opacity:.4;bottom:-60px;left:-40px;animation:orbF 10s ease-in-out infinite; }
+    .mb-content { position:relative;z-index:2;padding:18px 20px;display:flex;align-items:center;gap:14px; }
+    .mb-disc {
+      width:52px;height:52px;border-radius:50%;flex-shrink:0;
+      background:conic-gradient(#000 0deg 180deg,#1a1a2e 180deg);
+      border:3px solid rgba(255,255,255,.15);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;box-shadow:0 4px 16px rgba(0,0,0,.5);
+      animation:spin 6s linear infinite;animation-play-state:paused;
+    }
+    .music-banner:hover .mb-disc { animation-play-state:running; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .mb-text {}
+    .mb-label { font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:4px; }
+    .mb-title { font-size:17px;font-weight:900;color:#fff; }
+    .mb-sub   { font-size:12px;color:rgba(255,255,255,.45);margin-top:2px; }
+
+    /* ── VOWS — Gələcəyə dair sözlərim (parıldayan nömrələr) ── */
+    .vows-section { margin-top: 16px; }
+    .vow-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      margin-bottom: 8px;
+      transition: all .2s ease;
+    }
+    .vow-item:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
+    .vow-num {
+      width: 28px; height: 28px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: #fff;
+      box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent2); }
+      50% { box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent2); }
+      100% { box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent2); }
+    }
+    .vow-text { font-size: 13px; color: rgba(255,255,255,.75); line-height: 1.55; flex: 1; }
+
+    /* ── COMPLIMENT ── */
+    .compliment-card {
+      margin-top: 16px;
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 20px;
+      position: relative; overflow: hidden;
+    }
+    .comp-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 14px; }
+    .comp-text {
+      font-size: 15px; font-weight: 700; color: #fff; line-height: 1.6;
+      min-height: 48px; transition: opacity .3s ease;
+      text-align: center; padding: 4px 0;
+    }
+    .comp-btn {
+      width: 100%; margin-top: 14px; padding: 12px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px; color: rgba(255,255,255,.7);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: all .2s ease; font-family: inherit;
+    }
+    .comp-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+    /* ── SECRET MESSAGE ── */
+    .secret-section { margin-top: 16px; }
+    .secret-card {
+      border-radius: 22px; overflow: hidden;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+    }
+    .secret-header {
+      padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .secret-lock-icon { font-size: 22px; }
+    .secret-header-text {}
+    .secret-header-title { font-size: 14px; font-weight: 800; color: #fff; }
+    .secret-header-sub   { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .secret-body { padding: 20px; }
+    .secret-input-wrap { display: flex; gap: 8px; }
+    .secret-input {
+      flex: 1; padding: 12px 16px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px; color: #fff; font-size: 14px;
+      outline: none; font-family: inherit; transition: border-color .2s;
+    }
+    .secret-input:focus { border-color: var(--accent); }
+    .secret-input::placeholder { color: rgba(255,255,255,.3); }
+    .secret-btn {
+      padding: 12px 18px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; color: #fff; font-size: 13px; font-weight: 800;
+      cursor: pointer; transition: all .2s ease; white-space: nowrap;
+      font-family: inherit;
+    }
+    .secret-btn:hover { transform: scale(1.03); }
+    .secret-reveal {
+      display: none;
+      margin-top: 16px; padding: 18px;
+      background: linear-gradient(135deg, rgba(255,105,180,.1), rgba(138,43,226,.1));
+      border: 1px dashed rgba(255,105,180,.35); border-radius: 16px;
+      animation: revealIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes revealIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+    .secret-reveal-title { font-size: 16px; font-weight: 900; margin: 0 0 10px; color: #fff; }
+    .secret-reveal-text  { font-size: 13.5px; line-height: 1.7; color: rgba(255,255,255,.8); margin: 0; }
+    .secret-reveal-sign  { text-align: right; margin-top: 12px; font-size: 17px; font-style: italic; color: var(--accent); font-weight: 800; }
+
+    /* ── PERSONAL NOTE ── */
+    .note-section { margin-top: 16px; }
+    .note-card {
+      border-radius: 22px; overflow: hidden;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+    }
+    .note-header {
+      padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .note-header-left { display: flex; align-items: center; gap: 8px; }
+    .note-icon  { font-size: 18px; }
+    .note-title { font-size: 14px; font-weight: 800; color: #fff; }
+    .note-saved-badge {
+      font-size: 10px; font-weight: 700; color: var(--good);
+      background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.25);
+      border-radius: 6px; padding: 3px 8px; opacity: 0; transition: opacity .3s;
+    }
+    .note-saved-badge.show { opacity: 1; }
+    .note-textarea {
+      width: 100%; min-height: 140px; padding: 16px 20px;
+      background: transparent; border: none; outline: none;
+      color: rgba(255,255,255,.8); font-size: 14px; line-height: 1.7;
+      resize: none; font-family: inherit; box-sizing: border-box;
+    }
+    .note-textarea::placeholder { color: rgba(255,255,255,.2); }
+
+    /* ── MAP ── */
+    .map-section { margin-top: 16px; }
+    .map-header { margin-bottom: 10px; }
+    .map-title { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.7); }
+    .map-sub   { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 2px; }
+    .map-frame { border-radius: 18px; overflow: hidden; }
+    .map-frame iframe { display: block; }
+
+    /* ── SECTION LABEL ── */
+    .sec-label {
+      font-size: 10px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      margin: 20px 0 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .sec-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.07); }
+
+    /* Fade in animation for sections */
+    .fade-up {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity .5s ease, transform .5s cubic-bezier(.4,0,.2,1);
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 420px) {
+      .hero-title { font-size: 24px; }
+      .timer-val  { font-size: 22px; }
+    }
   </style>
 </head>
 <body>
@@ -35,278 +363,309 @@
       <div class="brandMark">✦</div>
       <div style="min-width:0">
         <div class="brandTitle">Başlanğıc</div>
-        <div class="brandSub">Premium gift website — sıfırdan hazırlanıb</div>
+        <div class="brandSub">sıfırdan hazırlanıb — yalnız sənin üçün</div>
       </div>
     </a>
-    <div class="pills"><a class="pill" href="settings.html">⚙️ Ayarlar</a></div>
+    <div class="pills">
+      <a class="pill" href="settings.html">⚙️</a>
+      <a class="pill" href="music.html">🎵</a>
+    </div>
   </div>
 
   <main class="container">
-    <section class="card heroCard">
-      <div class="cardInner">
-        <h1 class="h1"><span class="gradientText">1-ci Ayımız Mübarək!</span> ✨</h1>
-        <p class="p" id="mainSubtitle" style="margin-top: 14px;">Səninlə başlayan hekayəm...</p>
-      </div>
-    </section>
 
-    <section class="card" style="margin-top: 14px;">
-      <div class="cardInner">
-        <h2 class="h2">💗 Sevgi Statları</h2>
-        <p class="p" style="margin-bottom: 14px;">Bu sayğac hər saniyə "biz"i yeniləyir</p>
-        <div class="statGrid" id="timer"></div>
-      </div>
-    </section>
+    <!-- HERO -->
+    <div class="hero-card fade-up">
+      <div class="hero-eyebrow">8 Noyabr 2025</div>
+      <h1 class="hero-title">
+        <span class="gradientText">Hər Anımız Möcüzədir</span> ✨
+      </h1>
+      <p class="hero-sub" id="mainSubtitle"></p>
+    </div>
 
-    <section class="card" style="margin-top: 14px;">
-      <div class="cardInner">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-          <div>
-            <h2 class="h2" style="margin: 0;">📸 Ən Şirin Xatirələr</h2>
-            <p class="p" style="font-size: 12px; margin: 4px 0 0; color: var(--muted);">Hər şəkil səndən gələn işığın kiçik aynasıdır</p>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button onclick="prevSlide()" class="btn" style="width: 40px; height: 40px; padding: 0; border-radius: 50%;">❮</button>
-            <button onclick="nextSlide()" class="btn" style="width: 40px; height: 40px; padding: 0; border-radius: 50%;">❯</button>
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-          <div style="aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #667eea, #764ba2);">
-            <img id="photo1" src="https://i.ibb.co/CR3fK0c/Whats-App-mage-2025-12-08-at-11-22-39.jpg" style="width:100%;height:100%;object-fit:cover;" alt="1">
-          </div>
-          <div style="aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #f093fb, #f5576c);">
-            <img id="photo2" src="https://i.ibb.co/dwwzhbTH/Whats-App-mage-2025-12-08-at-10-16-21.jpg" style="width:100%;height:100%;object-fit:cover;" alt="2">
-          </div>
-          <div style="aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #4facfe, #00f2fe);">
-            <img id="photo3" src="https://i.ibb.co/gZP7VL80/Whats-App-mage-2025-12-08-at-11-22-38.jpg" style="width:100%;height:100%;object-fit:cover;" alt="3">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="grid two" style="margin-top: 14px">
-      <div class="card">
-        <div class="cardInner">
-          <h2 class="h2">📌 Gələcəyə dair Sözlərim</h2>
-          <div style="display: grid; gap: 10px; margin-top: 12px;">
-            <div class="note">📌 Hər gününü daha rahat, daha gülümsər etmək üçün əlimdən gələni edəcəyəm.</div>
-            <div class="note">📌 Yeni yerlər kəşf edib, xatirələrimizin xəritəsini böyüdəcəyik.</div>
-            <div class="note">📌 Sənin rahatlığın mənim üçün önəmlidir.</div>
-            <div class="note">📌 Səni dinləmək, dəstəkləmək, sənə güvənmək.</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="cardInner">
-          <h2 class="h2">😌 Hazır Kompliment Qutusu</h2>
-          <p class="p" id="complimentText" style="margin: 12px 0; padding: 14px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 12px; min-height: 70px; display: flex; align-items: center;">
-            Sənin səsini eşidəndə, ən yorğun günüm belə tətilə çevrilir.
-          </p>
-          <button class="btn primary" onclick="showCompliment()" style="width: 100%;">✨ Yeni cümlə gətir</button>
-        </div>
+    <!-- 1. BİRLİKDƏ KEÇİRİLƏN VAXT (timer) -->
+    <div class="timer-section fade-up">
+      <div class="timer-label">Birlikdə keçirilən vaxt</div>
+      <div class="timer-grid" id="timerGrid">
+        <div class="timer-cell"><span class="timer-val" id="tD">0</span><span class="timer-lbl">Gün</span></div>
+        <div class="timer-cell"><span class="timer-val" id="tH">0</span><span class="timer-lbl">Saat</span></div>
+        <div class="timer-cell"><span class="timer-val" id="tM">0</span><span class="timer-lbl">Dəq</span></div>
+        <div class="timer-cell"><span class="timer-val" id="tS">0</span><span class="timer-lbl">San</span></div>
       </div>
     </div>
 
-    <section class="card" style="margin-top: 14px;">
-      <div class="cardInner">
-        <h2 class="h2">🔐 Şifrəli Mesaj və Saxlanılan Not</h2>
-        <p class="p" style="margin-bottom: 14px;">Bu mesaj yalnız Məryəm üçün açılır. Cavabı tap, sonra öz qeydlərimizi əbədi saxla.</p>
-        <div class="grid two" style="gap: 14px;">
-          <div>
-            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700;">İlk görüşdüyümüz gün hansıdır?</label>
-            <input type="text" id="secretInput" placeholder="Cavab (Məs: 8 noyabr)" style="width: 100%; padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text); margin-bottom: 10px;">
-            <button class="btn primary" onclick="checkPassword()" style="width: 100%;">Aç</button>
-            <div id="secretMessage" class="secretMessage">
-              <h3 style="margin: 0 0 12px; font-size: 17px; font-weight: 700;">Səninlə keçən hər gün özəldir!</h3>
-              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                Artıq bir ayımız tamamdır. Hər günümə qatdığın məna üçün minnətdaram. Sən mənim ən böyük xoşbəxtliyimsən və bu hekayənin hələ ilk fəslidir. Səni həyatımın sonuna qədər sevməyə söz verirəm.
-              </p>
-              <p style="margin: 12px 0 0; text-align: right; font-size: 19px; font-style: italic; color: var(--accent); font-weight: 700;">Nihad.</p>
-            </div>
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700;">Son yazdığın sətir silinməsin ✍️</label>
-            <p style="margin: 0 0 10px; font-size: 12px; color: var(--muted);">Burada yazdığın cümlələr avtomatik yadda qalır.</p>
-            <textarea id="personalNote" placeholder="Sən yaz, mən hər dəfə oxuyum..." style="width: 100%; min-height: 160px; padding: 12px; background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 8px; color: var(--text); resize: vertical;"></textarea>
-          </div>
+    <!-- 2. ƏN ŞİRİN XATİRƏLƏR (galereya) -->
+    <div class="gallery-section fade-up">
+      <div class="gallery-header">
+        <div class="gallery-title">📸 Ən Şirin Xatirələr</div>
+        <div class="gallery-nav">
+          <button class="gnav-btn" onclick="prevSlide()">❮</button>
+          <button class="gnav-btn" onclick="nextSlide()">❯</button>
         </div>
       </div>
-    </section>
+      <div class="gallery-grid">
+        <div class="gallery-item"><img id="photo1" src="" alt="1"></div>
+        <div class="gallery-item"><img id="photo2" src="" alt="2"></div>
+        <div class="gallery-item"><img id="photo3" src="" alt="3"></div>
+      </div>
+    </div>
 
-    <section class="card" style="margin-top: 14px;">
-      <div class="cardInner">
-        <h2 class="h2">📍 Hər şeyin başladığı yer</h2>
-        <p class="p" style="margin-bottom: 14px;">Bu nöqtə bizim hekayəmizin başlanğıcıdır</p>
-        <div style="border-radius: 12px; overflow: hidden;">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2744.4543784725292!2d50.022387756932005!3d40.52566165646419!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDDCsDMxJzMyLjQiTiA1MMKwMDEnMjYuNyJF!5e1!3m2!1str!2saz!4v1765174421741!5m2!1str!2saz" allowfullscreen loading="lazy" style="width:100%;height:250px;border:0;"></iframe>
-        </div>
+    <!-- 3. GƏLƏCƏYƏ DAİR SÖZLƏRİM (parıldayan nömrələr) -->
+    <div class="sec-label fade-up">Gələcəyə dair sözlərim</div>
+    <div class="vows-section fade-up">
+      <div class="vow-item">
+        <div class="vow-num">1</div>
+        <div class="vow-text">Hər gününü daha rahat, daha gülümsər etmək üçün əlimdən gələni edəcəyəm.</div>
       </div>
-    </section>
+      <div class="vow-item">
+        <div class="vow-num">2</div>
+        <div class="vow-text">Yeni yerlər kəşf edib, xatirələrimizin xəritəsini birlikdə böyüdəcəyik.</div>
+      </div>
+      <div class="vow-item">
+        <div class="vow-num">3</div>
+        <div class="vow-text">Sənin rahatlığın, sevincin və xoşbəxtliyin mənim üçün həmişə önəmli olacaq.</div>
+      </div>
+      <div class="vow-item">
+        <div class="vow-num">4</div>
+        <div class="vow-text">Səni dinləmək, dəstəkləmək, anlamaq — hər an, hər şəraitdə.</div>
+      </div>
+    </div>
 
-    <div class="grid two" style="margin-top: 14px">
-      <div class="card">
-        <div class="cardInner">
-          <h2 class="h2">🚀 Tez Başla</h2>
-          <div class="btnRow">
-            <a class="btn primary" href="watch-party.html">🎥🍿 Film izle</a>
-            <a class="btn" href="album.html">📖 Album</a>
+    <!-- 4. SEVGİ KARTLARI -->
+    <div class="swipe-section fade-up">
+      <div class="swipe-header">
+        <div class="swipe-title">💝 Sevgi Kartları</div>
+        <div class="swipe-dots" id="swipeDots"></div>
+      </div>
+      <div class="swipe-track" id="swipeTrack"></div>
+    </div>
+
+    <!-- 5. HƏR ŞEYİN BAŞLADIĞI YER (xəritə) -->
+    <div class="map-section fade-up">
+      <div class="map-header">
+        <div class="map-title">📍 Hər şeyin başladığı yer</div>
+        <div class="map-sub">Bu nöqtə bizim hekayəmizin başlanğıcıdır</div>
+      </div>
+      <div class="map-frame">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2744.4543784725292!2d50.022387756932005!3d40.52566165646419!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDDCsDMxJzMyLjQiTiA1MMKwMDEnMjYuNyJF!5e1!3m2!1str!2saz!4v1765174421741!5m2!1str!2saz"
+          allowfullscreen loading="lazy"
+          style="width:100%;height:220px;border:0;display:block;"></iframe>
+      </div>
+    </div>
+
+    <!-- DİGƏR BÖLMƏLƏR (compliment, secret, note) -->
+    <div class="compliment-card fade-up">
+      <div class="comp-label">✨ Günün Komplimenti</div>
+      <div class="comp-text" id="compText">Sənin səsini eşidəndə, ən yorğun günüm belə tətilə çevrilir.</div>
+      <button class="comp-btn" onclick="showCompliment()">Yeni cümlə gətir →</button>
+    </div>
+
+    <div class="secret-section fade-up">
+      <div class="secret-card">
+        <div class="secret-header">
+          <div class="secret-lock-icon">🔐</div>
+          <div class="secret-header-text">
+            <div class="secret-header-title">Şifrəli Mesaj</div>
+            <div class="secret-header-sub">Yalnız Məryəm üçün açılır</div>
           </div>
         </div>
-      </div>
-      <div class="card">
-        <div class="cardInner">
-          <h2 class="h2">⚙️ Panel</h2>
-          <div style="margin-top: 12px; display: grid; gap: 8px;">
-            <button class="btn" id="btnSound">🔊 Səs</button>
-            <button class="btn" id="btnMigrate">📥 Import</button>
+        <div class="secret-body">
+          <div class="secret-input-wrap">
+            <input class="secret-input" id="secretInput" type="text"
+              placeholder="İlk görüşdüyümüz gün..." 
+              onkeydown="if(event.key==='Enter') checkPassword()">
+            <button class="secret-btn" onclick="checkPassword()">Aç</button>
+          </div>
+          <div class="secret-reveal" id="secretMessage">
+            <div class="secret-reveal-title">Səninlə keçən hər gün özəldir! 🌸</div>
+            <p class="secret-reveal-text">
+              Artıq bir ayımız tamamdır. Hər günümə qatdığın məna üçün minnətdaram. Sən mənim ən böyük xoşbəxtliyimsən və bu hekayənin hələ ilk fəslidir. Səni həyatımın sonuna qədər sevməyə söz verirəm.
+            </p>
+            <div class="secret-reveal-sign">— Nihad.</div>
           </div>
         </div>
       </div>
     </div>
 
-    <section class="card" style="margin-top: 14px;">
-      <div class="cardInner">
-        <h2 class="h2">📊 Progress</h2>
-        <div id="progressText" style="padding: 16px; background: var(--glass); border-radius: 12px; margin-top: 12px;"></div>
-        <div class="statGrid" style="margin-top: 16px;">
-          <div class="statItem"><div class="statValue" id="statMemories">0</div><div class="statLabel">KART</div></div>
-          <div class="statItem"><div class="statValue" id="statPlans">0/0</div><div class="statLabel">PLAN</div></div>
-          <div class="statItem"><div class="statValue" id="statVault">0/6</div><div class="statLabel">VAULT</div></div>
-          <div class="statItem"><div class="statValue" id="statPuzzle">🔒</div><div class="statLabel">PUZZLE</div></div>
+    <div class="note-section fade-up">
+      <div class="note-card">
+        <div class="note-header">
+          <div class="note-header-left">
+            <span class="note-icon">✍️</span>
+            <span class="note-title">Sənin Notin</span>
+          </div>
+          <div class="note-saved-badge" id="noteSavedBadge">✓ Saxlandı</div>
+        </div>
+        <textarea class="note-textarea" id="personalNote"
+          placeholder="Sən yaz, mən hər dəfə oxuyum...&#10;Burada yazdığın cümlələr avtomatik yadda qalır."></textarea>
+      </div>
+    </div>
+
+    <!-- ƏN SONDA: KƏŞFİYYAT -->
+    <div class="sec-label fade-up">Keşfiyyat</div>
+
+    <a class="couple-banner fade-up" href="couple.html">
+      <div class="cb-orb"></div>
+      <div class="cb-content">
+        <div class="cb-icon">💑</div>
+        <div class="cb-text">
+          <div class="cb-label">Real-time</div>
+          <div class="cb-title">İkimizin Söhbəti</div>
+          <div class="cb-sub">Mesajlaşma · Ulduzlar · Reaksiyalar</div>
+        </div>
+        <div class="cb-arrow">→</div>
+      </div>
+    </a>
+
+    <a class="music-banner fade-up" href="music.html">
+      <div class="mb-orb"></div>
+      <div class="mb-content">
+        <div class="mb-disc">🎵</div>
+        <div class="mb-text">
+          <div class="mb-label">Playlist</div>
+          <div class="mb-title">Bizim Mahnılarımız</div>
+          <div class="mb-sub">Yükle · Dinlə · Puan ver</div>
         </div>
       </div>
-    </section>
+    </a>
+
+    <div style="height: 20px;"></div>
   </main>
 
   <div id="toast" class="toast"></div>
 
-  <script src="assets/js/bottomnav.js"></script>
   <script>
-    (() => {
-      const startDate = new Date('2025-11-08T00:00:00');
-      const correctPassword = '8 noyabr';
-      const photos = ['https://i.ibb.co/dwwzhbTH/Whats-App-mage-2025-12-08-at-10-16-21.jpg','https://i.ibb.co/gZP7VL80/Whats-App-mage-2025-12-08-at-11-22-38.jpg','	https://i.ibb.co/9mmpbKX0/Whats-App-mage-2026-02-07-at-02-17-52.jpg alt="Whats-App-mage-2026-02-07-at-02-17-29','https://i.ibb.co/GfnYLhZP/Whats-App-mage-2026-02-07-at-02-17-29.jpg" alt="Whats-App-mage-2026-02-07-at-02-17-29','https://i.ibb.co/Kcn43Q4S/Whats-App-mage-2026-02-07-at-02-26-49.jpg'];
-      const compliments = ["Sənin səsini eşidəndə, ən yorğun günüm belə tətilə çevrilir.","Gülüşün mənim üçün ən sevimli melodiyadır.","Sənin gözlərinə baxanda bütün dünyam parlayır.","Hər gün səni daha çox sevirəm.","Sənin varlığın mənim üçün ən böyük xoşbəxtlikdir."];
-      const subtitles = ["Hər anımız əbədi xatirəyə çevrilir..."];
-      let photoIdx = 0, subIdx = 0, charIdx = 0;
+  (() => {
+    /* ── Timer ── */
+    const START = new Date('2025-11-08T00:00:00');
+    function tick() {
+      const diff = Math.max(0, Date.now() - START);
+      document.getElementById('tD').textContent = Math.floor(diff / 864e5);
+      document.getElementById('tH').textContent = Math.floor((diff / 36e5) % 24);
+      document.getElementById('tM').textContent = Math.floor((diff / 6e4) % 60);
+      document.getElementById('tS').textContent = Math.floor((diff / 1e3) % 60);
+    }
+    setInterval(tick, 1000); tick();
 
-      function updateTimer() {
-        const diff = new Date() - startDate;
-        const d = Math.max(0, Math.floor(diff / 864e5));
-        const h = Math.max(0, Math.floor((diff / 36e5) % 24));
-        const m = Math.max(0, Math.floor((diff / 6e4) % 60));
-        const s = Math.max(0, Math.floor((diff / 1e3) % 60));
-        document.getElementById('timer').innerHTML = `<div class="statItem"><div class="statValue">${d}</div><div class="statLabel">GÜN</div></div><div class="statItem"><div class="statValue">${h}</div><div class="statLabel">SAAT</div></div><div class="statItem"><div class="statValue">${m}</div><div class="statLabel">DƏQ</div></div><div class="statItem"><div class="statValue">${s}</div><div class="statLabel">SAN</div></div>`;
-      }
-      setInterval(updateTimer, 1000);
-      updateTimer();
+    /* ── Typewriter ── */
+    const PHRASES = [
+      'Hər anımız əbədi xatirəyə çevrilir...',
+      'Sənin gülüşün dünyamı işıqlandırır...',
+      'Birlikdə hər şey daha gözəl olur...',
+    ];
+    let pi = 0, ci = 0, el = document.getElementById('mainSubtitle');
+    function typeWrite() {
+      if (!el) return;
+      el.textContent = PHRASES[pi].slice(0, ci);
+      ci++;
+      if (ci <= PHRASES[pi].length) return setTimeout(typeWrite, 65);
+      setTimeout(() => { ci = 0; pi = (pi + 1) % PHRASES.length; typeWrite(); }, 2200);
+    }
+    typeWrite();
 
-      function updatePhotos() {
-        document.getElementById('photo1').src = photos[photoIdx];
-        document.getElementById('photo2').src = photos[(photoIdx + 1) % photos.length];
-        document.getElementById('photo3').src = photos[(photoIdx + 2) % photos.length];
-      }
-      window.nextSlide = () => { photoIdx = (photoIdx + 1) % photos.length; updatePhotos(); };
-      window.prevSlide = () => { photoIdx = (photoIdx - 1 + photos.length) % photos.length; updatePhotos(); };
-      setInterval(() => window.nextSlide(), 5000);
-      updatePhotos();
+    /* ── Photos ── */
+    const PHOTOS = [
+      'https://i.ibb.co/CR3fK0c/Whats-App-mage-2025-12-08-at-11-22-39.jpg',
+      'https://i.ibb.co/dwwzhbTH/Whats-App-mage-2025-12-08-at-10-16-21.jpg',
+      'https://i.ibb.co/gZP7VL80/Whats-App-mage-2025-12-08-at-11-22-38.jpg',
+      'https://i.ibb.co/9mmpbKX0/Whats-App-mage-2026-02-07-at-02-17-52.jpg',
+      'https://i.ibb.co/GfnYLhZP/Whats-App-mage-2026-02-07-at-02-17-29.jpg',
+      'https://i.ibb.co/Kcn43Q4S/Whats-App-mage-2026-02-07-at-02-26-49.jpg',
+    ];
+    let pi2 = 0;
+    function updatePhotos() {
+      document.getElementById('photo1').src = PHOTOS[pi2];
+      document.getElementById('photo2').src = PHOTOS[(pi2+1) % PHOTOS.length];
+      document.getElementById('photo3').src = PHOTOS[(pi2+2) % PHOTOS.length];
+    }
+    window.nextSlide = () => { pi2 = (pi2+1) % PHOTOS.length; updatePhotos(); };
+    window.prevSlide = () => { pi2 = (pi2-1+PHOTOS.length) % PHOTOS.length; updatePhotos(); };
+    setInterval(window.nextSlide, 5000);
+    updatePhotos();
 
-      function typeSubtitle() {
-        const el = document.getElementById('mainSubtitle');
-        if(!el) return;
-        const phrase = subtitles[subIdx];
-        el.textContent = phrase.slice(0, charIdx);
-        charIdx++;
-        if(charIdx <= phrase.length) {
-          setTimeout(typeSubtitle, 70);
-        } else {
-          setTimeout(() => { charIdx = 0; subIdx = (subIdx + 1) % subtitles.length; typeSubtitle(); }, 1800);
-        }
-      }
-      typeSubtitle();
+    /* ── Love Cards ── */
+    const CARDS = [
+      { bg:'linear-gradient(145deg,#1a0035,#4a0080,#7c00cc)', orb:'#a855f7', op:'top:-40px;right:-40px;width:160px;height:160px', q:'Sənin səsini eşidəndə, ən yorğun günüm belə tətilə çevrilir.', f:'Nihad → Məryəm' },
+      { bg:'linear-gradient(145deg,#33000d,#800020,#cc003d)', orb:'#f43f5e', op:'bottom:-30px;left:-30px;width:150px;height:150px', q:'Gülüşün mənim üçün ən sevimli melodiyadır. Hər gün onu dinləmək istəyirəm.', f:'Həmişəlik ♾️' },
+      { bg:'linear-gradient(145deg,#001a33,#003d7a,#0066cc)', orb:'#3b82f6', op:'top:50%;right:-50px;transform:translateY(-50%);width:180px;height:180px', q:'Sənin gözlərinə baxanda bütün dünyam parlayır — hər şeyin mənası olur.', f:'8 Noyabrdan bəri 💙' },
+      { bg:'linear-gradient(145deg,#0d1a00,#2d4d00,#4d8000)', orb:'#84cc16', op:'bottom:-50px;right:-20px;width:170px;height:170px', q:'Hər yeni gün səninlə daha çox sevirəm. Bu hiss sonsuz böyüyür.', f:'Sonsuzluğa qədər 🌱' },
+      { bg:'linear-gradient(145deg,#1a0d00,#4d2600,#804000)', orb:'#f59e0b', op:'top:-20px;left:50%;transform:translateX(-50%);width:200px;height:120px', q:'Sənin varlığın mənim üçün ən böyük xoşbəxtlikdir. Onu heç kim əvəz edə bilməz.', f:'Ürəkdən ❤️‍🔥' },
+    ];
+    let ac = 0;
+    const track = document.getElementById('swipeTrack');
+    const dots  = document.getElementById('swipeDots');
+    track.innerHTML = CARDS.map(c =>
+      `<div class="love-card" style="background:${c.bg}" onclick="nextCard()">
+        <div class="lc-orb" style="${c.op};background:${c.orb}"></div>
+        <div class="lc-q">${c.q}</div>
+        <div class="lc-from">— ${c.f}</div>
+      </div>`
+    ).join('');
+    dots.innerHTML = CARDS.map((_,i) => `<div class="sdot${i===0?' on':''}"></div>`).join('');
+    track.addEventListener('scroll', () => {
+      const idx = Math.round(track.scrollLeft / (track.offsetWidth));
+      if (idx !== ac) { ac = idx; dots.querySelectorAll('.sdot').forEach((d,i) => d.classList.toggle('on', i===idx)); }
+    });
+    window.nextCard = () => {
+      ac = (ac+1) % CARDS.length;
+      track.scrollTo({ left: ac * (track.children[0]?.offsetWidth + 10), behavior:'smooth' });
+    };
+    setInterval(window.nextCard, 7000);
 
-      window.showCompliment = () => {
-        const el = document.getElementById('complimentText');
-        if(el) {
-          el.textContent = compliments[Math.floor(Math.random() * compliments.length)];
-          if(window.App?.toast) App.toast("✨ Yeni kompliment");
-        }
-      };
+    /* ── Compliment ── */
+    const COMPS = [
+      'Sənin səsini eşidəndə, ən yorğun günüm belə tətilə çevrilir.',
+      'Gülüşün mənim üçün ən sevimli melodiyadır.',
+      'Sənin gözlərinə baxanda bütün dünyam parlayır.',
+      'Hər gün səni daha çox sevirəm — bu sonsuz artır.',
+      'Sənin varlığın mənim üçün ən böyük xoşbəxtlikdir.',
+      'Yanında olduğumda bütün narahatlıqlarım yox olur.',
+      'Sən mənim həyatımın ən gözəl fəslisin.',
+    ];
+    window.showCompliment = () => {
+      const el = document.getElementById('compText');
+      if (!el) return;
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = COMPS[Math.floor(Math.random() * COMPS.length)];
+        el.style.opacity = '1';
+      }, 200);
+      if (window.App?.toast) App.toast('✨ Yeni kompliment');
+    };
 
-      window.checkPassword = () => {
-        const input = (document.getElementById('secretInput')?.value || "").toLowerCase().trim().replace(/\s/g,'');
-        const msg = document.getElementById('secretMessage');
-        if(input === correctPassword) {
-          if(msg) msg.style.display = 'block';
-          if(window.App?.toast) App.toast("✅ Açıldı 💗");
-        } else {
-          if(msg) msg.style.display = 'none';
-          if(window.App?.toast) App.toast("❌ Yanlış cavab!");
-        }
-      };
+    /* ── Secret ── */
+    window.checkPassword = () => {
+      const v = (document.getElementById('secretInput')?.value || '').toLowerCase().trim().replace(/\s/g,'');
+      const ok = v === '8noyabr';
+      const msg = document.getElementById('secretMessage');
+      if (ok) { if(msg) msg.style.display='block'; if(window.App?.toast) App.toast('✅ Açıldı 💗'); }
+      else    { if(msg) msg.style.display='none';  if(window.App?.toast) App.toast('❌ Yanlış cavab!'); }
+    };
 
-      const note = document.getElementById('personalNote');
-      if(note) {
-        const saved = localStorage.getItem('personalNote');
-        if(saved) note.value = saved;
-        note.addEventListener('input', () => localStorage.setItem('personalNote', note.value));
-      }
-
-      const keys = window.AppConfig?.STORAGE_KEYS || {STORE_MEMORIES:'memories',STORE_BUCKET:'bucketList',STORE_GIFT:'giftPuzzle',STORE_PUZZLEBOX:'puzzleBox'};
-      function render() {
-        const s = window.App?.settings() || {sound:true};
-        const btn = document.getElementById('btnSound');
-        if(btn) btn.textContent = s.sound ? '🔊 Səs' : '🔇 Səs';
-        
-        const mem = window.App?.storage?.readJSON(keys.STORE_MEMORIES, []) || [];
-        const bucket = window.App?.storage?.readJSON(keys.STORE_BUCKET, []) || [];
-        const gift = window.App?.storage?.readJSON(keys.STORE_GIFT, {}) || {};
-        const pb = window.App?.storage?.readJSON(keys.STORE_PUZZLEBOX, {unlocked:false}) || {unlocked:false};
-        
-        const solved = gift.solved?.length || 0;
-        const done = bucket.filter(x => x.done).length;
-        
-        const pt = document.getElementById('progressText');
-        if(pt) pt.innerHTML = `<div style="display:grid;gap:6px;font-size:13px;"><div>📖 Album: <b>${mem.length}</b></div><div>✅ Planlar: <b>${done}</b>/${bucket.length}</div><div>🎥🍿 Film izle Vault: <b>${solved}</b>/6</div><div>🔐 Puzzle: <b>${pb.unlocked?'AÇIQ ✅':'BAĞLI 🔒'}</b></div></div>`;
-        
-        const sm = document.getElementById('statMemories');
-        const sp = document.getElementById('statPlans');
-        const sv = document.getElementById('statVault');
-        const spz = document.getElementById('statPuzzle');
-        if(sm) sm.textContent = mem.length;
-        if(sp) sp.textContent = `${done}/${bucket.length}`;
-        if(sv) sv.textContent = `${solved}/6`;
-        if(spz) spz.textContent = pb.unlocked ? '✅' : '🔒';
-      }
-      
-      const btnSound = document.getElementById('btnSound');
-      const btnMigrate = document.getElementById('btnMigrate');
-      if(btnSound) btnSound.addEventListener('click', () => {
-        if(!window.App) return;
-        const c = App.settings();
-        c.sound = !c.sound;
-        App.saveSettings(c);
-        App.toast(c.sound ? '🔊 Səs aktiv' : '🔇 Səs söndürüldü');
-        render();
+    /* ── Note ── */
+    const noteEl = document.getElementById('personalNote');
+    const badge  = document.getElementById('noteSavedBadge');
+    let saveTimer;
+    if (noteEl) {
+      const saved = localStorage.getItem('personalNote');
+      if (saved) noteEl.value = saved;
+      noteEl.addEventListener('input', () => {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          localStorage.setItem('personalNote', noteEl.value);
+          badge.classList.add('show');
+          setTimeout(() => badge.classList.remove('show'), 1800);
+        }, 600);
       });
-      if(btnMigrate) btnMigrate.addEventListener('click', () => {
-        if(!window.App?.migrateFromOldSite) return;
-        const ok = App.migrateFromOldSite();
-        if(window.App?.toast) App.toast(ok ? '✅ Import edildi' : 'ℹ️ Data yoxdur');
-        render();
-      });
-      
-      render();
-      
-      document.querySelectorAll('.card').forEach((c, i) => {
-        c.style.opacity = '0';
-        c.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-          c.style.transition = 'all 0.5s cubic-bezier(0.4,0,0.2,1)';
-          c.style.opacity = '1';
-          c.style.transform = 'translateY(0)';
-        }, i * 80);
-      });
-    })();
+    }
+
+    /* ── Fade-up on scroll ── */
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  })();
   </script>
 </body>
 </html>
